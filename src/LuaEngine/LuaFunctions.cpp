@@ -469,6 +469,10 @@ ALERegister<Unit> UnitMethods[] =
     { "ModifyThreatPct", &LuaUnit::ModifyThreatPct },
     { "ClearThreat", &LuaUnit::ClearThreat },
     { "ResetAllThreat", &LuaUnit::ResetAllThreat },
+    { "GetMovementFlags", &LuaUnit::GetMovementFlags },
+    { "HasMovementFlag", &LuaUnit::HasMovementFlag },
+    { "AddMovementFlag", &LuaUnit::AddMovementFlag },
+    { "RemoveMovementFlag", &LuaUnit::RemoveMovementFlag },
 
     { NULL, NULL }
 };

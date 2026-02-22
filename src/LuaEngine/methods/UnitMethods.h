@@ -2757,5 +2757,32 @@ namespace LuaUnit
         ALE::Push(L, unit->GetThreatMgr().GetThreat(target));
         return 1;
     }
+    
+    int GetMovementFlags(lua_State* L, Unit* unit)
+    {
+        ALE::Push(L, unit->GetUnitMovementFlags());
+        return 1;
+    }
+
+    int HasMovementFlag(lua_State* L, Unit* unit)
+    {
+        uint32 flag = ALE::CHECKVAL<uint32>(L, 2);
+        ALE::Push(L, unit->HasUnitMovementFlag((MovementFlags)flag));
+        return 1;
+    }
+
+    int AddMovementFlag(lua_State* L, Unit* unit)
+    {
+        uint32 flag = ALE::CHECKVAL<uint32>(L, 2);
+        unit->AddUnitMovementFlag((MovementFlags)flag);
+        return 0;
+    }
+
+    int RemoveMovementFlag(lua_State* L, Unit* unit)
+    {
+        uint32 flag = ALE::CHECKVAL<uint32>(L, 2);
+        unit->RemoveUnitMovementFlag((MovementFlags)flag);
+        return 0;
+    }
 };
 #endif
