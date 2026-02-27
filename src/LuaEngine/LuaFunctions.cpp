@@ -474,6 +474,7 @@ ALERegister<Unit> UnitMethods[] =
     { "AddMovementFlag", &LuaUnit::AddMovementFlag },
     { "RemoveMovementFlag", &LuaUnit::RemoveMovementFlag },
     { "IsOnTransport", &LuaUnit::IsOnTransport },
+    { "SendMovementFlagUpdate", &LuaUnit::SendMovementFlagUpdate },
 
     { NULL, NULL }
 };
