@@ -2939,6 +2939,19 @@ namespace LuaUnit
     }
     
     /**
+     * Sends a movement flag update to clients in range of the [Unit].
+     * Call this after using [Unit:AddMovementFlag] or [Unit:RemoveMovementFlag] to sync clients.
+     *
+     * @param bool self = false : whether to also send the update to the [Unit] itself
+     */
+    int SendMovementFlagUpdate(lua_State* L, Unit* unit)
+    {
+        bool self = ALE::CHECKVAL<bool>(L, 2, false);
+        unit->SendMovementFlagUpdate(self);
+        return 0;
+    }
+
+    /**
      * Returns true if the [Unit] is currently on a transport.
      *
      * @return bool onTransport
