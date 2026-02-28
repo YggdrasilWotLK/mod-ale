@@ -282,6 +282,13 @@ ALERegister<WorldObject> WorldObjectMethods[] =
     { "PlayMusic", &LuaWorldObject::PlayMusic },
     { "PlayDirectSound", &LuaWorldObject::PlayDirectSound },
     { "PlayDistanceSound", &LuaWorldObject::PlayDistanceSound },
+    
+    //Custom
+    { "IsOutdoors", &LuaWorldObject::IsOutdoors },
+    { "GetGroundZ", &LuaWorldObject::GetGroundZ },
+    { "GetFloorZ", &LuaWorldObject::GetFloorZ },
+    { "GetLiquidData", &LuaWorldObject::GetLiquidData },
+    { "GetTransport", &LuaWorldObject::GetTransport },
 
     { NULL, NULL }
 };
