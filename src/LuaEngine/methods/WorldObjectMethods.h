@@ -1155,7 +1155,7 @@ namespace LuaWorldObject
      */
     int GetTransport(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetTransport());
+        ALE::Push(L, static_cast<Transport*>(obj->GetTransport()));
         return 1;
     }
 };

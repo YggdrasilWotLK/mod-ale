@@ -38,6 +38,7 @@
 #include "TemporarySummon.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Transport.h"
 #include "MapMgr.h"
 #include "Config.h"
 #include "GameEventMgr.h"
