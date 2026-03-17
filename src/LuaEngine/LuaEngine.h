@@ -136,6 +136,29 @@ public:
         for (auto& [mapId, state] : g_states)
             state->RunScripts();
     }
+    
+    // Runtime-persistent object data cache, keyed by ObjectGuid
+    static std::unordered_map<ObjectGuid, std::unordered_map<std::string, std::string>> objectDataCache;
+    static std::mutex objectDataMutex;
+
+    // Runtime-persistent map data cache, keyed by map ID
+    static std::unordered_map<uint32, std::unordered_map<std::string, std::string>> mapDataCache;
+    static std::mutex mapDataMutex;
+
+    static void ClearObjectData(ObjectGuid guid)
+    {
+        std::lock_guard lock(objectDataMutex);
+        objectDataCache.erase(guid);
+    }
+
+    static void ClearMapData(uint32 mapId)
+    {
+        std::lock_guard lock(mapDataMutex);
+        mapDataCache.erase(mapId);
+    }
+
+    static std::string SerializeValue(lua_State* L, int idx);
+    static bool DeserializeValue(lua_State* L, const std::string& data);
 
 private:
     LockType stateLock;

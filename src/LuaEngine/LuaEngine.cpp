@@ -15,6 +15,7 @@
 #include "ALEUtility.h"
 #include "ALECreatureAI.h"
 #include "ALEInstanceAI.h"
+#include "lmarshal.h"
 
 #if AC_PLATFORM == AC_PLATFORM_WINDOWS
 #define ALE_WINDOWS
@@ -55,6 +56,12 @@ std::unique_ptr<ALEFileWatcher> ALE::fileWatcher;
 // Multistate handling
 std::map<uint32, ALE*> ALE::g_states;
 std::shared_mutex ALE::g_states_mutex;
+
+// Runtime-persistent object and map data caches
+std::unordered_map<ObjectGuid, std::unordered_map<std::string, std::string>> ALE::objectDataCache;
+std::mutex ALE::objectDataMutex;
+std::unordered_map<uint32, std::unordered_map<std::string, std::string>> ALE::mapDataCache;
+std::mutex ALE::mapDataMutex;
 
 // Global bytecode cache that survives ALE reloads
 static std::unordered_map<std::string, GlobalCacheEntry> globalBytecodeCache;
@@ -226,6 +233,47 @@ void ALE::_ReloadALE()
 
     sALE->reloadScheduled = false;
     reload = false;
+}
+
+std::string ALE::SerializeValue(lua_State* L, int idx)
+{
+    lua_pushcfunction(L, mar_encode);
+    lua_pushvalue(L, idx < 0 ? idx - 1 : idx);
+
+    if (lua_pcall(L, 1, 1, 0) != 0)
+    {
+        ALE_LOG_ERROR("[ALE]: SerializeValue failed: {}", lua_tostring(L, -1));
+        lua_pop(L, 1);
+        return "";
+    }
+
+    size_t len;
+    const char* data = lua_tolstring(L, -1, &len);
+    std::string result(data, len);
+    lua_pop(L, 1);
+    return result;
+}
+
+bool ALE::DeserializeValue(lua_State* L, const std::string& data)
+{
+    if (data.empty())
+    {
+        lua_pushnil(L);
+        return true;
+    }
+
+    lua_pushcfunction(L, mar_decode);
+    lua_pushlstring(L, data.data(), data.size());
+
+    if (lua_pcall(L, 1, 1, 0) != 0)
+    {
+        ALE_LOG_ERROR("[ALE]: DeserializeValue failed: {}", lua_tostring(L, -1));
+        lua_pop(L, 1);
+        lua_pushnil(L);
+        return false;
+    }
+
+    return true;
 }
 
 ALE::ALE(ALE** _selfPtr, uint32 mapId) :

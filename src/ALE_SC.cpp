@@ -277,6 +277,7 @@ public:
     void OnDestroyMap(Map* map) override
     {
         ALE::GetMapStateOrGlobal(map->GetId())->OnDestroy(map);
+        ALE::ClearMapData(map->GetId());
         if (ALEConfig::GetInstance().IsMultistateEnabled() && !map->Instanceable())
             ALE::DestroyMapState(map->GetId());
     }
@@ -1114,6 +1115,7 @@ public:
 
     void OnWorldObjectDestroy(WorldObject* object) override
     {
+        ALE::ClearObjectData(object->GetGUID());
         delete object->ALEEvents;
         object->ALEEvents = nullptr;
     }

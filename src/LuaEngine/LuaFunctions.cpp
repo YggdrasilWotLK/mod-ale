@@ -283,6 +283,7 @@ ALERegister<WorldObject> WorldObjectMethods[] =
     { "PlayMusic", &LuaWorldObject::PlayMusic },
     { "PlayDirectSound", &LuaWorldObject::PlayDirectSound },
     { "PlayDistanceSound", &LuaWorldObject::PlayDistanceSound },
+    { "Data", &LuaWorldObject::Data },
     
     //Custom
     { "IsOutdoors", &LuaWorldObject::IsOutdoors },
@@ -1336,6 +1337,7 @@ ALERegister<Map> MapMethods[] =
 
     // Other
     { "SaveInstanceData", &LuaMap::SaveInstanceData },
+    { "Data", &LuaMap::Data },
 
     { NULL, NULL }
 };

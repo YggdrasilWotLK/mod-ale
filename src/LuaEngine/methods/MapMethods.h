@@ -397,5 +397,110 @@ namespace LuaMap
         }
         return 1;
     }
+    
+    /**
+     * Returns a runtime-persistent data cache tied to the [Map].
+     * This data survives Lua state reloads and is accessible across all map states.
+     * Data is cleared when the map is destroyed or the server restarts.
+     *
+     * @return table data
+     */
+    int Data(lua_State* L, Map* map)
+    {
+        uint32 mapId = map->GetId();
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+
+        // Set method
+        lua_pushstring(L, "Set");
+        lua_pushnumber(L, (lua_Number)mapId);
+        lua_pushcclosure(L, [](lua_State* L) -> int {
+            uint32 mapId = (uint32)lua_tonumber(L, lua_upvalueindex(1));
+            const char* key = luaL_checkstring(L, 2);
+            std::lock_guard lock(ALE::mapDataMutex);
+            if (lua_isnoneornil(L, 3))
+            {
+                ALE::mapDataCache[mapId].erase(key);
+            }
+            else
+            {
+                std::string serialized = ALE::SerializeValue(L, 3);
+                if (!serialized.empty())
+                    ALE::mapDataCache[mapId][key] = serialized;
+            }
+            lua_pushvalue(L, 1);
+            return 1;
+        }, 1);
+        lua_rawset(L, tbl);
+
+        // Get method
+        lua_pushstring(L, "Get");
+        lua_pushnumber(L, (lua_Number)mapId);
+        lua_pushcclosure(L, [](lua_State* L) -> int {
+            uint32 mapId = (uint32)lua_tonumber(L, lua_upvalueindex(1));
+            const char* key = luaL_checkstring(L, 2);
+
+            std::lock_guard lock(ALE::mapDataMutex);
+            auto mapIt = ALE::mapDataCache.find(mapId);
+            if (mapIt == ALE::mapDataCache.end())
+            {
+                lua_pushnil(L);
+                return 1;
+            }
+            auto valIt = mapIt->second.find(key);
+            if (valIt == mapIt->second.end())
+            {
+                lua_pushnil(L);
+                return 1;
+            }
+
+            ALE::DeserializeValue(L, valIt->second);
+
+            if (!lua_istable(L, -1))
+                return 1;
+
+            lua_newtable(L);
+            int proxy = lua_gettop(L);
+
+            lua_pushstring(L, "__inner");
+            lua_pushvalue(L, -3);
+            lua_rawset(L, proxy);
+
+            lua_pushstring(L, "AsTable");
+            lua_pushcclosure(L, [](lua_State* L) -> int {
+                lua_getfield(L, 1, "__inner");
+                return 1;
+            }, 0);
+            lua_rawset(L, proxy);
+
+            lua_remove(L, -2);
+            return 1;
+        }, 1);
+        lua_rawset(L, tbl);
+
+        // AsTable method
+        lua_pushstring(L, "AsTable");
+        lua_pushnumber(L, (lua_Number)mapId);
+        lua_pushcclosure(L, [](lua_State* L) -> int {
+            uint32 mapId = (uint32)lua_tonumber(L, lua_upvalueindex(1));
+            lua_newtable(L);
+            int result = lua_gettop(L);
+            std::lock_guard lock(ALE::mapDataMutex);
+            auto mapIt = ALE::mapDataCache.find(mapId);
+            if (mapIt == ALE::mapDataCache.end())
+                return 1;
+            for (auto& [key, val] : mapIt->second)
+            {
+                lua_pushstring(L, key.c_str());
+                ALE::DeserializeValue(L, val);
+                lua_rawset(L, result);
+            }
+            return 1;
+        }, 1);
+        lua_rawset(L, tbl);
+
+        return 1;
+    }
 };
 #endif

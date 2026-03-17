@@ -1096,6 +1096,111 @@ namespace LuaWorldObject
     }
     
     /**
+     * Returns a runtime-persistent data cache tied to the [WorldObject].
+     * This data survives Lua state reloads and is accessible across all map states.
+     * Data is cleared when the object is destroyed or the server restarts.
+     *
+     * @return table data
+     */
+    int Data(lua_State* L, WorldObject* obj)
+    {
+        uint64 rawGuid = obj->GetGUID().GetRawValue();
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+
+        // Set method
+        lua_pushstring(L, "Set");
+        lua_pushnumber(L, (lua_Number)rawGuid);
+        lua_pushcclosure(L, [](lua_State* L) -> int {
+            ObjectGuid guid(uint64(lua_tonumber(L, lua_upvalueindex(1))));
+            const char* key = luaL_checkstring(L, 2);
+            std::lock_guard lock(ALE::objectDataMutex);
+            if (lua_isnoneornil(L, 3))
+            {
+                ALE::objectDataCache[guid].erase(key);
+            }
+            else
+            {
+                std::string serialized = ALE::SerializeValue(L, 3);
+                if (!serialized.empty())
+                    ALE::objectDataCache[guid][key] = serialized;
+            }
+            lua_pushvalue(L, 1);
+            return 1;
+        }, 1);
+        lua_rawset(L, tbl);
+
+        // Get method
+        lua_pushstring(L, "Get");
+        lua_pushnumber(L, (lua_Number)rawGuid);
+        lua_pushcclosure(L, [](lua_State* L) -> int {
+            ObjectGuid guid(uint64(lua_tonumber(L, lua_upvalueindex(1))));
+            const char* key = luaL_checkstring(L, 2);
+
+            std::lock_guard lock(ALE::objectDataMutex);
+            auto objIt = ALE::objectDataCache.find(guid);
+            if (objIt == ALE::objectDataCache.end())
+            {
+                lua_pushnil(L);
+                return 1;
+            }
+            auto valIt = objIt->second.find(key);
+            if (valIt == objIt->second.end())
+            {
+                lua_pushnil(L);
+                return 1;
+            }
+
+            ALE::DeserializeValue(L, valIt->second);
+
+            if (!lua_istable(L, -1))
+                return 1;
+
+            lua_newtable(L);
+            int proxy = lua_gettop(L);
+
+            lua_pushstring(L, "__inner");
+            lua_pushvalue(L, -3);
+            lua_rawset(L, proxy);
+
+            lua_pushstring(L, "AsTable");
+            lua_pushcclosure(L, [](lua_State* L) -> int {
+                lua_getfield(L, 1, "__inner");
+                return 1;
+            }, 0);
+            lua_rawset(L, proxy);
+
+            lua_remove(L, -2);
+            return 1;
+        }, 1);
+        lua_rawset(L, tbl);
+
+        // AsTable method
+        lua_pushstring(L, "AsTable");
+        lua_pushnumber(L, (lua_Number)rawGuid);
+        lua_pushcclosure(L, [](lua_State* L) -> int {
+            ObjectGuid guid(uint64(lua_tonumber(L, lua_upvalueindex(1))));
+            lua_newtable(L);
+            int result = lua_gettop(L);
+            std::lock_guard lock(ALE::objectDataMutex);
+            auto objIt = ALE::objectDataCache.find(guid);
+            if (objIt == ALE::objectDataCache.end())
+                return 1;
+            for (auto& [key, val] : objIt->second)
+            {
+                lua_pushstring(L, key.c_str());
+                ALE::DeserializeValue(L, val);
+                lua_rawset(L, result);
+            }
+            return 1;
+        }, 1);
+        lua_rawset(L, tbl);
+
+        return 1;
+    }
+
+    /**
      * Returns true if the [WorldObject] is outdoors
      *
      * @return bool isOutdoors
