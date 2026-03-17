@@ -21,6 +21,7 @@
 #include "LuaEngine.h"
 #include "Pet.h"
 #include "Player.h"
+#include "Vehicle.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
 
