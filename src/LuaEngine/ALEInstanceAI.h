@@ -9,6 +9,7 @@
 
 #include "LuaEngine.h"
 #include "InstanceScript.h"
+#include <unordered_map>
 
 /*
  * This class is a small wrapper around `InstanceData`,
@@ -53,7 +54,9 @@ class ALEInstanceAI : public InstanceData
 private:
     // The last save data to pass through this class,
     //   either through `Load` or `Save`.
-    std::string lastSaveData;
+    mutable std::string lastSaveData;
+    std::unordered_map<uint32, uint32> dataStore;
+    std::unordered_map<uint32, uint64> dataStore64;
 
 public:
     ALEInstanceAI(Map* map) : InstanceData(map)

@@ -4,66 +4,54 @@
 * Please see the included DOCS/LICENSE.md for more information
 */
 
-#ifndef _ALE_INSTANCE_DATA_H
-#define _ALE_INSTANCE_DATA_H
+#include "ALEInstanceAI.h"
+#include <sstream>
 
-#include "LuaEngine.h"
-#include "InstanceScript.h"
-
-class ALEInstanceAI : public InstanceData
+void ALEInstanceAI::Initialize()
 {
-private:
-    std::string lastSaveData;
+    sALE->OnInitialize(this);
+}
 
-public:
-    ALEInstanceAI(Map* map) : InstanceData(map)
+void ALEInstanceAI::Load(const char* data)
+{
+    if (data)
     {
+        lastSaveData = data;
+        std::istringstream iss(lastSaveData);
+        uint32 key, value;
+        while (iss >> key >> value)
+            dataStore[key] = value;
     }
+    sALE->OnLoad(this);
+}
 
-    ALE* GetE() const
-    {
-        return ALE::GetMapStateOrGlobal(instance->GetId());
-    }
+const char* ALEInstanceAI::Save() const
+{
+    std::ostringstream oss;
+    for (auto const& [key, value] : dataStore)
+        oss << key << " " << value << " ";
+    lastSaveData = oss.str();
+    return lastSaveData.c_str();
+}
 
-    void Initialize() override;
-    void Load(const char* data) override;
-    std::string GetSaveData() override { return Save(); }
-    const char* Save() const;
+uint32 ALEInstanceAI::GetData(uint32 key) const
+{
+    auto it = dataStore.find(key);
+    return it != dataStore.end() ? it->second : 0;
+}
 
-    void Reload() { Load(NULL); }
+void ALEInstanceAI::SetData(uint32 key, uint32 value)
+{
+    dataStore[key] = value;
+}
 
-    uint32 GetData(uint32 key) const override;
-    void SetData(uint32 key, uint32 value) override;
-    uint64 GetData64(uint32 key) const override;
-    void SetData64(uint32 key, uint64 value) override;
+uint64 ALEInstanceAI::GetData64(uint32 key) const
+{
+    auto it = dataStore64.find(key);
+    return it != dataStore64.end() ? it->second : 0;
+}
 
-    void Update(uint32 diff) override
-    {
-        ALE* E = GetE();
-        if (!E->HasInstanceData(instance))
-            Reload();
-        E->OnUpdateInstance(this, diff);
-    }
-
-    bool IsEncounterInProgress() const override
-    {
-        return GetE()->OnCheckEncounterInProgress(const_cast<ALEInstanceAI*>(this));
-    }
-
-    void OnPlayerEnter(Player* player) override
-    {
-        GetE()->OnPlayerEnterInstance(this, player);
-    }
-
-    void OnGameObjectCreate(GameObject* gameobject) override
-    {
-        GetE()->OnGameObjectCreate(this, gameobject);
-    }
-
-    void OnCreatureCreate(Creature* creature) override
-    {
-        GetE()->OnCreatureCreate(this, creature);
-    }
-};
-
-#endif
+void ALEInstanceAI::SetData64(uint32 key, uint64 value)
+{
+    dataStore64[key] = value;
+}
