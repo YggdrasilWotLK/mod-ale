@@ -224,7 +224,7 @@ void ALE::_ReloadALE()
     reload = false;
 }
 
-ALE::ALE() :
+ALE::ALE(ALE** _selfPtr, uint32 mapId) :
 event_level(0),
 push_counter(0),
 
