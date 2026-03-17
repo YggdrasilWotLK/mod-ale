@@ -280,6 +280,18 @@ void ALE::OnWorldUpdate(uint32 diff)
     httpManager.HandleHttpResponses();
     queryProcessor.ProcessReadyCallbacks();
 
+    {
+        std::shared_lock lock(g_states_mutex);
+        for (auto& [mapId, state] : g_states)
+        {
+            if (state)
+            {
+                state->httpManager.HandleHttpResponses();
+                state->queryProcessor.ProcessReadyCallbacks();
+            }
+        }
+    }
+
     START_HOOK_WORLD(WORLD_EVENT_ON_UPDATE);
     Push(diff);
     CallAllFunctions(ServerEventBindings, key);

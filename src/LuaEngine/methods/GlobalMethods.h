@@ -1427,9 +1427,12 @@ namespace LuaGlobalFunctions
         }
    
 	    // Increment pending callbacks counter
-        ALE::GALE->IncrementCallbacks();
+        ALE* E = ALE::GetALE(L);
 
-        ALE::GALE->queryProcessor.AddCallback(db.AsyncQuery(query).WithCallback([L, funcRef](QueryResult result)
+        // Increment pending callbacks counter
+        E->IncrementCallbacks();
+
+        E->queryProcessor.AddCallback(db.AsyncQuery(query).WithCallback([L, funcRef, E](QueryResult result)
             {
                 ALEQuery* eq = result ? new ALEQuery(result) : nullptr;
 
@@ -1442,12 +1445,12 @@ namespace LuaGlobalFunctions
                 ALE::Push(L, eq);
 
                 // Call function
-                ALE::GALE->ExecuteCall(1, 0);
+                E->ExecuteCall(1, 0);
 
                 luaL_unref(L, LUA_REGISTRYINDEX, funcRef);
-				
-			   // Decrement pending callbacks counter
-			   ALE::GALE->DecrementCallbacks();
+
+                // Decrement pending callbacks counter
+                E->DecrementCallbacks();
             }));
 
         return 0;
