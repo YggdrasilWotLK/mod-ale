@@ -18,9 +18,29 @@ void ALEInstanceAI::Load(const char* data)
     {
         lastSaveData = data;
         std::istringstream iss(lastSaveData);
-        uint32 key, value;
-        while (iss >> key >> value)
-            dataStore[key] = value;
+        std::string token;
+        std::string section;
+        while (iss >> token)
+        {
+            if (token == "d32" || token == "d64")
+            {
+                section = token;
+                continue;
+            }
+            uint32 key = std::stoul(token);
+            if (section == "d32")
+            {
+                uint32 value;
+                iss >> value;
+                dataStore[key] = value;
+            }
+            else if (section == "d64")
+            {
+                uint64 value;
+                iss >> value;
+                dataStore64[key] = value;
+            }
+        }
     }
     sALE->OnLoad(this);
 }
@@ -28,8 +48,18 @@ void ALEInstanceAI::Load(const char* data)
 const char* ALEInstanceAI::Save() const
 {
     std::ostringstream oss;
-    for (auto const& [key, value] : dataStore)
-        oss << key << " " << value << " ";
+    if (!dataStore.empty())
+    {
+        oss << "d32 ";
+        for (auto const& [key, value] : dataStore)
+            oss << key << " " << value << " ";
+    }
+    if (!dataStore64.empty())
+    {
+        oss << "d64 ";
+        for (auto const& [key, value] : dataStore64)
+            oss << key << " " << value << " ";
+    }
     lastSaveData = oss.str();
     return lastSaveData.c_str();
 }
