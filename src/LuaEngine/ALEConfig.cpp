@@ -21,6 +21,7 @@ void ALEConfig::BuildConfigCache()
     SetConfigValue<bool>(ALEConfigValues::TRACEBACK_ENABLED,          "ALE.TraceBack",          "false");
     SetConfigValue<bool>(ALEConfigValues::AUTORELOAD_ENABLED,         "ALE.AutoReload",         "false");
     SetConfigValue<bool>(ALEConfigValues::BYTECODE_CACHE_ENABLED,     "ALE.BytecodeCache",      "false");
+    SetConfigValue<bool>(ALEConfigValues::MULTISTATE_ENABLED,         "ALE.Multistate",         "false");
 
     SetConfigValue<std::string>(ALEConfigValues::SCRIPT_PATH,         "ALE.ScriptPath",         "lua_scripts");
     SetConfigValue<std::string>(ALEConfigValues::REQUIRE_PATH,        "ALE.RequirePaths",       "");

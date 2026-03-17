@@ -268,14 +268,15 @@ public:
 
     void OnCreateMap(Map* map) override
     {
-        ALE::CreateMapState(map->GetId());
-        ALE::GetMapState(map->GetId())->OnCreate(map);
+        if (ALEConfig::GetInstance().IsMultistateEnabled())
+            ALE::CreateMapState(map->GetId());
+        ALE::GetMapStateOrGlobal(map->GetId())->OnCreate(map);
     }
 
     void OnDestroyMap(Map* map) override
     {
         ALE::GetMapStateOrGlobal(map->GetId())->OnDestroy(map);
-        if (!map->Instanceable())
+        if (ALEConfig::GetInstance().IsMultistateEnabled() && !map->Instanceable())
             ALE::DestroyMapState(map->GetId());
     }
 

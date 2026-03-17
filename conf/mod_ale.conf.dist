@@ -59,6 +59,15 @@
 #                    Cache is cleared only when files are modified or server restarts.
 #       Default:    true  - (enabled)
 #                   false - (disabled)
+#
+#   ALE.Multistate
+#       Description: Enable or disable per-map Lua state isolation.
+#                    When enabled, each map runs its own Lua state concurrently on its map thread,
+#                    allowing true parallel execution across maps. Scripts can use GetStateMapId()
+#                    to self-select which map state they load into.
+#                    When disabled, all maps share the global Lua state (original behavior).
+#       Default:    false - (disabled, single global state)
+#                   true  - (enabled, per-map states)
 
 ALE.Enabled = true
 ALE.TraceBack = false
@@ -69,6 +78,7 @@ ALE.RequireCPaths = ""
 ALE.AutoReload = false
 ALE.AutoReloadInterval = 1
 ALE.BytecodeCache = true
+ALE.Multistate = false
 
 ###################################################################################################
 # LOGGING SYSTEM SETTINGS

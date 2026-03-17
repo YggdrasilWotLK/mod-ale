@@ -10,6 +10,7 @@ enum class ALEConfigValues : uint32
     TRACEBACK_ENABLED,
     AUTORELOAD_ENABLED,
     BYTECODE_CACHE_ENABLED,
+    MULTISTATE_ENABLED,
 
     // String
     SCRIPT_PATH,
@@ -33,6 +34,7 @@ class ALEConfig final : public ConfigValueCache<ALEConfigValues>
         bool IsTraceBackEnabled() const { return GetConfigValue<bool>(ALEConfigValues::TRACEBACK_ENABLED); }
         bool IsAutoReloadEnabled() const { return GetConfigValue<bool>(ALEConfigValues::AUTORELOAD_ENABLED); }
         bool IsByteCodeCacheEnabled() const { return GetConfigValue<bool>(ALEConfigValues::BYTECODE_CACHE_ENABLED); }
+        bool IsMultistateEnabled() const { return GetConfigValue<bool>(ALEConfigValues::MULTISTATE_ENABLED); }
 
         std::string_view GetScriptPath() const { return GetConfigValue(ALEConfigValues::SCRIPT_PATH); }
         std::string_view GetRequirePath() const { return GetConfigValue(ALEConfigValues::REQUIRE_PATH); }
