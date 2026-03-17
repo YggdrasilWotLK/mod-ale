@@ -129,6 +129,13 @@ public:
 
     LockType& GetStateLock() { return stateLock; }
     uint32 GetStateMapId() const { return stateMapId; }
+    
+    static void RunScriptsOnAllMapStates()
+    {
+        std::shared_lock lock(g_states_mutex);
+        for (auto& [mapId, state] : g_states)
+            state->RunScripts();
+    }
 
 private:
     LockType stateLock;
@@ -190,7 +197,7 @@ private:
 
     static int StackTrace(lua_State *_L);
     static void Report(lua_State* _L);
-
+    
     template<typename K1, typename K2> int SetupStack(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const K1& key1, const K2& key2, int number_of_arguments);
                                        int CallOneFunction(int number_of_functions, int number_of_arguments, int number_of_results);
                                        void CleanUpStack(int number_of_arguments);

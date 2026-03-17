@@ -1208,6 +1208,7 @@ public:
     void OnBeforeWorldInitialized() override
     {
         sALE->RunScripts();
+        ALE::RunScriptsOnAllMapStates();
         sALE->OnConfigLoad(false, false);
     }
 };

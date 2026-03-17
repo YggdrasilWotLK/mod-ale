@@ -123,13 +123,17 @@ void ALE::Uninitialize()
 
 ALE** ALE::CreateMapState(uint32 mapId)
 {
-    std::unique_lock lock(g_states_mutex);
-    auto& slot = g_states[mapId];
-    if (slot)
-        return &slot;
-    ALE** slotPtr = &slot;
-    slot = new ALE(slotPtr, mapId);
-    slot->RunScripts();
+    ALE** slotPtr;
+    {
+        std::unique_lock lock(g_states_mutex);
+        ASSERT(g_states.find(mapId) == g_states.end());
+        auto& slot = g_states[mapId];
+        slot = nullptr;
+        slotPtr = &slot;
+        slot = new ALE(slotPtr, mapId);
+    }
+
+    (*slotPtr)->RunScripts();
     return slotPtr;
 }
 
@@ -232,6 +236,9 @@ L(NULL),
 eventMgr(NULL),
 httpManager(),
 queryProcessor(),
+
+selfPtr(_selfPtr),
+stateMapId(mapId),
 
 ServerEventBindings(NULL),
 PlayerEventBindings(NULL),
