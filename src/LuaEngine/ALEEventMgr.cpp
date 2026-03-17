@@ -28,7 +28,7 @@ ALEEventProcessor::~ALEEventProcessor()
 {
     // can be called from multiple threads
     {
-        LOCK_ALE;
+        ALE::Guard guard((*E)->GetStateLock());
         RemoveEvents_internal();
     }
 

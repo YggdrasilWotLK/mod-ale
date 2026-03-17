@@ -39,6 +39,7 @@ bool ALE::OnPacketSend(WorldSession* session, const WorldPacket& packet)
     OnPacketSendOne(player, packet, result);
     return result;
 }
+
 void ALE::OnPacketSendAny(Player* player, const WorldPacket& packet, bool& result)
 {
     START_HOOK_SERVER(SERVER_EVENT_ON_PACKET_SEND);

@@ -19,7 +19,7 @@ using namespace Hooks;
     auto key = EntryKey<ItemEvents>(EVENT, ENTRY);\
     if (!ItemEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE
+    LOCK_ALE_STATE
 
 #define START_HOOK_WITH_RETVAL(EVENT, ENTRY, RETVAL) \
     if (!ALEConfig::GetInstance().IsALEEnabled())\
@@ -27,7 +27,7 @@ using namespace Hooks;
     auto key = EntryKey<ItemEvents>(EVENT, ENTRY);\
     if (!ItemEventBindings->HasBindingsFor(key))\
         return RETVAL;\
-    LOCK_ALE
+    LOCK_ALE_STATE
 
 void ALE::OnDummyEffect(WorldObject* pCaster, uint32 spellId, SpellEffIndex effIndex, Item* pTarget)
 {
@@ -67,10 +67,8 @@ bool ALE::OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
     if (pItem && castSpell)
         return true;
 
-    // Send equip error that shows no message
-    // This is a hack fix to stop spell casting visual bug when a spell is not cast on use
     WorldPacket data(SMSG_INVENTORY_CHANGE_FAILURE, 18);
-    data << uint8(59); // EQUIP_ERR_NONE / EQUIP_ERR_CANT_BE_DISENCHANTED
+    data << uint8(59);
     data << guid;
     data << ObjectGuid(uint64(0));
     data << uint8(0);

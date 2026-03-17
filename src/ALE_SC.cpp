@@ -29,80 +29,77 @@ class ALE_AllCreatureScript : public AllCreatureScript
 public:
     ALE_AllCreatureScript() : AllCreatureScript("ALE_AllCreatureScript") { }
 
-    // Creature
     bool CanCreatureGossipHello(Player* player, Creature* creature) override
     {
-        if (sALE->OnGossipHello(player, creature))
+        if (ALE::GetMapStateOrGlobal(creature->GetMapId())->OnGossipHello(player, creature))
             return true;
-
         return false;
     }
 
     bool CanCreatureGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
     {
-        if (sALE->OnGossipSelect(player, creature, sender, action))
+        if (ALE::GetMapStateOrGlobal(creature->GetMapId())->OnGossipSelect(player, creature, sender, action))
             return true;
-
         return false;
     }
 
     bool CanCreatureGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code) override
     {
-        if (sALE->OnGossipSelectCode(player, creature, sender, action, code))
+        if (ALE::GetMapStateOrGlobal(creature->GetMapId())->OnGossipSelectCode(player, creature, sender, action, code))
             return true;
-
         return false;
     }
 
     void OnCreatureAddWorld(Creature* creature) override
     {
-        sALE->OnAddToWorld(creature);
-        sALE->OnAllCreatureAddToWorld(creature);
+        ALE* E = ALE::GetMapStateOrGlobal(creature->GetMapId());
+        E->OnAddToWorld(creature);
+        E->OnAllCreatureAddToWorld(creature);
 
         if (creature->IsGuardian() && creature->ToTempSummon() && creature->ToTempSummon()->GetSummonerGUID().IsPlayer())
-            sALE->OnPetAddedToWorld(creature->ToTempSummon()->GetSummonerUnit()->ToPlayer(), creature);
+            E->OnPetAddedToWorld(creature->ToTempSummon()->GetSummonerUnit()->ToPlayer(), creature);
     }
 
     void OnCreatureRemoveWorld(Creature* creature) override
     {
-        sALE->OnRemoveFromWorld(creature);
-        sALE->OnAllCreatureRemoveFromWorld(creature);
+        ALE* E = ALE::GetMapStateOrGlobal(creature->GetMapId());
+        E->OnRemoveFromWorld(creature);
+        E->OnAllCreatureRemoveFromWorld(creature);
     }
 
     bool CanCreatureQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
-        sALE->OnPlayerQuestAccept(player, quest);
-        sALE->OnQuestAccept(player, creature, quest);
+        ALE* E = ALE::GetMapStateOrGlobal(creature->GetMapId());
+        E->OnPlayerQuestAccept(player, quest);
+        E->OnQuestAccept(player, creature, quest);
         return false;
     }
 
     bool CanCreatureQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt) override
     {
-        if (sALE->OnQuestReward(player, creature, quest, opt))
+        if (ALE::GetMapStateOrGlobal(creature->GetMapId())->OnQuestReward(player, creature, quest, opt))
         {
             ClearGossipMenuFor(player);
             return true;
         }
-
         return false;
     }
 
     CreatureAI* GetCreatureAI(Creature* creature) const override
     {
-        if (CreatureAI* luaAI = sALE->GetAI(creature))
+        if (CreatureAI* luaAI = ALE::GetMapStateOrGlobal(creature->GetMapId())->GetAI(creature))
             return luaAI;
-
         return nullptr;
     }
 
     void OnCreatureSelectLevel(const CreatureTemplate* cinfo, Creature* creature) override
     {
-        sALE->OnAllCreatureSelectLevel(cinfo, creature);
+        ALE::GetMapStateOrGlobal(creature->GetMapId())->OnAllCreatureSelectLevel(cinfo, creature);
     }
 
     void OnBeforeCreatureSelectLevel(const CreatureTemplate* cinfo, Creature* creature, uint8& level) override
     {
-        sALE->OnAllCreatureBeforeSelectLevel(cinfo, creature, level);
+        ALE::GetMapStateOrGlobal(creature->GetMapId())->OnAllCreatureBeforeSelectLevel(cinfo, creature, level);
     }
 };
 
@@ -113,90 +110,86 @@ public:
 
     void OnGameObjectAddWorld(GameObject* go) override
     {
-        sALE->OnAddToWorld(go);
+        ALE::GetMapStateOrGlobal(go->GetMapId())->OnAddToWorld(go);
     }
 
     void OnGameObjectRemoveWorld(GameObject* go) override
     {
-        sALE->OnRemoveFromWorld(go);
+        ALE::GetMapStateOrGlobal(go->GetMapId())->OnRemoveFromWorld(go);
     }
 
     void OnGameObjectUpdate(GameObject* go, uint32 diff) override
     {
-        sALE->UpdateAI(go, diff);
+        ALE::GetMapStateOrGlobal(go->GetMapId())->UpdateAI(go, diff);
     }
 
     bool CanGameObjectGossipHello(Player* player, GameObject* go) override
     {
-        if (sALE->OnGossipHello(player, go))
+        ALE* E = ALE::GetMapStateOrGlobal(go->GetMapId());
+        if (E->OnGossipHello(player, go))
             return true;
-
-        if (sALE->OnGameObjectUse(player, go))
+        if (E->OnGameObjectUse(player, go))
             return true;
-
         return false;
     }
 
     void OnGameObjectDamaged(GameObject* go, Player* player) override
     {
-        sALE->OnDamaged(go, player);
+        ALE::GetMapStateOrGlobal(go->GetMapId())->OnDamaged(go, player);
     }
 
     void OnGameObjectDestroyed(GameObject* go, Player* player) override
     {
-        sALE->OnDestroyed(go, player);
+        ALE::GetMapStateOrGlobal(go->GetMapId())->OnDestroyed(go, player);
     }
 
     void OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit* /*unit*/) override
     {
-        sALE->OnLootStateChanged(go, state);
+        ALE::GetMapStateOrGlobal(go->GetMapId())->OnLootStateChanged(go, state);
     }
 
     void OnGameObjectStateChanged(GameObject* go, uint32 state) override
     {
-        sALE->OnGameObjectStateChanged(go, state);
+        ALE::GetMapStateOrGlobal(go->GetMapId())->OnGameObjectStateChanged(go, state);
     }
 
     bool CanGameObjectQuestAccept(Player* player, GameObject* go, Quest const* quest) override
     {
-        sALE->OnPlayerQuestAccept(player, quest);
-        sALE->OnQuestAccept(player, go, quest);
+        ALE* E = ALE::GetMapStateOrGlobal(go->GetMapId());
+        E->OnPlayerQuestAccept(player, quest);
+        E->OnQuestAccept(player, go, quest);
         return false;
     }
 
     bool CanGameObjectGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) override
     {
-        if (sALE->OnGossipSelect(player, go, sender, action))
+        if (ALE::GetMapStateOrGlobal(go->GetMapId())->OnGossipSelect(player, go, sender, action))
             return true;
-
         return false;
     }
 
     bool CanGameObjectGossipSelectCode(Player* player, GameObject* go, uint32 sender, uint32 action, const char* code) override
     {
-        if (sALE->OnGossipSelectCode(player, go, sender, action, code))
+        if (ALE::GetMapStateOrGlobal(go->GetMapId())->OnGossipSelectCode(player, go, sender, action, code))
             return true;
-
         return false;
     }
 
     bool CanGameObjectQuestReward(Player* player, GameObject* go, Quest const* quest, uint32 opt) override
     {
-        if (sALE->OnQuestAccept(player, go, quest))
+        ALE* E = ALE::GetMapStateOrGlobal(go->GetMapId());
+        if (E->OnQuestAccept(player, go, quest))
         {
-            sALE->OnPlayerQuestAccept(player, quest);
+            E->OnPlayerQuestAccept(player, quest);
             return false;
         }
-
-        if (sALE->OnQuestReward(player, go, quest, opt))
-            return false;
-
+        E->OnQuestReward(player, go, quest, opt);
         return false;
     }
 
     GameObjectAI* GetGameObjectAI(GameObject* go) const override
     {
-        sALE->OnSpawn(go);
+        ALE::GetMapStateOrGlobal(go->GetMapId())->OnSpawn(go);
         return nullptr;
     }
 };
@@ -208,47 +201,44 @@ public:
 
     bool CanItemQuestAccept(Player* player, Item* item, Quest const* quest) override
     {
-        if (sALE->OnQuestAccept(player, item, quest))
+        ALE* E = ALE::GetMapStateOrGlobal(player->GetMapId());
+        if (E->OnQuestAccept(player, item, quest))
         {
-            sALE->OnPlayerQuestAccept(player, quest);
+            E->OnPlayerQuestAccept(player, quest);
             return false;
         }
-
         return true;
     }
 
     bool CanItemUse(Player* player, Item* item, SpellCastTargets const& targets) override
     {
-        if (!sALE->OnUse(player, item, targets))
+        if (!ALE::GetMapStateOrGlobal(player->GetMapId())->OnUse(player, item, targets))
             return true;
-
         return false;
     }
 
     bool CanItemExpire(Player* player, ItemTemplate const* proto) override
     {
-        if (sALE->OnExpire(player, proto))
+        if (ALE::GetMapStateOrGlobal(player->GetMapId())->OnExpire(player, proto))
             return false;
-
         return true;
     }
 
     bool CanItemRemove(Player* player, Item* item) override
     {
-        if (sALE->OnRemove(player, item))
+        if (ALE::GetMapStateOrGlobal(player->GetMapId())->OnRemove(player, item))
             return false;
-
         return true;
     }
 
     void OnItemGossipSelect(Player* player, Item* item, uint32 sender, uint32 action) override
     {
-        sALE->HandleGossipSelectOption(player, item, sender, action, "");
+        ALE::GetMapStateOrGlobal(player->GetMapId())->HandleGossipSelectOption(player, item, sender, action, "");
     }
 
     void OnItemGossipSelectCode(Player* player, Item* item, uint32 sender, uint32 action, const char* code) override
     {
-        sALE->HandleGossipSelectOption(player, item, sender, action, code);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->HandleGossipSelectOption(player, item, sender, action, code);
     }
 };
 
@@ -268,37 +258,40 @@ public:
     void OnBeforeCreateInstanceScript(InstanceMap* instanceMap, InstanceScript** instanceData, bool /*load*/, std::string /*data*/, uint32 /*completedEncounterMask*/) override
     {
         if (instanceData)
-            *instanceData = sALE->GetInstanceData(instanceMap);
+            *instanceData = ALE::GetMapStateOrGlobal(instanceMap->GetId())->GetInstanceData(instanceMap);
     }
 
     void OnDestroyInstance(MapInstanced* /*mapInstanced*/, Map* map) override
     {
-        sALE->FreeInstanceId(map->GetInstanceId());
+        ALE::GetMapStateOrGlobal(map->GetId())->FreeInstanceId(map->GetInstanceId());
     }
 
     void OnCreateMap(Map* map) override
     {
-        sALE->OnCreate(map);
+        ALE::CreateMapState(map->GetId());
+        ALE::GetMapState(map->GetId())->OnCreate(map);
     }
 
     void OnDestroyMap(Map* map) override
     {
-        sALE->OnDestroy(map);
+        ALE::GetMapStateOrGlobal(map->GetId())->OnDestroy(map);
+        if (!map->Instanceable())
+            ALE::DestroyMapState(map->GetId());
     }
 
     void OnPlayerEnterAll(Map* map, Player* player) override
     {
-        sALE->OnPlayerEnter(map, player);
+        ALE::GetMapStateOrGlobal(map->GetId())->OnPlayerEnter(map, player);
     }
 
     void OnPlayerLeaveAll(Map* map, Player* player) override
     {
-        sALE->OnPlayerLeave(map, player);
+        ALE::GetMapStateOrGlobal(map->GetId())->OnPlayerLeave(map, player);
     }
 
     void OnMapUpdate(Map* map, uint32 diff) override
     {
-        sALE->OnUpdate(map, diff);
+        ALE::GetMapStateOrGlobal(map->GetId())->OnUpdate(map, diff);
     }
 };
 
@@ -345,22 +338,22 @@ public:
 
     void OnBattlegroundStart(Battleground* bg) override
     {
-        sALE->OnBGStart(bg, bg->GetBgTypeID(), bg->GetInstanceID());
+        ALE::GetMapStateOrGlobal(bg->GetMapId())->OnBGStart(bg, bg->GetBgTypeID(), bg->GetInstanceID());
     }
 
     void OnBattlegroundEnd(Battleground* bg, TeamId winnerTeam) override
     {
-        sALE->OnBGEnd(bg, bg->GetBgTypeID(), bg->GetInstanceID(), winnerTeam);
+        ALE::GetMapStateOrGlobal(bg->GetMapId())->OnBGEnd(bg, bg->GetBgTypeID(), bg->GetInstanceID(), winnerTeam);
     }
 
     void OnBattlegroundDestroy(Battleground* bg) override
     {
-        sALE->OnBGDestroy(bg, bg->GetBgTypeID(), bg->GetInstanceID());
+        ALE::GetMapStateOrGlobal(bg->GetMapId())->OnBGDestroy(bg, bg->GetBgTypeID(), bg->GetInstanceID());
     }
 
     void OnBattlegroundCreate(Battleground* bg) override
     {
-        sALE->OnBGCreate(bg, bg->GetBgTypeID(), bg->GetInstanceID());
+        ALE::GetMapStateOrGlobal(bg->GetMapId())->OnBGCreate(bg, bg->GetBgTypeID(), bg->GetInstanceID());
     }
 };
 
@@ -374,10 +367,7 @@ public:
     bool OnTryExecuteCommand(ChatHandler& handler, std::string_view cmdStr) override
     {
         if (!sALE->OnCommand(handler, std::string(cmdStr).c_str()))
-        {
             return false;
-        }
-
         return true;
     }
 };
@@ -387,18 +377,15 @@ class ALE_ALEScript : public ALEScript
 public:
     ALE_ALEScript() : ALEScript("ALE_ALEScript") { }
 
-    // Weather
     void OnWeatherChange(Weather* weather, WeatherState state, float grade) override
     {
         sALE->OnChange(weather, weather->GetZone(), state, grade);
     }
 
-    // AreaTriger
     bool CanAreaTrigger(Player* player, AreaTrigger const* trigger) override
     {
-        if (sALE->OnAreaTrigger(player, trigger))
+        if (ALE::GetMapStateOrGlobal(player->GetMapId())->OnAreaTrigger(player, trigger))
             return true;
-
         return false;
     }
 };
@@ -548,7 +535,7 @@ public:
 
     void OnLootMoney(Player* player, uint32 gold) override
     {
-        sALE->OnLootMoney(player, gold);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnLootMoney(player, gold);
     }
 };
 
@@ -561,10 +548,11 @@ public:
 
     void GetDialogStatus(Player* player, Object* questgiver) override
     {
+        ALE* E = ALE::GetMapStateOrGlobal(player->GetMapId());
         if (questgiver->GetTypeId() == TYPEID_GAMEOBJECT)
-            sALE->GetDialogStatus(player, questgiver->ToGameObject());
+            E->GetDialogStatus(player, questgiver->ToGameObject());
         else if (questgiver->GetTypeId() == TYPEID_UNIT)
-            sALE->GetDialogStatus(player, questgiver->ToCreature());
+            E->GetDialogStatus(player, questgiver->ToCreature());
     }
 };
 
@@ -577,7 +565,7 @@ public:
 
     void OnPetAddToWorld(Pet* pet) override
     {
-        sALE->OnPetAddedToWorld(pet->GetOwner(), pet);
+        ALE::GetMapStateOrGlobal(pet->GetMapId())->OnPetAddedToWorld(pet->GetOwner(), pet);
     }
 };
 
@@ -646,319 +634,372 @@ public:
         PLAYERHOOK_CAN_RESURRECT
     }) { }
 
+    // MAP
     void OnPlayerResurrect(Player* player, float /*restore_percent*/, bool /*applySickness*/) override
     {
-        sALE->OnResurrect(player);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnResurrect(player);
     }
 
+    // WORLD
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg) override
     {
         if (type != CHAT_MSG_SAY && type != CHAT_MSG_YELL && type != CHAT_MSG_EMOTE)
             return true;
-
         if (!sALE->OnChat(player, type, lang, msg))
             return false;
-
         return true;
     }
 
+    // WORLD
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg, Player* target) override
     {
         if (!sALE->OnChat(player, type, lang, msg, target))
             return false;
-
         return true;
     }
 
+    // WORLD
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group) override
     {
         if (!sALE->OnChat(player, type, lang, msg, group))
             return false;
-
         return true;
     }
 
+    // WORLD
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild) override
     {
         if (!sALE->OnChat(player, type, lang, msg, guild))
             return false;
-
         return true;
     }
 
+    // WORLD
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel) override
     {
         if (!sALE->OnChat(player, type, lang, msg, channel))
             return false;
-
         return true;
     }
 
+    // MAP
     void OnPlayerLootItem(Player* player, Item* item, uint32 count, ObjectGuid lootguid) override
     {
-        sALE->OnLootItem(player, item, count, lootguid);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnLootItem(player, item, count, lootguid);
     }
 
+    // MAP
     void OnPlayerLearnTalents(Player* player, uint32 talentId, uint32 talentRank, uint32 spellid) override
     {
-        sALE->OnLearnTalents(player, talentId, talentRank, spellid);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnLearnTalents(player, talentId, talentRank, spellid);
     }
 
+    // MAP
     bool OnPlayerCanUseItem(Player* player, ItemTemplate const* proto, InventoryResult& result) override
     {
-        result = sALE->OnCanUseItem(player, proto->ItemId);
+        result = ALE::GetMapStateOrGlobal(player->GetMapId())->OnCanUseItem(player, proto->ItemId);
         return result != EQUIP_ERR_OK ? false : true;
     }
 
+    // MAP
     void OnPlayerEquip(Player* player, Item* it, uint8 bag, uint8 slot, bool /*update*/) override
     {
-        sALE->OnEquip(player, it, bag, slot);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnEquip(player, it, bag, slot);
     }
 
+    // MAP
     void OnPlayerEnterCombat(Player* player, Unit* enemy) override
     {
-        sALE->OnPlayerEnterCombat(player, enemy);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnPlayerEnterCombat(player, enemy);
     }
 
+    // MAP
     void OnPlayerLeaveCombat(Player* player) override
     {
-        sALE->OnPlayerLeaveCombat(player);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnPlayerLeaveCombat(player);
     }
 
+    // MAP
     bool OnPlayerCanRepopAtGraveyard(Player* player) override
     {
-        sALE->OnRepop(player);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnRepop(player);
         return true;
     }
 
+    // MAP
     void OnPlayerQuestAbandon(Player* player, uint32 questId) override
     {
-        sALE->OnQuestAbandon(player, questId);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnQuestAbandon(player, questId);
     }
 
+    // MAP
     void OnPlayerMapChanged(Player* player) override
     {
-        sALE->OnMapChanged(player);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnMapChanged(player);
     }
 
+    // MAP
     void OnPlayerGossipSelect(Player* player, uint32 menu_id, uint32 sender, uint32 action) override
     {
-        sALE->HandleGossipSelectOption(player, menu_id, sender, action, "");
+        ALE::GetMapStateOrGlobal(player->GetMapId())->HandleGossipSelectOption(player, menu_id, sender, action, "");
     }
 
+    // MAP
     void OnPlayerGossipSelectCode(Player* player, uint32 menu_id, uint32 sender, uint32 action, const char* code) override
     {
-        sALE->HandleGossipSelectOption(player, menu_id, sender, action, code);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->HandleGossipSelectOption(player, menu_id, sender, action, code);
     }
 
+    // MAP
     void OnPlayerPVPKill(Player* killer, Player* killed) override
     {
-        sALE->OnPVPKill(killer, killed);
+        ALE::GetMapStateOrGlobal(killer->GetMapId())->OnPVPKill(killer, killed);
     }
 
+    // MAP
     void OnPlayerCreatureKill(Player* killer, Creature* killed) override
     {
-        sALE->OnCreatureKill(killer, killed);
+        ALE::GetMapStateOrGlobal(killer->GetMapId())->OnCreatureKill(killer, killed);
     }
 
+    // MAP
     void OnPlayerKilledByCreature(Creature* killer, Player* killed) override
     {
-        sALE->OnPlayerKilledByCreature(killer, killed);
+        ALE::GetMapStateOrGlobal(killer->GetMapId())->OnPlayerKilledByCreature(killer, killed);
     }
 
+    // MAP
     void OnPlayerLevelChanged(Player* player, uint8 oldLevel) override
     {
-        sALE->OnLevelChanged(player, oldLevel);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnLevelChanged(player, oldLevel);
     }
 
+    // MAP
     void OnPlayerFreeTalentPointsChanged(Player* player, uint32 points) override
     {
-        sALE->OnFreeTalentPointsChanged(player, points);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnFreeTalentPointsChanged(player, points);
     }
 
+    // MAP
     void OnPlayerTalentsReset(Player* player, bool noCost) override
     {
-        sALE->OnTalentsReset(player, noCost);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnTalentsReset(player, noCost);
     }
 
+    // MAP
     void OnPlayerMoneyChanged(Player* player, int32& amount) override
     {
-        sALE->OnMoneyChanged(player, amount);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnMoneyChanged(player, amount);
     }
 
+    // MAP
     void OnPlayerGiveXP(Player* player, uint32& amount, Unit* victim, uint8 xpSource) override
     {
-        sALE->OnGiveXP(player, amount, victim, xpSource);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnGiveXP(player, amount, victim, xpSource);
     }
 
+    // MAP
     bool OnPlayerReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental) override
     {
-        return sALE->OnReputationChange(player, factionID, standing, incremental);
+        return ALE::GetMapStateOrGlobal(player->GetMapId())->OnReputationChange(player, factionID, standing, incremental);
     }
 
+    // MAP
     void OnPlayerDuelRequest(Player* target, Player* challenger) override
     {
-        sALE->OnDuelRequest(target, challenger);
+        ALE::GetMapStateOrGlobal(challenger->GetMapId())->OnDuelRequest(target, challenger);
     }
 
+    // MAP
     void OnPlayerDuelStart(Player* player1, Player* player2) override
     {
-        sALE->OnDuelStart(player1, player2);
+        ALE::GetMapStateOrGlobal(player1->GetMapId())->OnDuelStart(player1, player2);
     }
 
+    // MAP
     void OnPlayerDuelEnd(Player* winner, Player* loser, DuelCompleteType type) override
     {
-        sALE->OnDuelEnd(winner, loser, type);
+        ALE::GetMapStateOrGlobal(winner->GetMapId())->OnDuelEnd(winner, loser, type);
     }
 
+    // MAP
     void OnPlayerEmote(Player* player, uint32 emote) override
     {
-        sALE->OnEmote(player, emote);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnEmote(player, emote);
     }
 
+    // MAP
     void OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, ObjectGuid guid) override
     {
-        sALE->OnTextEmote(player, textEmote, emoteNum, guid);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnTextEmote(player, textEmote, emoteNum, guid);
     }
 
+    // MAP
     void OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck) override
     {
-        sALE->OnPlayerSpellCast(player, spell, skipCheck);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnPlayerSpellCast(player, spell, skipCheck);
     }
 
+    // WORLD
     void OnPlayerLogin(Player* player) override
     {
         sALE->OnLogin(player);
     }
 
+    // WORLD
     void OnPlayerLogout(Player* player) override
     {
         sALE->OnLogout(player);
     }
 
+    // WORLD
     void OnPlayerCreate(Player* player) override
     {
         sALE->OnCreate(player);
     }
 
+    // WORLD
     void OnPlayerSave(Player* player) override
     {
-        sALE->OnSave(player);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnSave(player);
     }
 
+    // WORLD
     void OnPlayerDelete(ObjectGuid guid, uint32 /*accountId*/) override
     {
         sALE->OnDelete(guid.GetCounter());
     }
 
+    // MAP
     void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent) override
     {
-        sALE->OnBindToInstance(player, difficulty, mapid, permanent);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnBindToInstance(player, difficulty, mapid, permanent);
     }
 
+    // MAP
     void OnPlayerUpdateArea(Player* player, uint32 oldArea, uint32 newArea) override
     {
-        sALE->OnUpdateArea(player, oldArea, newArea);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnUpdateArea(player, oldArea, newArea);
     }
 
+    // MAP
     void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea) override
     {
-        sALE->OnUpdateZone(player, newZone, newArea);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnUpdateZone(player, newZone, newArea);
     }
 
+    // WORLD
     void OnPlayerFirstLogin(Player* player) override
     {
         sALE->OnFirstLogin(player);
     }
 
+    // MAP
     void OnPlayerLearnSpell(Player* player, uint32 spellId) override
     {
-        sALE->OnLearnSpell(player, spellId);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnLearnSpell(player, spellId);
     }
 
+    // MAP
     void OnPlayerAchievementComplete(Player* player, AchievementEntry const* achievement) override
     {
-        sALE->OnAchiComplete(player, achievement);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnAchiComplete(player, achievement);
     }
 
+    // MAP
     void OnPlayerFfaPvpStateUpdate(Player* player, bool IsFlaggedForFfaPvp) override
     {
-        sALE->OnFfaPvpStateUpdate(player, IsFlaggedForFfaPvp);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnFfaPvpStateUpdate(player, IsFlaggedForFfaPvp);
     }
 
+    // MAP
     bool OnPlayerCanInitTrade(Player* player, Player* target) override
     {
-        return sALE->OnCanInitTrade(player, target);
+        return ALE::GetMapStateOrGlobal(player->GetMapId())->OnCanInitTrade(player, target);
     }
 
+    // MAP
     bool OnPlayerCanSendMail(Player* player, ObjectGuid receiverGuid, ObjectGuid mailbox, std::string& subject, std::string& body, uint32 money, uint32 cod, Item* item) override
     {
-        return sALE->OnCanSendMail(player, receiverGuid, mailbox, subject, body, money, cod, item);
+        return ALE::GetMapStateOrGlobal(player->GetMapId())->OnCanSendMail(player, receiverGuid, mailbox, subject, body, money, cod, item);
     }
 
+    // MAP
     bool OnPlayerCanJoinLfg(Player* player, uint8 roles, lfg::LfgDungeonSet& dungeons, const std::string& comment) override
     {
-        return sALE->OnCanJoinLfg(player, roles, dungeons, comment);
+        return ALE::GetMapStateOrGlobal(player->GetMapId())->OnCanJoinLfg(player, roles, dungeons, comment);
     }
 
+    // MAP
     void OnPlayerQuestRewardItem(Player* player, Item* item, uint32 count) override
     {
-        sALE->OnQuestRewardItem(player, item, count);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnQuestRewardItem(player, item, count);
     }
 
+    // MAP
     void OnPlayerGroupRollRewardItem(Player* player, Item* item, uint32 count, RollVote voteType, Roll* roll) override
     {
-        sALE->OnGroupRollRewardItem(player, item, count, voteType, roll);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnGroupRollRewardItem(player, item, count, voteType, roll);
     }
 
+    // MAP
     void OnPlayerCreateItem(Player* player, Item* item, uint32 count) override
     {
-        sALE->OnCreateItem(player, item, count);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnCreateItem(player, item, count);
     }
 
+    // MAP
     void OnPlayerStoreNewItem(Player* player, Item* item, uint32 count) override
     {
-        sALE->OnStoreNewItem(player, item, count);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnStoreNewItem(player, item, count);
     }
 
+    // MAP
     void OnPlayerCompleteQuest(Player* player, Quest const* quest) override
     {
-        sALE->OnPlayerCompleteQuest(player, quest);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnPlayerCompleteQuest(player, quest);
     }
 
+    // MAP
     bool OnPlayerCanGroupInvite(Player* player, std::string& memberName) override
     {
-        return sALE->OnCanGroupInvite(player, memberName);
+        return ALE::GetMapStateOrGlobal(player->GetMapId())->OnCanGroupInvite(player, memberName);
     }
 
+    // MAP
     void OnPlayerBattlegroundDesertion(Player* player, const BattlegroundDesertionType type) override
     {
-        sALE->OnBattlegroundDesertion(player, type);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnBattlegroundDesertion(player, type);
     }
 
+    // MAP
     void OnPlayerCreatureKilledByPet(Player* player, Creature* killed) override
     {
-        sALE->OnCreatureKilledByPet(player, killed);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnCreatureKilledByPet(player, killed);
     }
 
+    // MAP
     bool OnPlayerCanUpdateSkill(Player* player, uint32 skill_id) override
     {
-        return sALE->OnPlayerCanUpdateSkill(player, skill_id);
+        return ALE::GetMapStateOrGlobal(player->GetMapId())->OnPlayerCanUpdateSkill(player, skill_id);
     }
 
+    // MAP
     void OnPlayerBeforeUpdateSkill(Player* player, uint32 skill_id, uint32& value, uint32 max, uint32 step) override
     {
-        sALE->OnPlayerBeforeUpdateSkill(player, skill_id, value, max, step);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnPlayerBeforeUpdateSkill(player, skill_id, value, max, step);
     }
 
+    // MAP
     void OnPlayerUpdateSkill(Player* player, uint32 skill_id, uint32 value, uint32 max, uint32 step, uint32 new_value) override
     {
-        sALE->OnPlayerUpdateSkill(player, skill_id, value, max, step, new_value);
+        ALE::GetMapStateOrGlobal(player->GetMapId())->OnPlayerUpdateSkill(player, skill_id, value, max, step, new_value);
     }
-    
+
+    // MAP
     bool OnPlayerCanResurrect(Player* player) override
     {
-        return sALE->CanPlayerResurrect(player);
+        return ALE::GetMapStateOrGlobal(player->GetMapId())->CanPlayerResurrect(player);
     }
 };
 
@@ -974,7 +1015,6 @@ public:
     {
         if (!sALE->OnPacketSend(session, packet))
             return false;
-
         return true;
     }
 
@@ -982,7 +1022,6 @@ public:
     {
         if (!sALE->OnPacketReceive(session, packet))
             return false;
-
         return true;
     }
 };
@@ -1001,32 +1040,32 @@ public:
 
     void OnDummyEffect(WorldObject* caster, uint32 spellID, SpellEffIndex effIndex, GameObject* gameObjTarget) override
     {
-        sALE->OnDummyEffect(caster, spellID, effIndex, gameObjTarget);
+        ALE::GetMapStateOrGlobal(caster->GetMapId())->OnDummyEffect(caster, spellID, effIndex, gameObjTarget);
     }
 
     void OnDummyEffect(WorldObject* caster, uint32 spellID, SpellEffIndex effIndex, Creature* creatureTarget) override
     {
-        sALE->OnDummyEffect(caster, spellID, effIndex, creatureTarget);
+        ALE::GetMapStateOrGlobal(caster->GetMapId())->OnDummyEffect(caster, spellID, effIndex, creatureTarget);
     }
 
     void OnDummyEffect(WorldObject* caster, uint32 spellID, SpellEffIndex effIndex, Item* itemTarget) override
     {
-        sALE->OnDummyEffect(caster, spellID, effIndex, itemTarget);
+        ALE::GetMapStateOrGlobal(caster->GetMapId())->OnDummyEffect(caster, spellID, effIndex, itemTarget);
     }
 
     void OnSpellCastCancel(Spell* spell, Unit* caster, SpellInfo const* spellInfo, bool bySelf) override
     {
-        sALE->OnSpellCastCancel(caster, spell, spellInfo, bySelf);
+        ALE::GetMapStateOrGlobal(caster->GetMapId())->OnSpellCastCancel(caster, spell, spellInfo, bySelf);
     }
 
     void OnSpellCast(Spell* spell, Unit* caster, SpellInfo const* spellInfo, bool skipCheck) override
     {
-        sALE->OnSpellCast(caster, spell, spellInfo, skipCheck);
+        ALE::GetMapStateOrGlobal(caster->GetMapId())->OnSpellCast(caster, spell, spellInfo, skipCheck);
     }
 
     void OnSpellPrepare(Spell* spell, Unit* caster, SpellInfo const* spellInfo) override
     {
-        sALE->OnSpellPrepare(caster, spell, spellInfo);
+        ALE::GetMapStateOrGlobal(caster->GetMapId())->OnSpellPrepare(caster, spell, spellInfo);
     }
 };
 
@@ -1037,27 +1076,27 @@ public:
 
     void OnInstall(Vehicle* veh) override
     {
-        sALE->OnInstall(veh);
+        ALE::GetMapStateOrGlobal(veh->GetBase()->GetMapId())->OnInstall(veh);
     }
 
     void OnUninstall(Vehicle* veh) override
     {
-        sALE->OnUninstall(veh);
+        ALE::GetMapStateOrGlobal(veh->GetBase()->GetMapId())->OnUninstall(veh);
     }
 
     void OnInstallAccessory(Vehicle* veh, Creature* accessory) override
     {
-        sALE->OnInstallAccessory(veh, accessory);
+        ALE::GetMapStateOrGlobal(veh->GetBase()->GetMapId())->OnInstallAccessory(veh, accessory);
     }
 
     void OnAddPassenger(Vehicle* veh, Unit* passenger, int8 seatId) override
     {
-        sALE->OnAddPassenger(veh, passenger, seatId);
+        ALE::GetMapStateOrGlobal(veh->GetBase()->GetMapId())->OnAddPassenger(veh, passenger, seatId);
     }
 
     void OnRemovePassenger(Vehicle* veh, Unit* passenger) override
     {
-        sALE->OnRemovePassenger(veh, passenger);
+        ALE::GetMapStateOrGlobal(veh->GetBase()->GetMapId())->OnRemovePassenger(veh, passenger);
     }
 };
 
@@ -1082,10 +1121,13 @@ public:
         object->ALEEvents = nullptr;
     }
 
-    void OnWorldObjectSetMap(WorldObject* object, Map* /*map*/) override
+    void OnWorldObjectSetMap(WorldObject* object, Map* map) override
     {
         if (!object->ALEEvents)
-            object->ALEEvents = new ALEEventProcessor(&ALE::GALE, object);
+        {
+            ALE** stateSlot = ALE::GetMapStateSlot(map->GetId());
+            object->ALEEvents = new ALEEventProcessor(stateSlot, object);
+        }
     }
 
     void OnWorldObjectUpdate(WorldObject* object, uint32 diff) override
@@ -1120,11 +1162,9 @@ public:
         ALEConfig::GetInstance().Initialize(reload);
         if (!reload)
         {
-            ///- Initialize Lua Engine
             LOG_INFO("ALE", "Initialize ALE Lua Engine...");
             ALE::Initialize();
         }
-
         sALE->OnConfigLoad(reload, true);
     }
 
@@ -1165,10 +1205,8 @@ public:
 
     void OnBeforeWorldInitialized() override
     {
-        ///- Run ALE scripts.
-        // in multithread foreach: run scripts
         sALE->RunScripts();
-        sALE->OnConfigLoad(false, false); // Must be done after ALE is initialized and scripts have run.
+        sALE->OnConfigLoad(false, false);
     }
 };
 
@@ -1211,38 +1249,34 @@ public:
     void OnAuraApply(Unit* unit, Aura* aura) override
     {
         if (!unit || !aura) return;
-
+        ALE* E = ALE::GetMapStateOrGlobal(unit->GetMapId());
         if (unit->IsPlayer())
-            sALE->OnPlayerAuraApply(unit->ToPlayer(), aura);
-
+            E->OnPlayerAuraApply(unit->ToPlayer(), aura);
         if (unit->IsCreature())
-            sALE->OnCreatureAuraApply(unit->ToCreature(), aura);
+            E->OnCreatureAuraApply(unit->ToCreature(), aura);
     }
 
     void OnHeal(Unit* healer, Unit* receiver, uint32& gain) override
     {
         if (!receiver || !healer) return;
-
+        ALE* E = ALE::GetMapStateOrGlobal(healer->GetMapId());
         if (healer->IsPlayer())
-            sALE->OnPlayerHeal(healer->ToPlayer(), receiver, gain);
-
+            E->OnPlayerHeal(healer->ToPlayer(), receiver, gain);
         if (healer->IsCreature())
-            sALE->OnCreatureHeal(healer->ToCreature(), receiver, gain);
+            E->OnCreatureHeal(healer->ToCreature(), receiver, gain);
     }
 
     void OnDamage(Unit* attacker, Unit* receiver, uint32& damage) override
     {
         if (!attacker || !receiver) return;
-
+        ALE* E = ALE::GetMapStateOrGlobal(attacker->GetMapId());
         if (attacker->IsPlayer())
-            sALE->OnPlayerDamage(attacker->ToPlayer(), receiver, damage);
-
+            E->OnPlayerDamage(attacker->ToPlayer(), receiver, damage);
         if (attacker->IsCreature())
-            sALE->OnCreatureDamage(attacker->ToCreature(), receiver, damage);
+            E->OnCreatureDamage(attacker->ToCreature(), receiver, damage);
     }
 };
 
-// Group all custom scripts
 void AddSC_ALE()
 {
     new ALE_AllCreatureScript();

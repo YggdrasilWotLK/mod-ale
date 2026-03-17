@@ -146,8 +146,15 @@ namespace LuaGlobalFunctions
      */
     int GetStateMap(lua_State* L)
     {
-        // Until AC supports multistate, this will always return nil
-        ALE::Push(L);
+        ALE* E = ALE::GetALE(L);
+        if (E->GetStateMapId() == ALE_GLOBAL_STATE)
+        {
+            ALE::Push(L);
+            return 1;
+        }
+        // get the map object and push it
+        Map* map = sMapMgr->FindMap(E->GetStateMapId(), 0);
+        ALE::Push(L, map);
         return 1;
     }
 
@@ -158,8 +165,13 @@ namespace LuaGlobalFunctions
      */
     int GetStateMapId(lua_State* L)
     {
-        // Until AC supports multistate, this will always return -1
-        ALE::Push(L, -1);
+        ALE* E = ALE::GetALE(L);
+        if (E->GetStateMapId() == ALE_GLOBAL_STATE)
+        {
+            ALE::Push(L, -1);
+            return 1;
+        }
+        ALE::Push(L, (int32)E->GetStateMapId());
         return 1;
     }
 
