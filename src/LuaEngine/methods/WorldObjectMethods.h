@@ -762,14 +762,16 @@ namespace LuaWorldObject
             min = max = ALE::CHECKVAL<uint32>(L, 3);
         uint32 repeats = ALE::CHECKVAL<uint32>(L, 4, 1);
 
-		if (min > max)
-			return luaL_argerror(L, 3, "min is bigger than max delay");
+        if (min > max)
+            return luaL_argerror(L, 3, "min is bigger than max delay");
 
         lua_pushvalue(L, 2);
         int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
         if (functionRef != LUA_REFNIL && functionRef != LUA_NOREF)
         {
-            obj->ALEEvents->AddEvent(functionRef, min, max, repeats);
+            ALE* callingE = ALE::GetALE(L);
+            ALE** stateSlot = callingE->selfPtr ? callingE->selfPtr : &ALE::GALE;
+            obj->ALEEvents->AddEvent(functionRef, min, max, repeats, stateSlot);
             ALE::Push(L, functionRef);
         }
         return 1;

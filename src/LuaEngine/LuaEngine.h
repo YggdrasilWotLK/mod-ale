@@ -129,6 +129,7 @@ public:
 
     LockType& GetStateLock() { return stateLock; }
     uint32 GetStateMapId() const { return stateMapId; }
+    ALE** GetSelfPtr() { return selfPtr ? selfPtr : &ALE::GALE; }
     
     static void RunScriptsOnAllMapStates()
     {

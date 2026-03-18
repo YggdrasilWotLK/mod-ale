@@ -1722,7 +1722,8 @@ namespace LuaGlobalFunctions
         int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
         if (functionRef != LUA_REFNIL && functionRef != LUA_NOREF)
         {
-            ALE::GetALE(L)->eventMgr->globalProcessor->AddEvent(functionRef, min, max, repeats);
+            ALE* callingE = ALE::GetALE(L);
+            callingE->eventMgr->globalProcessor->AddEvent(functionRef, min, max, repeats, callingE->GetSelfPtr());
             ALE::Push(L, functionRef);
         }
         return 1;

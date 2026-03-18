@@ -27,12 +27,17 @@ ALEEventProcessor::ALEEventProcessor(ALE** _E, WorldObject* _obj) : m_time(0), o
 ALEEventProcessor::~ALEEventProcessor()
 {
     // can be called from multiple threads
+    if (*E)
     {
         ALE::Guard guard((*E)->GetStateLock());
         RemoveEvents_internal();
     }
+    else
+    {
+        RemoveEvents_internal();
+    }
 
-    if (obj && ALE::IsInitialized())
+    if (obj && ALE::IsInitialized() && *E)
     {
         EventMgr::Guard guard((*E)->eventMgr->GetLock());
         (*E)->eventMgr->processors.erase(this);
@@ -57,8 +62,10 @@ void ALEEventProcessor::Update(uint32 diff)
             if (!remove)
                 AddEvent(luaEvent); // Reschedule before calling incase RemoveEvents used
 
-            // Call the timed event
-            (*E)->OnTimedEvent(luaEvent->funcRef, delay, luaEvent->repeats ? luaEvent->repeats-- : luaEvent->repeats, obj);
+            // Call the timed event using the event's own state slot
+            ALE** slot = luaEvent->stateSlot;
+            if (slot && *slot && (*slot)->HasLuaState())
+                (*slot)->OnTimedEvent(luaEvent->funcRef, delay, luaEvent->repeats ? luaEvent->repeats-- : luaEvent->repeats, obj);
 
             if (!remove)
                 continue;
@@ -79,13 +86,6 @@ void ALEEventProcessor::SetStates(LuaEventState state)
 
 void ALEEventProcessor::RemoveEvents_internal()
 {
-    //if (!final)
-    //{
-    //    for (EventList::iterator it = eventList.begin(); it != eventList.end(); ++it)
-    //        it->second->to_Abort = true;
-    //    return;
-    //}
-
     for (EventList::iterator it = eventList.begin(); it != eventList.end(); ++it)
         RemoveEvent(it->second);
 
@@ -108,18 +108,18 @@ void ALEEventProcessor::AddEvent(LuaEvent* luaEvent)
     eventMap[luaEvent->funcRef] = luaEvent;
 }
 
-void ALEEventProcessor::AddEvent(int funcRef, uint32 min, uint32 max, uint32 repeats)
+void ALEEventProcessor::AddEvent(int funcRef, uint32 min, uint32 max, uint32 repeats, ALE** stateSlot)
 {
-    AddEvent(new LuaEvent(funcRef, min, max, repeats));
+    AddEvent(new LuaEvent(funcRef, min, max, repeats, stateSlot));
 }
 
 void ALEEventProcessor::RemoveEvent(LuaEvent* luaEvent)
 {
-    // Unreference if should and if ALE was not yet uninitialized and if the lua state still exists
-    if (luaEvent->state != LUAEVENT_STATE_ERASE && ALE::IsInitialized() && (*E)->HasLuaState())
+    // Unreference using the event's own state slot
+    ALE** slot = luaEvent->stateSlot;
+    if (luaEvent->state != LUAEVENT_STATE_ERASE && ALE::IsInitialized() && slot && *slot && (*slot)->HasLuaState())
     {
-        // Free lua function ref
-        luaL_unref((*E)->L, LUA_REGISTRYINDEX, luaEvent->funcRef);
+        luaL_unref((*slot)->L, LUA_REGISTRYINDEX, luaEvent->funcRef);
     }
     delete luaEvent;
 }
@@ -133,7 +133,7 @@ EventMgr::~EventMgr()
     {
         Guard guard(GetLock());
         if (!processors.empty())
-            for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it) // loop processors
+            for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it)
                 (*it)->RemoveEvents_internal();
         globalProcessor->RemoveEvents_internal();
     }
@@ -145,7 +145,7 @@ void EventMgr::SetStates(LuaEventState state)
 {
     Guard guard(GetLock());
     if (!processors.empty())
-        for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it) // loop processors
+        for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it)
             (*it)->SetStates(state);
     globalProcessor->SetStates(state);
 }
@@ -154,7 +154,7 @@ void EventMgr::SetState(int eventId, LuaEventState state)
 {
     Guard guard(GetLock());
     if (!processors.empty())
-        for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it) // loop processors
+        for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it)
             (*it)->SetState(eventId, state);
     globalProcessor->SetState(eventId, state);
 }
