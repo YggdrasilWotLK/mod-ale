@@ -270,7 +270,10 @@ public:
     void OnCreateMap(Map* map) override
     {
         if (ALEConfig::GetInstance().IsMultistateEnabled())
-            ALE::CreateMapState(map->GetId());
+        {
+            if (!ALE::GetMapState(map->GetId()))
+                ALE::CreateMapState(map->GetId());
+        }
         ALE::GetMapStateOrGlobal(map->GetId())->OnCreate(map);
     }
 
@@ -1116,10 +1119,13 @@ public:
     void OnWorldObjectDestroy(WorldObject* object) override
     {
         ALE::ClearObjectData(object->GetGUID());
-        delete object->ALEEvents;
-        object->ALEEvents = nullptr;
+        if (object->ALEEvents)
+        {
+            delete object->ALEEvents;
+            object->ALEEvents = nullptr;
+        }
     }
-
+    
     void OnWorldObjectCreate(WorldObject* object) override
     {
         object->ALEEvents = nullptr;
