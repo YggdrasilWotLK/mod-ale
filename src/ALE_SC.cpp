@@ -1129,8 +1129,15 @@ public:
     {
         if (!object->ALEEvents)
         {
-            ALE** stateSlot = ALE::GetMapStateSlot(map->GetId());
-            object->ALEEvents = new ALEEventProcessor(stateSlot, object);
+            if (ALEConfig::GetInstance().IsMultistateEnabled())
+            {
+                ALE** stateSlot = ALE::GetMapStateSlot(map->GetId());
+                object->ALEEvents = new ALEEventProcessor(stateSlot, object);
+            }
+            else
+            {
+                object->ALEEvents = new ALEEventProcessor(&ALE::GALE, object);
+            }
         }
     }
 
