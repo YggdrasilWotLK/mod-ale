@@ -37,7 +37,7 @@ ALEEventProcessor::~ALEEventProcessor()
         RemoveEvents_internal();
     }
 
-    if (obj && ALE::IsInitialized() && *E)
+    if (obj && ALE::IsInitialized() && *E && (*E)->eventMgr)
     {
         EventMgr::Guard guard((*E)->eventMgr->GetLock());
         (*E)->eventMgr->processors.erase(this);
