@@ -277,16 +277,15 @@ bool ALE::DeserializeValue(lua_State* L, const std::string& data)
 }
 
 ALE::ALE(ALE** _selfPtr, uint32 mapId) :
+stateMapId(mapId),
 event_level(0),
 push_counter(0),
+selfPtr(_selfPtr),
 
 L(NULL),
 eventMgr(NULL),
 httpManager(),
 queryProcessor(),
-
-selfPtr(_selfPtr),
-stateMapId(mapId),
 
 ServerEventBindings(NULL),
 PlayerEventBindings(NULL),
