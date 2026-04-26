@@ -11,6 +11,7 @@
 #include "Common.h"
 #include "Util.h"
 #include <map>
+#include <vector>
 
 #include "Define.h"
 
@@ -72,9 +73,32 @@ public:
     EventMap eventMap;
 
 private:
+    enum class DeferredOpType
+    {
+        AddEvent,
+        SetState,
+        SetStates,
+        ClearAll
+    };
+
+    struct DeferredOp
+    {
+        DeferredOpType type;
+        LuaEvent* event = nullptr;
+        int eventId = 0;
+        LuaEventState state = LUAEVENT_STATE_RUN;
+    };
+
     void RemoveEvents_internal();
     void AddEvent(LuaEvent* luaEvent);
     void RemoveEvent(LuaEvent* luaEvent);
+
+    void QueueDeferredOp(DeferredOpType type, LuaEvent* event = nullptr, int eventId = 0, LuaEventState state = LUAEVENT_STATE_RUN);
+    void ProcessDeferredOps();
+
+    bool isUpdating = false;
+    std::vector<DeferredOp> deferredOps;
+
     EventList eventList;
     uint64 m_time;
     WorldObject* obj;
