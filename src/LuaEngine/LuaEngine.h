@@ -111,12 +111,15 @@ class ALE_GAME_API ALE
 {
 public:
     void IncrementCallbacks() { pendingCallbacks++; }
-	void DecrementCallbacks() 
-	{ 
-		pendingCallbacks--; 
-		if (pendingCallbacks == 0 && reloadScheduled)
-			_ReloadALE();
-	}
+    void DecrementCallbacks() 
+    { 
+        pendingCallbacks--; 
+        if (pendingCallbacks == 0 && reloadScheduled)
+        {
+            LOCK_ALE;
+            _ReloadALE();
+        }
+    }
     bool CanReload() const { return pendingCallbacks == 0; }
     typedef std::list<LuaScript> ScriptList;
 
