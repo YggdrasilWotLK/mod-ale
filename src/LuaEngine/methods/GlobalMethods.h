@@ -14,6 +14,8 @@
 #include "GameTime.h"
 #include "SharedDefines.h"
 #include "OutdoorPvPMgr.h"
+#include "BattlefieldMgr.h"
+#include "Zones/BattlefieldWG.h"
 #include "../../../../src/server/scripts/OutdoorPvP/OutdoorPvPNA.h"
 
 
