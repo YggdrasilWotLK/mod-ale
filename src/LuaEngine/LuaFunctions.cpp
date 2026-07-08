@@ -140,6 +140,15 @@ luaL_Reg GlobalMethods[] =
     { "GetGossipMenuOptionLocale", &LuaGlobalFunctions::GetGossipMenuOptionLocale },
     { "GetMapEntrance", &LuaGlobalFunctions::GetMapEntrance },
     { "GetSpellInfo", &LuaGlobalFunctions::GetSpellInfo },
+    { "GetWintergraspDefenderTeam", &LuaGlobalFunctions::GetWintergraspDefenderTeam },
+    { "GetWintergraspAttackerTeam", &LuaGlobalFunctions::GetWintergraspAttackerTeam },
+    { "GetWintergraspTimer", &LuaGlobalFunctions::GetWintergraspTimer },
+    { "GetWintergraspIntactTowers", &LuaGlobalFunctions::GetWintergraspIntactTowers },
+    { "GetWintergraspDamagedTowers", &LuaGlobalFunctions::GetWintergraspDamagedTowers },
+    { "GetWintergraspBrokenTowers", &LuaGlobalFunctions::GetWintergraspBrokenTowers },
+    { "GetWintergraspVehiclesAlliance", &LuaGlobalFunctions::GetWintergraspVehiclesAlliance },
+    { "GetWintergraspVehiclesHorde", &LuaGlobalFunctions::GetWintergraspVehiclesHorde },
+    { "GetWintergraspRelic", &LuaGlobalFunctions::GetWintergraspRelic },
 
     // Boolean
     { "IsCompatibilityMode", &LuaGlobalFunctions::IsCompatibilityMode },
@@ -148,6 +157,10 @@ luaL_Reg GlobalMethods[] =
     { "IsBankPos", &LuaGlobalFunctions::IsBankPos },
     { "IsBagPos", &LuaGlobalFunctions::IsBagPos },
     { "IsGameEventActive", &LuaGlobalFunctions::IsGameEventActive },
+    { "IsWintergraspWarTime", &LuaGlobalFunctions::IsWintergraspWarTime },
+    { "IsWintergraspEnabled", &LuaGlobalFunctions::IsWintergraspEnabled },
+    { "CanInteractWithWintergraspRelic", &LuaGlobalFunctions::CanInteractWithWintergraspRelic },
+    { "CanFlyInWintergrasp", &LuaGlobalFunctions::CanFlyInWintergrasp },
 
     // Other
     { "ReloadALE", &LuaGlobalFunctions::ReloadALE },
@@ -182,6 +195,10 @@ luaL_Reg GlobalMethods[] =
     { "HttpRequest", &LuaGlobalFunctions::HttpRequest },
     { "SetOwnerHalaa", &LuaGlobalFunctions::SetOwnerHalaa },
     { "LookupEntry", &LuaGlobalFunctions::LookupEntry },
+    { "SetWintergraspDefenderTeam", &LuaGlobalFunctions::SetWintergraspDefenderTeam },
+    { "SetWintergraspTimer", &LuaGlobalFunctions::SetWintergraspTimer },
+    { "StartWintergraspBattle", &LuaGlobalFunctions::StartWintergraspBattle },
+    { "EndWintergraspBattle", &LuaGlobalFunctions::EndWintergraspBattle },
 
     { NULL, NULL }
 };

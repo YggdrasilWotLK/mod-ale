@@ -3412,6 +3412,270 @@ namespace LuaGlobalFunctions
     }
 
     /**
+     * Returns whether the Wintergrasp battle is currently active.
+     *
+     * @return bool isWarTime
+     */
+    int IsWintergraspWarTime(lua_State* L)
+    {
+        Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        ALE::Push(L, wg->IsWarTime());
+        return 1;
+    }
+
+    /**
+     * Returns whether Wintergrasp is enabled.
+     *
+     * @return bool isEnabled
+     */
+    int IsWintergraspEnabled(lua_State* L)
+    {
+        Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        ALE::Push(L, wg->IsEnabled());
+        return 1;
+    }
+
+    /**
+     * Returns the defender team of Wintergrasp.
+     * 0 = Alliance
+     * 1 = Horde
+     *
+     * @return [Team] team
+     */
+    int GetWintergraspDefenderTeam(lua_State* L)
+    {
+        Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        ALE::Push(L, wg->GetDefenderTeam());
+        return 1;
+    }
+
+    /**
+     * Returns the attacker team of Wintergrasp.
+     * 0 = Alliance
+     * 1 = Horde
+     *
+     * @return [Team] team
+     */
+    int GetWintergraspAttackerTeam(lua_State* L)
+    {
+        Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        ALE::Push(L, wg->GetAttackerTeam());
+        return 1;
+    }
+
+    /**
+     * Returns the remaining timer (in ms) until the next Wintergrasp phase change.
+     *
+     * @return uint32 timer
+     */
+    int GetWintergraspTimer(lua_State* L)
+    {
+        Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        ALE::Push(L, wg->GetTimer());
+        return 1;
+    }
+
+    /**
+     * Returns whether players can fly in Wintergrasp currently.
+     *
+     * @return bool canFly
+     */
+    int CanFlyInWintergrasp(lua_State* L)
+    {
+        Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        ALE::Push(L, wg->CanFlyIn());
+        return 1;
+    }
+
+    /**
+     * Returns the number of intact attacker towers in Wintergrasp.
+     *
+     * @return uint32 count
+     */
+    int GetWintergraspIntactTowers(lua_State* L)
+    {
+        BattlefieldWG* wg = (BattlefieldWG*)sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        ALE::Push(L, wg->GetData(BATTLEFIELD_WG_DATA_INTACT_TOWER_ATT));
+        return 1;
+    }
+
+    /**
+     * Returns the number of damaged attacker towers in Wintergrasp.
+     *
+     * @return uint32 count
+     */
+    int GetWintergraspDamagedTowers(lua_State* L)
+    {
+        BattlefieldWG* wg = (BattlefieldWG*)sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        ALE::Push(L, wg->GetData(BATTLEFIELD_WG_DATA_DAMAGED_TOWER_ATT));
+        return 1;
+    }
+
+    /**
+     * Returns the number of broken/destroyed attacker towers in Wintergrasp.
+     *
+     * @return uint32 count
+     */
+    int GetWintergraspBrokenTowers(lua_State* L)
+    {
+        BattlefieldWG* wg = (BattlefieldWG*)sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        ALE::Push(L, wg->GetData(BATTLEFIELD_WG_DATA_BROKEN_TOWER_ATT));
+        return 1;
+    }
+
+    /**
+     * Returns the current and max vehicle count for the Alliance in Wintergrasp.
+     *
+     * @return uint32 current
+     * @return uint32 max
+     */
+    int GetWintergraspVehiclesAlliance(lua_State* L)
+    {
+        BattlefieldWG* wg = (BattlefieldWG*)sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        ALE::Push(L, wg->GetData(BATTLEFIELD_WG_DATA_VEHICLE_A));
+        ALE::Push(L, wg->GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A));
+        return 2;
+    }
+
+    /**
+     * Returns the current and max vehicle count for the Horde in Wintergrasp.
+     *
+     * @return uint32 current
+     * @return uint32 max
+     */
+    int GetWintergraspVehiclesHorde(lua_State* L)
+    {
+        BattlefieldWG* wg = (BattlefieldWG*)sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        ALE::Push(L, wg->GetData(BATTLEFIELD_WG_DATA_VEHICLE_H));
+        ALE::Push(L, wg->GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H));
+        return 2;
+    }
+
+    /**
+     * Returns the [GameObject] of the Wintergrasp titan relic, or nil if it doesn't exist.
+     *
+     * @return [GameObject] relic
+     */
+    int GetWintergraspRelic(lua_State* L)
+    {
+        BattlefieldWG* wg = (BattlefieldWG*)sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        ALE::Push(L, wg->GetRelic());
+        return 1;
+    }
+
+    /**
+     * Returns whether players can currently interact with the Wintergrasp titan relic.
+     *
+     * @return bool canInteract
+     */
+    int CanInteractWithWintergraspRelic(lua_State* L)
+    {
+        BattlefieldWG* wg = (BattlefieldWG*)sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        ALE::Push(L, wg->CanInteractWithRelic());
+        return 1;
+    }
+    
+    /**
+     * Sets the defender team of Wintergrasp.
+     * 0 = Alliance
+     * 1 = Horde
+     *
+     * @param [Team] team
+     */
+    int SetWintergraspDefenderTeam(lua_State* L)
+    {
+        uint32 team = ALE::CHECKVAL<uint32>(L, 1);
+
+        Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        if (team != TEAM_ALLIANCE && team != TEAM_HORDE)
+            return luaL_argerror(L, 1, "0 for Alliance or 1 for Horde expected");
+
+        wg->SetDefenderTeam((TeamId)team);
+        return 0;
+    }
+
+    /**
+     * Sets the remaining timer (in ms) until the next Wintergrasp phase change.
+     *
+     * @param uint32 timer
+     */
+    int SetWintergraspTimer(lua_State* L)
+    {
+        uint32 timer = ALE::CHECKVAL<uint32>(L, 1);
+
+        Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        wg->SetTimer(timer);
+        return 0;
+    }
+
+    int StartWintergraspBattle(lua_State* L)
+    {
+        Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        wg->StartBattle();
+        return 0;
+    }
+
+    int EndWintergraspBattle(lua_State* L)
+    {
+        bool endByTimer = ALE::CHECKVAL<bool>(L, 1, false);
+
+        Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+        if (!wg)
+            return luaL_error(L, "Wintergrasp battlefield not found");
+
+        wg->EndBattle(endByTimer);
+        return 0;
+    }
+
+    /**
      * Gets the localized OptionText and BoxText for a specific gossip menu option.
      * If the text for the specified locale is not found, it returns the default text.
      *
