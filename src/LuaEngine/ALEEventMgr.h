@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "Define.h"
+#include "ObjectGuid.h"
 
 class ALE;
 class EventMgr;
@@ -64,6 +65,7 @@ public:
     ALEEventProcessor(ALE** _E, WorldObject* _obj);
     ~ALEEventProcessor();
 
+    void CaptureGuid();
     void Update(uint32 diff);
     // removes all timed events on next tick or at tick end
     void SetStates(LuaEventState state);
@@ -102,6 +104,8 @@ private:
     EventList eventList;
     uint64 m_time;
     WorldObject* obj;
+    ObjectGuid objGuid;
+    bool guidCaptured;
     ALE** E;
 };
 
@@ -126,3 +130,4 @@ public:
 };
 
 #endif
+

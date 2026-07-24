@@ -828,6 +828,7 @@ public:
 
     void OnPlayerLogin(Player* player) override
     {
+        player->ALEEvents->CaptureGuid();
         sALE->OnLogin(player);
     }
 

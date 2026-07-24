@@ -7,6 +7,7 @@
 #include "ALEEventMgr.h"
 #include "LuaEngine.h"
 #include "Object.h"
+#include "ObjectAccessor.h"
 
 extern "C"
 {
@@ -14,7 +15,7 @@ extern "C"
 #include "lauxlib.h"
 };
 
-ALEEventProcessor::ALEEventProcessor(ALE** _E, WorldObject* _obj) : m_time(0), obj(_obj), E(_E)
+ALEEventProcessor::ALEEventProcessor(ALE** _E, WorldObject* _obj) : m_time(0), obj(_obj), guidCaptured(false), E(_E)
 {
     // can be called from multiple threads
     if (obj)
@@ -39,6 +40,15 @@ ALEEventProcessor::~ALEEventProcessor()
     }
 }
 
+void ALEEventProcessor::CaptureGuid()
+{
+    if (guidCaptured || !obj)
+        return;
+
+    objGuid = obj->GET_GUID();
+    guidCaptured = true;
+}
+
 void ALEEventProcessor::Update(uint32 diff)
 {
     isUpdating = true;
@@ -60,8 +70,14 @@ void ALEEventProcessor::Update(uint32 diff)
             if (!remove)
                 AddEvent(luaEvent); // Reschedule before calling incase RemoveEvents used
 
+            WorldObject* liveObj = nullptr;
+            if (guidCaptured && !objGuid.IsEmpty())
+                liveObj = ObjectAccessor::FindPlayer(objGuid);
+            else if (!guidCaptured)
+                liveObj = obj;
+
             // Call the timed event
-            (*E)->OnTimedEvent(luaEvent->funcRef, delay, luaEvent->repeats ? luaEvent->repeats-- : luaEvent->repeats, obj);
+            (*E)->OnTimedEvent(luaEvent->funcRef, delay, luaEvent->repeats ? luaEvent->repeats-- : luaEvent->repeats, liveObj);
 
             if (!remove)
                 continue;
