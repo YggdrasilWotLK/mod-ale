@@ -46,6 +46,8 @@ class WorldObject;
 class AleAlive
 {
 public:
+    using Guard = std::lock_guard<std::recursive_mutex>;
+
     static std::recursive_mutex& Mutex()
     {
         static std::recursive_mutex mutex;
