@@ -17,6 +17,7 @@
 
 #include "Chat.h"
 #include "ALEEventMgr.h"
+#include "AleAlive.h"
 #include "Log.h"
 #include "LuaEngine.h"
 #include "Pet.h"
@@ -1074,6 +1075,12 @@ public:
 
     void OnWorldObjectDestroy(WorldObject* object) override
     {
+        // Players-only: erase while the memory is still allocated (inside
+        // ~WorldObject, GetTypeId() is still valid here), before
+        // `delete ALEEvents`. Later Lua uses of the pointer fail the alive
+        // check and become Lua errors instead of SIGSEGVs.
+        if (object->GetTypeId() == TYPEID_PLAYER)
+            AleAlive::Erase(object);
         delete object->ALEEvents;
         object->ALEEvents = nullptr;
     }
@@ -1087,6 +1094,11 @@ public:
     {
         if (!object->ALEEvents)
             object->ALEEvents = new ALEEventProcessor(&ALE::GALE, object);
+        // Players-only. Cannot filter in OnWorldObjectCreate (it fires in the
+        // WorldObject base ctor, before the type is set), but every in-world
+        // player passes through SetMap first, so no live player is missed.
+        if (object->GetTypeId() == TYPEID_PLAYER)
+            AleAlive::Insert(object);
     }
 
     void OnWorldObjectUpdate(WorldObject* object, uint32 diff) override

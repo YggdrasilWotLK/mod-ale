@@ -16,7 +16,9 @@ extern "C"
 #include "LuaEngine.h"
 #include "ALECompat.h"
 #include "ALEUtility.h"
+#include "AleAlive.h"
 #include "SharedDefines.h"
+#include <type_traits>
 
 class ALEGlobal
 {
@@ -284,6 +286,36 @@ public:
         return 1;
     }
 
+    // Liveness check for Player userdata: never dereferences a freed pointer.
+    // All other types (creatures, gameobjects, packets, templates, ...) are
+    // unaffected by design — this fix is players-only (playerbot logout).
+    // NOTE: the mutex is only held across the membership test + IsInWorld
+    // dereference. It is deliberately NOT held across mfunc: Lua errors use
+    // longjmp, which would skip C++ destructors and wedge the mutex. The
+    // check therefore closes the stale-pointer window (the reported crash);
+    // see AleAlive.h for the residual notes.
+    static bool AleCheckAlive(T* obj)
+    {
+        if (!obj)
+            return false;
+        if constexpr (std::is_base_of_v<Player, T>)
+        {
+            AleAlive::Guard guard(AleAlive::Mutex());
+            WorldObject* wo = static_cast<WorldObject*>(obj);
+            if (!AleAlive::ContainsLocked(wo))
+                return false;
+            if (!wo->IsInWorld())
+                return false;
+            if (obj->IsDuringRemoveFromWorld())
+                return false;
+            return true;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
     static T* Check(lua_State* L, int narg, bool error = true)
     {
         ALEObject* ALEObj = ALE::CHECKTYPE(L, narg, tname, error);
@@ -304,7 +336,22 @@ public:
             }
             return NULL;
         }
-        return static_cast<T*>(ALEObj->GetObj());
+        T* raw = static_cast<T*>(ALEObj->GetObj());
+        if (!AleCheckAlive(raw))
+        {
+            char buff[256];
+            snprintf(buff, 256, "%s expected, got pointer to destroyed (logged out) object (%s). Check your code.", tname, luaL_typename(L, narg));
+            if (error)
+            {
+                luaL_argerror(L, narg, buff);
+            }
+            else
+            {
+                ALE_LOG_ERROR("{}", buff);
+            }
+            return NULL;
+        }
+        return raw;
     }
 
     static int GetType(lua_State* L)
@@ -324,6 +371,10 @@ public:
 
     static int CallMethod(lua_State* L)
     {
+        // NOTE: no AleAlive lock is held across CHECKOBJ/mfunc here on
+        // purpose (Lua errors longjmp past C++ destructors). Liveness is
+        // enforced by AleCheckAlive inside Check with a short critical
+        // section, so a destroyed object becomes a Lua error, not a SIGSEGV.
         T* obj = ALE::CHECKOBJ<T>(L, 1); // get self
         if (!obj)
             return 0;

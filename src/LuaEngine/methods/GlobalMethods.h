@@ -263,6 +263,12 @@ namespace LuaGlobalFunctions
                     if (!player->IsInWorld())
                         continue;
 
+                    // Best effort: skip players mid-logout (bot despawn).
+                    // Authoritative protection is the per-method alive check
+                    // in ALETemplate::Check; this just shrinks the window.
+                    if (player->IsDuringRemoveFromWorld())
+                        continue;
+
                     if ((team == TEAM_NEUTRAL || player->GetTeamId() == team) && (!onlyGM || player->IsGameMaster()))
                     {
                         ALE::Push(L, player);

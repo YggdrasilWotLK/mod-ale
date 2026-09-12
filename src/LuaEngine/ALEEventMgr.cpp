@@ -6,6 +6,7 @@
 
 #include "ALEEventMgr.h"
 #include "LuaEngine.h"
+#include "AleAlive.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 
@@ -72,7 +73,22 @@ void ALEEventProcessor::Update(uint32 diff)
 
             WorldObject* liveObj = nullptr;
             if (guidCaptured && !objGuid.IsEmpty())
-                liveObj = ObjectAccessor::FindPlayer(objGuid);
+            {
+                Player* found = ObjectAccessor::FindPlayer(objGuid);
+                // FindPlayer only guarantees IsInWorld() at lookup time under
+                // its own lock; re-validate against the alive registry (which
+                // never dereferences, so it is safe even if the player was
+                // freed by a bot logout right after the lookup) before
+                // handing the pointer to Lua.
+                if (found)
+                {
+                    AleAlive::Guard aliveGuard(AleAlive::Mutex());
+                    WorldObject* wo = static_cast<WorldObject*>(found);
+                    if (AleAlive::ContainsLocked(wo) && wo->IsInWorld() &&
+                        !found->IsDuringRemoveFromWorld())
+                        liveObj = wo;
+                }
+            }
             else if (!guidCaptured)
                 liveObj = obj;
 
