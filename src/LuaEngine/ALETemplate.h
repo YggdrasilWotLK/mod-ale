@@ -300,7 +300,7 @@ public:
             return false;
         if constexpr (std::is_base_of_v<Player, T>)
         {
-            AleAlive::Guard guard(AleAlive::Mutex());
+            AleAlive::Guard guard{ AleAlive::Mutex() };
             WorldObject* wo = static_cast<WorldObject*>(obj);
             if (!AleAlive::ContainsLocked(wo))
                 return false;

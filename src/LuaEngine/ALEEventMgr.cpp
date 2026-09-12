@@ -82,7 +82,7 @@ void ALEEventProcessor::Update(uint32 diff)
                 // handing the pointer to Lua.
                 if (found)
                 {
-                    AleAlive::Guard aliveGuard(AleAlive::Mutex());
+                    AleAlive::Guard aliveGuard{ AleAlive::Mutex() };
                     WorldObject* wo = static_cast<WorldObject*>(found);
                     if (AleAlive::ContainsLocked(wo) && wo->IsInWorld() &&
                         !found->IsDuringRemoveFromWorld())

@@ -56,7 +56,7 @@ public:
     {
         if (!obj)
             return;
-        std::lock_guard<std::recursive_mutex> guard(Mutex());
+        std::lock_guard<std::recursive_mutex> guard{ Mutex() };
         Live().insert(obj);
     }
 
@@ -64,7 +64,7 @@ public:
     {
         if (!obj)
             return;
-        std::lock_guard<std::recursive_mutex> guard(Mutex());
+        std::lock_guard<std::recursive_mutex> guard{ Mutex() };
         Live().erase(obj);
     }
 
@@ -73,7 +73,7 @@ public:
     {
         if (!obj)
             return false;
-        std::lock_guard<std::recursive_mutex> guard(Mutex());
+        std::lock_guard<std::recursive_mutex> guard{ Mutex() };
         return Live().find(obj) != Live().end();
     }
 
