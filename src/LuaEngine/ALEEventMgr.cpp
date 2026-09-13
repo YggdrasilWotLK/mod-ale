@@ -75,11 +75,6 @@ void ALEEventProcessor::Update(uint32 diff)
             if (guidCaptured && !objGuid.IsEmpty())
             {
                 Player* found = ObjectAccessor::FindPlayer(objGuid);
-                // FindPlayer only guarantees IsInWorld() at lookup time under
-                // its own lock; re-validate against the alive registry (which
-                // never dereferences, so it is safe even if the player was
-                // freed by a bot logout right after the lookup) before
-                // handing the pointer to Lua.
                 if (found)
                 {
                     AleAlive::Guard aliveGuard{ AleAlive::Mutex() };
