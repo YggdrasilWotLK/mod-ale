@@ -20,7 +20,6 @@ extern "C"
 #include "ObjectAccessor.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
-#include <type_traits>
 
 class ALEGlobal
 {
@@ -64,10 +63,6 @@ class ALEObject
 public:
     template<typename T>
     ALEObject(T * obj, bool manageMemory);
-    // Player overload captures the GUID for later validation. A template +
-    // trait cannot be used: is_base_of requires complete types, but this
-    // header is included in TUs where pushed types (e.g. Guild) are only
-    // forward-declared. Player itself is always complete here (via Player.h).
     ALEObject(Player* obj, bool manageMemory);
 
     ~ALEObject()
@@ -82,8 +77,6 @@ public:
     bool CanInvalidate() const { return _invalidate; }
     // Returns pointer to the wrapped object's type name
     const char* GetTypeName() const { return type_name; }
-    // Identity captured at Push time so Check can validate without ever
-    // dereferencing the stored raw pointer. Empty for non-players.
     ObjectGuid GetPlayerGuid() const { return playerGuid; }
 
     // Sets the object pointer that is wrapped
@@ -297,24 +290,15 @@ public:
         return 1;
     }
 
-    // Liveness check for Player userdata. Never dereferences the stored raw
-    // pointer: identity is resolved via ObjectAccessor::FindPlayer on the
-    // GUID captured at Push time. A logged-out / destroyed / relogged player
-    // resolves to nullptr or a different pointer and becomes a Lua error.
-    // All other types (creatures, gameobjects, packets, templates, ...) are
-    // unaffected by design — this fix is players-only (playerbot logout).
-    // NOTE: the mutex is only held across the membership test + flag
-    // dereference on the freshly resolved (live) pointer. It is deliberately
-    // NOT held across mfunc: Lua errors use longjmp, which would skip C++
-    // destructors and wedge the mutex. The residual window is therefore the
-    // duration of mfunc itself; the check itself touches no stale memory.
-    // Erase timing is unchanged (still at destroy).
-    static T* AleResolvePlayer(lua_State* L, int narg, ALEObject* ALEObj, T* raw, bool error)
+    // Player userdata is validated against the GUID captured at Push time.
+    // Destroyed or relogged players become a Lua error instead of a crash.
+    // Players in transient states (login/teleport) are allowed through.
+    static Player* AleResolvePlayer(lua_State* L, int narg, ALEObject* ALEObj, Player* raw, bool error)
     {
-        auto fail = [&]() -> T*
+        auto fail = [&](const char* reason) -> Player*
         {
             char buff[256];
-            snprintf(buff, 256, "%s expected, got pointer to destroyed (logged out) object (%s). Check your code.", tname, luaL_typename(L, narg));
+            snprintf(buff, 256, "%s expected, got %s (%s). Check your code.", tname, reason, luaL_typename(L, narg));
             if (error)
             {
                 luaL_argerror(L, narg, buff);
@@ -323,32 +307,27 @@ public:
             {
                 ALE_LOG_ERROR("{}", buff);
             }
-            return NULL;
+            return nullptr;
         };
 
         if (!raw)
-            return fail();
+            return fail("null player reference");
         ObjectGuid guid = ALEObj->GetPlayerGuid();
-        if (guid.IsEmpty())
-            return fail();
-        // Resolves under the core's own lock; never touches raw.
-        Player* live = ObjectAccessor::FindPlayer(guid);
-        if (!live)
-            return fail();
-        if (live != static_cast<Player*>(raw))
-            return fail();
+        Player* live = guid.IsEmpty() ? nullptr : ObjectAccessor::FindPlayer(guid);
+        if (live)
         {
-            AleAlive::Guard guard{ AleAlive::Mutex() };
-            WorldObject* wo = static_cast<WorldObject*>(live);
-            if (!AleAlive::ContainsLocked(wo))
-                return fail();
-            if (!wo->IsInWorld())
-                return fail();
-            if (live->IsDuringRemoveFromWorld())
-                return fail();
+            if (live != raw)
+                return fail("pointer to stale (relogged) object");
+            return live;
         }
-        return static_cast<T*>(live);
+        AleAlive::Guard guard{ AleAlive::Mutex() };
+        if (!AleAlive::ContainsLocked(static_cast<WorldObject*>(raw)))
+            return fail("pointer to destroyed (logged out) object");
+        return raw;
     }
+
+    template<typename U>
+    static U* AleResolvePlayer(lua_State*, int, ALEObject*, U* raw, bool) { return raw; }
 
     static T* Check(lua_State* L, int narg, bool error = true)
     {
@@ -371,9 +350,7 @@ public:
             return NULL;
         }
         T* raw = static_cast<T*>(ALEObj->GetObj());
-        if constexpr (std::is_base_of_v<Player, T>)
-            return AleResolvePlayer(L, narg, ALEObj, raw, error);
-        return raw;
+        return AleResolvePlayer(L, narg, ALEObj, raw, error);
     }
 
     static int GetType(lua_State* L)
