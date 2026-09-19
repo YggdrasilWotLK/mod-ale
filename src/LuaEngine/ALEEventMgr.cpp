@@ -43,6 +43,7 @@ ALEEventProcessor::~ALEEventProcessor()
 
 void ALEEventProcessor::CaptureGuid()
 {
+    LOCK_ALE;
     if (guidCaptured || !obj)
         return;
 
@@ -52,6 +53,7 @@ void ALEEventProcessor::CaptureGuid()
 
 void ALEEventProcessor::Update(uint32 diff)
 {
+    LOCK_ALE;
     isUpdating = true;
 
     m_time += diff;
@@ -104,6 +106,7 @@ void ALEEventProcessor::Update(uint32 diff)
 
 void ALEEventProcessor::SetStates(LuaEventState state)
 {
+    LOCK_ALE;
     if (isUpdating)
     {
         QueueDeferredOp(DeferredOpType::SetStates, nullptr, 0, state);
@@ -118,6 +121,7 @@ void ALEEventProcessor::SetStates(LuaEventState state)
 
 void ALEEventProcessor::RemoveEvents_internal()
 {
+    LOCK_ALE;
     if (isUpdating)
     {
         QueueDeferredOp(DeferredOpType::ClearAll);
@@ -141,6 +145,7 @@ void ALEEventProcessor::RemoveEvents_internal()
 
 void ALEEventProcessor::SetState(int eventId, LuaEventState state)
 {
+    LOCK_ALE;
     if (isUpdating)
     {
         QueueDeferredOp(DeferredOpType::SetState, nullptr, eventId, state);
@@ -155,6 +160,7 @@ void ALEEventProcessor::SetState(int eventId, LuaEventState state)
 
 void ALEEventProcessor::AddEvent(LuaEvent* luaEvent)
 {
+    LOCK_ALE;
     if (isUpdating)
     {
         QueueDeferredOp(DeferredOpType::AddEvent, luaEvent);
@@ -173,6 +179,7 @@ void ALEEventProcessor::AddEvent(int funcRef, uint32 min, uint32 max, uint32 rep
 
 void ALEEventProcessor::RemoveEvent(LuaEvent* luaEvent)
 {
+    LOCK_ALE;
     // Unreference if should and if ALE was not yet uninitialized and if the lua state still exists
     if (luaEvent->state != LUAEVENT_STATE_ERASE && ALE::IsInitialized() && (*E)->HasLuaState())
     {
@@ -230,6 +237,7 @@ EventMgr::EventMgr(ALE** _E) : globalProcessor(new ALEEventProcessor(_E, NULL)),
 EventMgr::~EventMgr()
 {
     {
+        LOCK_ALE;
         Guard guard(GetLock());
         if (!processors.empty())
             for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it) // loop processors
@@ -242,6 +250,7 @@ EventMgr::~EventMgr()
 
 void EventMgr::SetStates(LuaEventState state)
 {
+    LOCK_ALE;
     Guard guard(GetLock());
     if (!processors.empty())
         for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it) // loop processors
@@ -251,6 +260,7 @@ void EventMgr::SetStates(LuaEventState state)
 
 void EventMgr::SetState(int eventId, LuaEventState state)
 {
+    LOCK_ALE;
     Guard guard(GetLock());
     if (!processors.empty())
         for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it) // loop processors
