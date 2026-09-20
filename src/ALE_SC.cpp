@@ -1075,12 +1075,9 @@ public:
 
     void OnWorldObjectDestroy(WorldObject* object) override
     {
-        // Players-only: erase while the memory is still allocated (inside
-        // ~WorldObject, GetTypeId() is still valid here), before
-        // `delete ALEEvents`. Later Lua uses of the pointer fail the alive
-        // check and become Lua errors instead of SIGSEGVs.
+        // Players-only: GUID and type are still valid inside ~WorldObject.
         if (object->GetTypeId() == TYPEID_PLAYER)
-            AleAlive::Erase(object);
+            AleAlive::Erase(object->GetGUID(), object);
         delete object->ALEEvents;
         object->ALEEvents = nullptr;
     }
@@ -1094,11 +1091,10 @@ public:
     {
         if (!object->ALEEvents)
             object->ALEEvents = new ALEEventProcessor(&ALE::GALE, object);
-        // Players-only. Cannot filter in OnWorldObjectCreate (it fires in the
-        // WorldObject base ctor, before the type is set), but every in-world
-        // player passes through SetMap first, so no live player is missed.
+        // Players-only: OnWorldObjectCreate fires in the WorldObject base
+        // ctor before the type is set, so filter here instead.
         if (object->GetTypeId() == TYPEID_PLAYER)
-            AleAlive::Insert(object);
+            AleAlive::Insert(object->GetGUID(), object);
     }
 
     void OnWorldObjectUpdate(WorldObject* object, uint32 diff) override

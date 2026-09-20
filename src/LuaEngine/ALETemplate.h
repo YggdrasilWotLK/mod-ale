@@ -313,7 +313,9 @@ public:
         if (!raw)
             return fail("null player reference");
         ObjectGuid guid = ALEObj->GetPlayerGuid();
-        Player* live = guid.IsEmpty() ? nullptr : ObjectAccessor::FindPlayer(guid);
+        if (guid.IsEmpty())
+            return fail("pointer to destroyed (logged out) object");
+        Player* live = ObjectAccessor::FindPlayer(guid);
         if (live)
         {
             if (live != raw)
@@ -321,7 +323,7 @@ public:
             return live;
         }
         AleAlive::Guard guard{ AleAlive::Mutex() };
-        if (!AleAlive::ContainsLocked(static_cast<WorldObject*>(raw)))
+        if (!AleAlive::MatchesLocked(guid, static_cast<WorldObject*>(raw)))
             return fail("pointer to destroyed (logged out) object");
         return raw;
     }

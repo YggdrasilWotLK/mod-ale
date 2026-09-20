@@ -7,13 +7,14 @@
 #ifndef _ALE_ALIVE_H
 #define _ALE_ALIVE_H
 
+#include "ObjectGuid.h"
 #include <mutex>
-#include <unordered_set>
+#include <unordered_map>
 
 class WorldObject;
 
-// Set of live Players. Insert on SetMap, erase on destroy. Contains never
-// dereferences, so it is safe to call with a dangling pointer.
+// Live players keyed by GUID. Identity is the GUID, never the address,
+// so address reuse across logout/login cannot validate stale userdata.
 class AleAlive
 {
 public:
@@ -25,41 +26,38 @@ public:
         return mutex;
     }
 
-    static void Insert(WorldObject* obj)
+    static void Insert(ObjectGuid guid, WorldObject* obj)
     {
-        if (!obj)
+        if (guid.IsEmpty() || !obj)
             return;
         std::lock_guard<std::recursive_mutex> guard{ Mutex() };
-        Live().insert(obj);
+        Live()[guid] = obj;
     }
 
-    static void Erase(WorldObject* obj)
+    static void Erase(ObjectGuid guid, WorldObject* obj)
     {
-        if (!obj)
+        if (guid.IsEmpty() || !obj)
             return;
         std::lock_guard<std::recursive_mutex> guard{ Mutex() };
-        Live().erase(obj);
+        auto it = Live().find(guid);
+        if (it != Live().end() && it->second == obj)
+            Live().erase(it);
     }
 
-    static bool Contains(WorldObject* obj)
+    // True only if guid is still mapped to this exact pointer.
+    // Compares values only, never dereferences.
+    static bool MatchesLocked(ObjectGuid guid, WorldObject* raw)
     {
-        if (!obj)
+        if (guid.IsEmpty() || !raw)
             return false;
-        std::lock_guard<std::recursive_mutex> guard{ Mutex() };
-        return Live().find(obj) != Live().end();
-    }
-
-    static bool ContainsLocked(WorldObject* obj)
-    {
-        if (!obj)
-            return false;
-        return Live().find(obj) != Live().end();
+        auto it = Live().find(guid);
+        return it != Live().end() && it->second == raw;
     }
 
 private:
-    static std::unordered_set<WorldObject*>& Live()
+    static std::unordered_map<ObjectGuid, WorldObject*>& Live()
     {
-        static std::unordered_set<WorldObject*> live;
+        static std::unordered_map<ObjectGuid, WorldObject*> live;
         return live;
     }
 };

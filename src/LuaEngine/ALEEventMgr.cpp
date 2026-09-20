@@ -81,9 +81,15 @@ void ALEEventProcessor::Update(uint32 diff)
                 {
                     AleAlive::Guard aliveGuard{ AleAlive::Mutex() };
                     WorldObject* wo = static_cast<WorldObject*>(found);
-                    if (AleAlive::ContainsLocked(wo) && wo->IsInWorld() &&
+                    if (AleAlive::MatchesLocked(objGuid, wo) && wo->IsInWorld() &&
                         !found->IsDuringRemoveFromWorld())
                         liveObj = wo;
+                }
+                else
+                {
+                    AleAlive::Guard aliveGuard{ AleAlive::Mutex() };
+                    if (AleAlive::MatchesLocked(objGuid, obj))
+                        liveObj = obj;
                 }
             }
             else if (!guidCaptured)
