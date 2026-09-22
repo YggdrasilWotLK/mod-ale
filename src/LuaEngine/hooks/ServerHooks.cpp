@@ -11,6 +11,7 @@
 #include "ALEEventMgr.h"
 #include "ALEIncludes.h"
 #include "ALETemplate.h"
+#include "AleDefer.h"
 
 using namespace Hooks;
 
@@ -255,6 +256,14 @@ void ALE::OnWorldUpdate(uint32 diff)
         LOCK_ALE;
         if (ShouldReload())
             _ReloadALE();
+    }
+
+    // World thread, after MapMgr::Update waited for the map worker: run
+    // Lua-requested far teleports/logouts here where no map iteration is
+    // active (see AleDefer.h). Takes LOCK_ALE internally (recursive).
+    {
+        LOCK_ALE;
+        AleDefer::Drain();
     }
 
     eventMgr->globalProcessor->Update(diff);

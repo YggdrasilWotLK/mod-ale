@@ -292,7 +292,21 @@ public:
 
     // Player userdata is validated against the GUID captured at Push time.
     // Destroyed or relogged players become a Lua error instead of a crash.
-    // Players in transient states (login/teleport) are allowed through.
+    // Players mid-teardown (unlinked from their map, or session logging out)
+    // are rejected too: on one map thread the danger is not another worker
+    // but same-thread reentrancy — e.g. Lua calling methods on the player
+    // from inside OnLogout/OnPlayerLeave, or during far-teleport limbo after
+    // RemovePlayerFromMap ran and before the new map claimed the player.
+    static bool IsUsablePlayer(Player* player)
+    {
+        // Memory-safe here: the FindPlayer branch implies still in world, the
+        // AleAlive branch implies erase-before-free hasn't run yet.
+        if (!player->IsInWorld())
+            return false;
+        WorldSession* session = player->GetSession();
+        return !session || !session->PlayerLogout();
+    }
+
     static Player* AleResolvePlayer(lua_State* L, int narg, ALEObject* ALEObj, Player* raw, bool error)
     {
         auto fail = [&](const char* reason) -> Player*
@@ -320,11 +334,15 @@ public:
         {
             if (live != raw)
                 return fail("pointer to stale (relogged) object");
+            if (!IsUsablePlayer(live))
+                return fail("pointer to player being removed (logout/teleport)");
             return live;
         }
         AleAlive::Guard guard{ AleAlive::Mutex() };
         if (!AleAlive::MatchesLocked(guid, static_cast<WorldObject*>(raw)))
             return fail("pointer to destroyed (logged out) object");
+        if (!IsUsablePlayer(raw))
+            return fail("pointer to player being removed (logout/teleport)");
         return raw;
     }
 

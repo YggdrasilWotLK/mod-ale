@@ -1996,7 +1996,10 @@ namespace LuaGlobalFunctions
     int Kick(lua_State* L)
     {
         Player* player = ALE::CHECKOBJ<Player>(L, 1);
-        player->GetSession()->KickPlayer();
+        // Socket close only; session may be gone mid-logout.
+        if (player)
+            if (WorldSession* session = player->GetSession())
+                session->KickPlayer();
         return 0;
     }
 
