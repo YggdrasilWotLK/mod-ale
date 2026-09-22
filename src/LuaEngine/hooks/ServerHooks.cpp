@@ -258,9 +258,7 @@ void ALE::OnWorldUpdate(uint32 diff)
             _ReloadALE();
     }
 
-    // World thread, after MapMgr::Update waited for the map worker: run
-    // Lua-requested far teleports/logouts here where no map iteration is
-    // active (see AleDefer.h). Takes LOCK_ALE internally (recursive).
+    // Deferred far teleports/logouts (maps idle here).
     {
         LOCK_ALE;
         AleDefer::Drain();

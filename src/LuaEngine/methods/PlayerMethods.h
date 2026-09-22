@@ -2346,8 +2346,6 @@ namespace LuaPlayer
     {
         bool save = ALE::CHECKVAL<bool>(L, 2, true);
 
-        // Synchronous logout unlinks the player from its map inline: never
-        // run it inside a map update. Deferred to OnWorldUpdate (maps idle).
         AleDefer::Logout(player, save);
         return 0;
     }
@@ -3148,9 +3146,7 @@ namespace LuaPlayer
             player->m_taxi.ClearTaxiDestinations();
         }
 
-        // Same-map executes inline; cross-map validates now and runs in
-        // OnWorldUpdate (maps idle) so the old-map unlink cannot invalidate
-        // an in-progress map iteration. True = teleported or scheduled.
+        // True = teleported or queued for OnWorldUpdate.
         ALE::Push(L, AleDefer::Teleport(player, mapId, x, y, z, o));
         return 1;
     }
@@ -3372,8 +3368,6 @@ namespace LuaPlayer
      */
     int KickPlayer(lua_State* /*L*/, Player* player)
     {
-        // Socket close only (removal happens later in session update), safe
-        // inline from any thread. Session may be gone mid-logout: guard it.
         if (WorldSession* session = player->GetSession())
             session->KickPlayer();
         return 0;
