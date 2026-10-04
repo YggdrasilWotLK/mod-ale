@@ -18,7 +18,7 @@ struct ALECreatureAI : ScriptedAI
     ALE* E;
 
     ALECreatureAI(Creature* creature) : ScriptedAI(creature), justSpawned(true),
-        E(ALE::GetMapStateOrGlobal(creature->GetMapId()))
+        E(ALE::GetMapStateOrGlobal(creature->GetMapId(), creature->GetInstanceId()))
     {
     }
 

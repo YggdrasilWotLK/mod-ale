@@ -54,7 +54,7 @@ ALE::LockType ALE::lock;
 std::unique_ptr<ALEFileWatcher> ALE::fileWatcher;
 
 // Multistate handling
-std::map<uint32, ALE*> ALE::g_states;
+std::map<uint64, ALE*> ALE::g_states;
 std::shared_mutex ALE::g_states_mutex;
 
 // Runtime-persistent object and map data caches
@@ -110,7 +110,7 @@ void ALE::Uninitialize()
 
     {
         std::unique_lock lock(g_states_mutex);
-        for (auto& [mapId, state] : g_states)
+        for (auto& [key, state] : g_states)
         {
             delete state;
         }
@@ -128,26 +128,31 @@ void ALE::Uninitialize()
     initialized = false;
 }
 
-ALE** ALE::CreateMapState(uint32 mapId)
+ALE** ALE::CreateMapState(uint32 mapId, uint32 instanceId)
 {
+    if (!ALEConfig::GetInstance().ShouldMapLoadALE(mapId))
+        return nullptr;
+
     ALE** slotPtr;
+    uint64 key = ALEMapStateKey(mapId, instanceId);
     {
         std::unique_lock lock(g_states_mutex);
-        ASSERT(g_states.find(mapId) == g_states.end());
-        auto& slot = g_states[mapId];
+        ASSERT(g_states.find(key) == g_states.end());
+        auto& slot = g_states[key];
         slot = nullptr;
         slotPtr = &slot;
-        slot = new ALE(slotPtr, mapId);
+        slot = new ALE(slotPtr, mapId, instanceId);
     }
 
     (*slotPtr)->RunScripts();
     return slotPtr;
 }
 
-void ALE::DestroyMapState(uint32 mapId)
+void ALE::DestroyMapState(uint32 mapId, uint32 instanceId)
 {
     std::unique_lock lock(g_states_mutex);
-    auto it = g_states.find(mapId);
+    uint64 key = ALEMapStateKey(mapId, instanceId);
+    auto it = g_states.find(key);
     if (it != g_states.end())
     {
         delete it->second;
@@ -177,7 +182,7 @@ void ALE::LoadScriptPaths()
     lua_requirepath.clear();
     lua_requirecpath.clear();
 
-    GetScripts(lua_folderpath);
+    GetScripts(lua_folderpath, 0);
 
     // append our custom require paths and cpaths if the config variables are not empty
     if (!lua_path_extra.empty())
@@ -222,7 +227,7 @@ void ALE::_ReloadALE()
 
     {
         std::shared_lock lock(g_states_mutex);
-        for (auto& [mapId, state] : g_states)
+        for (auto& [key, state] : g_states)
         {
             state->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
             state->CloseLua();
@@ -276,8 +281,9 @@ bool ALE::DeserializeValue(lua_State* L, const std::string& data)
     return true;
 }
 
-ALE::ALE(ALE** _selfPtr, uint32 mapId) :
+ALE::ALE(ALE** _selfPtr, uint32 mapId, uint32 instanceId) :
 stateMapId(mapId),
+stateInstanceId(instanceId),
 event_level(0),
 push_counter(0),
 selfPtr(_selfPtr),
@@ -711,7 +717,7 @@ int ALE::LoadCompiledScript(lua_State* L, const std::string& filepath)
 }
 
 // Finds lua script files from given path (including subdirectories) and pushes them to scripts
-void ALE::GetScripts(std::string path)
+void ALE::GetScripts(std::string path, uint32 mapId)
 {
     ALE_LOG_DEBUG("[ALE]: GetScripts from path `{}`", path);
 
@@ -747,7 +753,10 @@ void ALE::GetScripts(std::string path)
             // load subfolder
             if (boost::filesystem::is_directory(dir_iter->status()))
             {
-                GetScripts(fullpath);
+                std::string folderName = dir_iter->path().filename().generic_string();
+                if (!ALEConfig::GetInstance().ShouldMapLoadALEByFolderName(folderName, mapId))
+                    continue;
+                GetScripts(fullpath, mapId);
                 continue;
             }
 
@@ -797,6 +806,11 @@ void ALE::RunScripts()
     int modules = lua_gettop(L);
     for (ScriptList::iterator it = scripts.begin(); it != scripts.end(); ++it)
     {
+        // Filter by map-prefixed subdirectory (e.g. lua_scripts/0/, lua_scripts/1_...)
+        std::string folderName = boost::filesystem::path(it->modulepath).filename().generic_string();
+        if (!ALEConfig::GetInstance().ShouldMapLoadALEByFolderName(folderName, stateMapId))
+            continue;
+
         // Check that no duplicate names exist
         if (loaded.find(it->filename) != loaded.end())
         {

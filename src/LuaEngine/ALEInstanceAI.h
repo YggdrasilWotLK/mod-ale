@@ -103,33 +103,34 @@ public:
      */
     void Update(uint32 diff) override
     {
+        ALE* state = ALE::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId());
         // If ALE is reloaded, it will be missing our instance data.
         // Reload here instead of waiting for the next hook call (possibly never).
         // This avoids having to have an empty Update hook handler just to trigger the reload.
-        if (!sALE->HasInstanceData(instance))
+        if (!state->HasInstanceData(instance))
             Reload();
 
-        sALE->OnUpdateInstance(this, diff);
+        state->OnUpdateInstance(this, diff);
     }
 
     bool IsEncounterInProgress() const override
     {
-        return sALE->OnCheckEncounterInProgress(const_cast<ALEInstanceAI*>(this));
+        return ALE::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId())->OnCheckEncounterInProgress(const_cast<ALEInstanceAI*>(this));
     }
 
     void OnPlayerEnter(Player* player) override
     {
-        sALE->OnPlayerEnterInstance(this, player);
+        ALE::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId())->OnPlayerEnterInstance(this, player);
     }
 
     void OnGameObjectCreate(GameObject* gameobject) override
     {
-        sALE->OnGameObjectCreate(this, gameobject);
+        ALE::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId())->OnGameObjectCreate(this, gameobject);
     }
 
     void OnCreatureCreate(Creature* creature) override
     {
-        sALE->OnCreatureCreate(this, creature);
+        ALE::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId())->OnCreatureCreate(this, creature);
     }
 };
 

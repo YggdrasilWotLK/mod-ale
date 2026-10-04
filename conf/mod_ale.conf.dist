@@ -60,16 +60,21 @@
 #       Default:    true  - (enabled)
 #                   false - (disabled)
 #
-#   ALE.Multistate
-#       Description: Enable or disable per-map Lua state isolation.
-#                    When enabled, each map runs its own Lua state concurrently on its map thread,
-#                    allowing true parallel execution across maps. Scripts can use GetStateMapId()
-#                    to self-select which map state they load into.
-#                    When disabled, all maps share the global Lua state (original behavior).
-#       Default:    false - (disabled, single global state)
-#                   true  - (enabled, per-map states)
+#   ALE.CompatibilityMode
+#       Description: Toggles ALE between compatibility mode (single-threaded) or multistate mode.
+#                    Compatibility mode limits the engine to a single global Lua state.
+#       Default:    true  - (enabled)
+#                   false - (disabled)
+#
+#   ALE.OnlyOnMaps
+#       Description: When ALE is enabled, a state will only be created for a list of specified maps.
+#                    This only works in multistate mode.
+#       Default:    ""  - (enabled on all maps)
+#                   "0,1,2,..." - (enabled on specific maps only)
 
 ALE.Enabled = true
+ALE.CompatibilityMode = true
+ALE.OnlyOnMaps = ""
 ALE.TraceBack = false
 ALE.ScriptPath = "lua_scripts"
 ALE.PlayerAnnounceReload = false
@@ -78,7 +83,6 @@ ALE.RequireCPaths = ""
 ALE.AutoReload = false
 ALE.AutoReloadInterval = 1
 ALE.BytecodeCache = true
-ALE.Multistate = false
 
 ###################################################################################################
 # LOGGING SYSTEM SETTINGS
