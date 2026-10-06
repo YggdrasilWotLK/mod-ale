@@ -2182,6 +2182,19 @@ namespace LuaUnit
     }
 
     /**
+     * Makes the [Unit] fall straight down to the ground below (gravity spline).
+     * Refuses silently when there is no ground (void) or it is already grounded.
+     *
+     * @param uint32 id = 0 : unique movement Id
+     */
+    int MoveFall(lua_State* L, Unit* unit)
+    {
+        uint32 id = ALE::CHECKVAL<uint32>(L, 2, 0);
+        unit->GetMotionMaster()->MoveFall(id);
+        return 0;
+    }
+
+    /**
      * The [Unit] will whisper the message to a [Player]
      *
      * @param string msg : message for the [Unit] to emote

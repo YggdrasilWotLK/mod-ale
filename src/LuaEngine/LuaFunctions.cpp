@@ -485,6 +485,7 @@ ALERegister<Unit> UnitMethods[] =
     { "MoveFleeing", &LuaUnit::MoveFleeing },
     { "MoveTo", &LuaUnit::MoveTo },
     { "MoveJump", &LuaUnit::MoveJump },
+    { "MoveFall", &LuaUnit::MoveFall },
     { "MoveStop", &LuaUnit::MoveStop },
     { "MoveExpire", &LuaUnit::MoveExpire },
     { "MoveClear", &LuaUnit::MoveClear },
