@@ -10,6 +10,7 @@
 #include "Chat.h"
 #include "GameTime.h"
 #include "GossipDef.h"
+#include "AleDefer.h"
 
 /***
  * Inherits all methods from: [Object], [WorldObject], [Unit]
@@ -2345,7 +2346,16 @@ namespace LuaPlayer
     {
         bool save = ALE::CHECKVAL<bool>(L, 2, true);
 
-        player->GetSession()->LogoutPlayer(save);
+        // Bots own their lifetime via PlayerbotMgr (world-thread
+        // ScheduleBotLogout). A normal session logout here frees the Player
+        // under Lua/map threads, so refuse outright. See WorldSession::IsBot.
+        WorldSession* session = player->GetSession();
+        if (!session || session->IsBot())
+        {
+            ALE_LOG_ERROR("[ALE]: Player:Logout called on a bot, ignoring. Check your code.");
+            return 0;
+        }
+        AleDefer::Logout(player, save);
         return 0;
     }
 
@@ -3145,7 +3155,8 @@ namespace LuaPlayer
             player->m_taxi.ClearTaxiDestinations();
         }
 
-        ALE::Push(L, player->TeleportTo(mapId, x, y, z, o));
+        // True = teleported or queued for OnWorldUpdate.
+        ALE::Push(L, AleDefer::Teleport(player, mapId, x, y, z, o));
         return 1;
     }
 
@@ -3366,7 +3377,8 @@ namespace LuaPlayer
      */
     int KickPlayer(lua_State* /*L*/, Player* player)
     {
-        player->GetSession()->KickPlayer();
+        if (WorldSession* session = player->GetSession())
+            session->KickPlayer();
         return 0;
     }
 
@@ -4051,13 +4063,23 @@ namespace LuaPlayer
         std::string tele = ALE::CHECKVAL<std::string>(L, 2);
         const GameTele* game_tele = sObjectMgr->GetGameTele(tele);
 
+        // Unknown teleport name: GetGameTele returns null. Fail soft instead
+        // of dereferencing it.
+        if (!game_tele)
+        {
+            ALE_LOG_ERROR("[ALE]: Player:TeleportTo called with unknown teleport '{}'", tele);
+            return 0;
+        }
+
         if (player->IsInFlight())
         {
             player->GetMotionMaster()->MovementExpired();
             player->m_taxi.ClearTaxiDestinations();
         }
 
-        player->TeleportTo(game_tele->mapId, game_tele->position_x, game_tele->position_y, game_tele->position_z, game_tele->orientation);
+        // Same rule as Teleport above: same-map inline, cross-map deferred
+        // to OnWorldUpdate so the old-map unlink never runs mid-iteration.
+        AleDefer::Teleport(player, game_tele->mapId, game_tele->position_x, game_tele->position_y, game_tele->position_z, game_tele->orientation);
         return 0;
     }
 

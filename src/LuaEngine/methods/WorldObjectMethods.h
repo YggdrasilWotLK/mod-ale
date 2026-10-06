@@ -770,8 +770,7 @@ namespace LuaWorldObject
         if (functionRef != LUA_REFNIL && functionRef != LUA_NOREF)
         {
             ALE* callingE = ALE::GetALE(L);
-            ALE** stateSlot = callingE->GetSelfPtr();
-            obj->ALEEvents->AddEvent(functionRef, min, max, repeats, stateSlot);
+            obj->ALEEvents->AddEvent(functionRef, min, max, repeats, callingE->GetSelfRef());
             ALE::Push(L, functionRef);
         }
         return 1;

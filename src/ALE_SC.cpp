@@ -17,6 +17,7 @@
 
 #include "Chat.h"
 #include "ALEEventMgr.h"
+#include "AleAlive.h"
 #include "Log.h"
 #include "LuaEngine.h"
 #include "Pet.h"
@@ -53,7 +54,7 @@ public:
 
     void OnCreatureAddWorld(Creature* creature) override
     {
-        ALE* E = ALE::GetMapStateOrGlobal(creature->GetMapId(), creature->GetInstanceId());
+        auto E = ALE::GetMapStateOrGlobal(creature->GetMapId(), creature->GetInstanceId());
         E->OnAddToWorld(creature);
         E->OnAllCreatureAddToWorld(creature);
 
@@ -63,14 +64,14 @@ public:
 
     void OnCreatureRemoveWorld(Creature* creature) override
     {
-        ALE* E = ALE::GetMapStateOrGlobal(creature->GetMapId(), creature->GetInstanceId());
+        auto E = ALE::GetMapStateOrGlobal(creature->GetMapId(), creature->GetInstanceId());
         E->OnRemoveFromWorld(creature);
         E->OnAllCreatureRemoveFromWorld(creature);
     }
 
     bool CanCreatureQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
-        ALE* E = ALE::GetMapStateOrGlobal(creature->GetMapId(), creature->GetInstanceId());
+        auto E = ALE::GetMapStateOrGlobal(creature->GetMapId(), creature->GetInstanceId());
         E->OnPlayerQuestAccept(player, quest);
         E->OnQuestAccept(player, creature, quest);
         return false;
@@ -126,7 +127,7 @@ public:
 
     bool CanGameObjectGossipHello(Player* player, GameObject* go) override
     {
-        ALE* E = ALE::GetMapStateOrGlobal(go->GetMapId(), go->GetInstanceId());
+        auto E = ALE::GetMapStateOrGlobal(go->GetMapId(), go->GetInstanceId());
         if (E->OnGossipHello(player, go))
             return true;
         if (E->OnGameObjectUse(player, go))
@@ -156,7 +157,7 @@ public:
 
     bool CanGameObjectQuestAccept(Player* player, GameObject* go, Quest const* quest) override
     {
-        ALE* E = ALE::GetMapStateOrGlobal(go->GetMapId(), go->GetInstanceId());
+        auto E = ALE::GetMapStateOrGlobal(go->GetMapId(), go->GetInstanceId());
         E->OnPlayerQuestAccept(player, quest);
         E->OnQuestAccept(player, go, quest);
         return false;
@@ -178,7 +179,7 @@ public:
 
     bool CanGameObjectQuestReward(Player* player, GameObject* go, Quest const* quest, uint32 opt) override
     {
-        ALE* E = ALE::GetMapStateOrGlobal(go->GetMapId(), go->GetInstanceId());
+        auto E = ALE::GetMapStateOrGlobal(go->GetMapId(), go->GetInstanceId());
         if (E->OnQuestAccept(player, go, quest))
         {
             E->OnPlayerQuestAccept(player, quest);
@@ -202,7 +203,7 @@ public:
 
     bool CanItemQuestAccept(Player* player, Item* item, Quest const* quest) override
     {
-        ALE* E = ALE::GetMapStateOrGlobal(player->GetMapId(), player->GetInstanceId());
+        auto E = ALE::GetMapStateOrGlobal(player->GetMapId(), player->GetInstanceId());
         if (E->OnQuestAccept(player, item, quest))
         {
             E->OnPlayerQuestAccept(player, quest);
@@ -559,7 +560,7 @@ public:
 
     void GetDialogStatus(Player* player, Object* questgiver) override
     {
-        ALE* E = ALE::GetMapStateOrGlobal(player->GetMapId(), player->GetInstanceId());
+        auto E = ALE::GetMapStateOrGlobal(player->GetMapId(), player->GetInstanceId());
         if (questgiver->GetTypeId() == TYPEID_GAMEOBJECT)
             E->GetDialogStatus(player, questgiver->ToGameObject());
         else if (questgiver->GetTypeId() == TYPEID_UNIT)
@@ -854,6 +855,8 @@ public:
     // WORLD
     void OnPlayerLogin(Player* player) override
     {
+        if (player->ALEEvents)
+            player->ALEEvents->CaptureGuid();
         gALE->OnLogin(player);
     }
 
@@ -1124,6 +1127,9 @@ public:
     void OnWorldObjectDestroy(WorldObject* object) override
     {
         ALE::ClearObjectData(object->GetGUID());
+        // Players-only: GUID and type are still valid inside ~WorldObject.
+        if (object->GetTypeId() == TYPEID_PLAYER)
+            AleAlive::Erase(object->GetGUID(), object);
         if (object->ALEEvents)
         {
             delete object->ALEEvents;
@@ -1142,14 +1148,26 @@ public:
         {
             if (!ALEConfig::GetInstance().IsCompatibilityModeEnabled())
             {
-                ALE** stateSlot = ALE::GetMapStateSlot(map->GetId(), map->GetInstanceId());
-                object->ALEEvents = new ALEEventProcessor(stateSlot, object);
+                if (auto state = ALE::GetMapState(map->GetId(), map->GetInstanceId()))
+                    object->ALEEvents = new ALEEventProcessor(state->GetSelfRef(), state, object);
+                else if (ALE::GALE)
+                    object->ALEEvents = new ALEEventProcessor(ALE::GALE->GetSelfRef(), ALE::OwningRef(ALE::GALE), object);
+                else
+                    object->ALEEvents = new ALEEventProcessor(AleStateRef(), nullptr, object);
+            }
+            else if (ALE::GALE)
+            {
+                object->ALEEvents = new ALEEventProcessor(ALE::GALE->GetSelfRef(), ALE::OwningRef(ALE::GALE), object);
             }
             else
             {
-                object->ALEEvents = new ALEEventProcessor(&ALE::GALE, object);
+                object->ALEEvents = new ALEEventProcessor(AleStateRef(), nullptr, object);
             }
         }
+        // Players-only: OnWorldObjectCreate fires in the WorldObject base
+        // ctor before the type is set, so filter here instead.
+        if (object->GetTypeId() == TYPEID_PLAYER)
+            AleAlive::Insert(object->GetGUID(), object);
     }
 
     void OnWorldObjectUpdate(WorldObject* object, uint32 diff) override
@@ -1277,7 +1295,7 @@ public:
     void OnAuraApply(Unit* unit, Aura* aura) override
     {
         if (!unit || !aura) return;
-        ALE* E = ALE::GetMapStateOrGlobal(unit->GetMapId(), unit->GetInstanceId());
+        auto E = ALE::GetMapStateOrGlobal(unit->GetMapId(), unit->GetInstanceId());
         if (unit->IsPlayer())
             E->OnPlayerAuraApply(unit->ToPlayer(), aura);
         if (unit->IsCreature())
@@ -1287,7 +1305,7 @@ public:
     void OnHeal(Unit* healer, Unit* receiver, uint32& gain) override
     {
         if (!receiver || !healer) return;
-        ALE* E = ALE::GetMapStateOrGlobal(healer->GetMapId(), healer->GetInstanceId());
+        auto E = ALE::GetMapStateOrGlobal(healer->GetMapId(), healer->GetInstanceId());
         if (healer->IsPlayer())
             E->OnPlayerHeal(healer->ToPlayer(), receiver, gain);
         if (healer->IsCreature())
@@ -1297,7 +1315,7 @@ public:
     void OnDamage(Unit* attacker, Unit* receiver, uint32& damage) override
     {
         if (!attacker || !receiver) return;
-        ALE* E = ALE::GetMapStateOrGlobal(attacker->GetMapId(), attacker->GetInstanceId());
+        auto E = ALE::GetMapStateOrGlobal(attacker->GetMapId(), attacker->GetInstanceId());
         if (attacker->IsPlayer())
             E->OnPlayerDamage(attacker->ToPlayer(), receiver, damage);
         if (attacker->IsCreature())

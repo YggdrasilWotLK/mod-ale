@@ -103,7 +103,7 @@ public:
      */
     void Update(uint32 diff) override
     {
-        ALE* state = ALE::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId());
+        auto state = ALE::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId());
         // If ALE is reloaded, it will be missing our instance data.
         // Reload here instead of waiting for the next hook call (possibly never).
         // This avoids having to have an empty Update hook handler just to trigger the reload.

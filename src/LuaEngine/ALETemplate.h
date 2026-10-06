@@ -16,6 +16,9 @@ extern "C"
 #include "LuaEngine.h"
 #include "ALECompat.h"
 #include "ALEUtility.h"
+#include "AleAlive.h"
+#include "ObjectAccessor.h"
+#include "ObjectGuid.h"
 #include "SharedDefines.h"
 
 enum MethodRegisterState
@@ -102,7 +105,8 @@ class ALEObject
 {
 public:
     template<typename T>
-    ALEObject(T * obj, bool manageMemory);
+    ALEObject(T * obj, bool manageMemory, uint64 snapId);
+    ALEObject(Player* obj, bool manageMemory, uint64 snapId);
 
     ~ALEObject()
     {
@@ -110,27 +114,30 @@ public:
 
     // Get wrapped object pointer
     void* GetObj() const { return object; }
-    // Returns whether the object is valid or not
-    bool IsValid() const { return !callstackid || callstackid == sALE->GetCallstackId(); }
+    // Returns whether the object is valid or not for the given state
+    // incarnation id. The snapshot is taken from the creating state, so
+    // every map state invalidates exactly its own userdata (never GALE's).
+    bool IsValid(uint64 currentId) const { return !callstackid || callstackid == currentId; }
     // Returns whether the object can be invalidated or not
     bool CanInvalidate() const { return _invalidate; }
     // Returns pointer to the wrapped object's type name
     const char* GetTypeName() const { return type_name; }
+    ObjectGuid GetPlayerGuid() const { return playerGuid; }
 
     // Sets the object pointer that is wrapped
-    void SetObj(void* obj)
+    void SetObj(void* obj, uint64 snapId)
     {
         ASSERT(obj);
         object = obj;
-        SetValid(true);
+        SetValid(true, snapId);
     }
     // Sets the object pointer to valid or invalid
-    void SetValid(bool valid)
+    void SetValid(bool valid, uint64 snapId)
     {
         ASSERT(!valid || (valid && object));
         if (valid)
             if (CanInvalidate())
-                callstackid = sALE->GetCallstackId();
+                callstackid = snapId;
             else
                 callstackid = 0;
         else
@@ -153,6 +160,7 @@ private:
     bool _invalidate;
     void* object;
     const char* type_name;
+    ObjectGuid playerGuid = ObjectGuid::Empty;
 };
 
 template<typename T>
@@ -335,7 +343,7 @@ public:
             lua_pushnil(L);
             return 1;
         }
-        *ptrHold = new ALEObject(const_cast<T*>(obj), manageMemory);
+        *ptrHold = new ALEObject(const_cast<T*>(obj), manageMemory, ALE::GetALE(L)->GetCallstackId());
 
         // Set metatable for it
         lua_pushstring(L, tname);
@@ -351,13 +359,58 @@ public:
         return 1;
     }
 
+    // Snapshot of the creating state's incarnation id. Stored per Push,
+    // so validity is always judged against the state whose Lua owns this
+    // userdata (multistate-safe, unlike a single global counter).
+    static uint64 AleSnapId(lua_State* L) { return ALE::GetALE(L)->GetCallstackId(); }
+
+    // GUID-checked at Push time; destroyed/relogged players are Lua errors.
+    // Not-in-world players pass through (normal during login hooks).
+    static Player* AleResolvePlayer(lua_State* L, int narg, ALEObject* ALEObj, Player* raw, bool error)
+    {
+        auto fail = [&](const char* reason) -> Player*
+        {
+            char buff[256];
+            snprintf(buff, 256, "%s expected, got %s (%s). Check your code.", tname, reason, luaL_typename(L, narg));
+            if (error)
+            {
+                luaL_argerror(L, narg, buff);
+            }
+            else
+            {
+                ALE_LOG_ERROR("{}", buff);
+            }
+            return nullptr;
+        };
+
+        if (!raw)
+            return fail("null player reference");
+        ObjectGuid guid = ALEObj->GetPlayerGuid();
+        if (guid.IsEmpty())
+            return fail("pointer to destroyed (logged out) object");
+        Player* live = ObjectAccessor::FindPlayer(guid);
+        if (live)
+        {
+            if (live != raw)
+                return fail("pointer to stale (relogged) object");
+            return live;
+        }
+        AleAlive::Guard guard{ AleAlive::Mutex() };
+        if (!AleAlive::MatchesLocked(guid, static_cast<WorldObject*>(raw)))
+            return fail("pointer to destroyed (logged out) object");
+        return raw;
+    }
+
+    template<typename U>
+    static U* AleResolvePlayer(lua_State*, int, ALEObject*, U* raw, bool) { return raw; }
+
     static T* Check(lua_State* L, int narg, bool error = true)
     {
         ALEObject* ALEObj = ALE::CHECKTYPE(L, narg, tname, error);
         if (!ALEObj)
             return NULL;
 
-        if (!ALEObj->IsValid())
+        if (!ALEObj->IsValid(AleSnapId(L)))
         {
             char buff[256];
             snprintf(buff, 256, "%s expected, got pointer to nonexisting (invalidated) object (%s). Check your code.", tname, luaL_typename(L, narg));
@@ -371,7 +424,8 @@ public:
             }
             return NULL;
         }
-        return static_cast<T*>(ALEObj->GetObj());
+        T* raw = static_cast<T*>(ALEObj->GetObj());
+        return AleResolvePlayer(L, narg, ALEObj, raw, error);
     }
 
     static int GetType(lua_State* L)
@@ -397,6 +451,10 @@ public:
 
     static int CallMethod(lua_State* L)
     {
+        // NOTE: no AleAlive lock is held across CHECKOBJ/mfunc here on
+        // purpose (Lua errors longjmp past C++ destructors). Liveness is
+        // enforced by GUID resolution inside Check, so a destroyed object
+        // becomes a Lua error, not a SIGSEGV.
         T* obj = ALE::CHECKOBJ<T>(L, 1); // get self
         if (!obj)
             return 0;
@@ -451,9 +509,14 @@ public:
 };
 
 template<typename T>
-ALEObject::ALEObject(T * obj, bool manageMemory) : callstackid(1), _invalidate(!manageMemory), object(obj), type_name(ALETemplate<T>::tname)
+ALEObject::ALEObject(T * obj, bool manageMemory, uint64 snapId) : callstackid(1), _invalidate(!manageMemory), object(obj), type_name(ALETemplate<T>::tname)
 {
-    SetValid(true);
+    SetValid(true, snapId);
+}
+
+inline ALEObject::ALEObject(Player* obj, bool manageMemory, uint64 snapId) : callstackid(1), _invalidate(!manageMemory), object(obj), type_name(ALETemplate<Player>::tname), playerGuid(obj ? obj->GetGUID() : ObjectGuid::Empty)
+{
+    SetValid(true, snapId);
 }
 
 template<typename T> const char* ALETemplate<T>::tname = NULL;

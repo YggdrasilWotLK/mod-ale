@@ -15,7 +15,9 @@ struct ALECreatureAI : ScriptedAI
 {
     bool justSpawned;
     std::vector<std::pair<uint32, uint32>> movepoints;
-    ALE* E;
+    // Owning reference: keeps the creature's Lua state alive for the whole
+    // AI lifetime instead of dangling across map-state destroy.
+    std::shared_ptr<ALE> E;
 
     ALECreatureAI(Creature* creature) : ScriptedAI(creature), justSpawned(true),
         E(ALE::GetMapStateOrGlobal(creature->GetMapId(), creature->GetInstanceId()))

@@ -278,6 +278,9 @@ namespace LuaGlobalFunctions
                     if (!player->IsInWorld())
                         continue;
 
+                    if (player->IsDuringRemoveFromWorld())
+                        continue;
+
                     if ((team == TEAM_NEUTRAL || player->GetTeamId() == team) && (!onlyGM || player->IsGameMaster()))
                     {
                         ALE::Push(L, player);
@@ -1389,33 +1392,66 @@ namespace LuaGlobalFunctions
             luaL_argerror(L, 2, "unable to make a ref to function");
             return 0;
         }
-   
+
 	    // Increment pending callbacks counter
         ALE* E = ALE::GetALE(L);
 
         // Increment pending callbacks counter
         E->IncrementCallbacks();
 
-        E->queryProcessor.AddCallback(db.AsyncQuery(query).WithCallback([L, funcRef, E](QueryResult result)
+        // Identity, not pointers: the callback resolves the owning state
+        // at fire time and drops itself when the state is gone or its
+        // registry was recycled by CloseLua (reload). Add vs
+        // ProcessReadyCallbacks is serialized by queryMutex.
+        AleStateRef owner = E->GetSelfRef();
+        uint64 gen = E->luaGen.load(std::memory_order_acquire);
+        {
+            std::lock_guard<std::mutex> qguard(E->queryMutex);
+            E->queryProcessor.AddCallback(db.AsyncQuery(query).WithCallback([funcRef, owner, gen](QueryResult result)
             {
                 ALEQuery* eq = result ? new ALEQuery(result) : nullptr;
 
                 LOCK_ALE;
+                auto state = ALE::LockStateRef(owner);
+                if (!state)
+                {
+                    // Owner gone (its counter died with it).
+                    delete eq;
+                    return;
+                }
+                if (state->luaGen.load(std::memory_order_acquire) != gen || !state->HasLuaState())
+                {
+                    // Alive but recycled by CloseLua: balance the increment
+                    // so future reloads are never wedged, then drop.
+                    state->DecrementCallbacks();
+                    delete eq;
+                    return;
+                }
+                // Global -> state order (LOCK_ALE held, state taken here);
+                // the world drain holds the same nesting, never the reverse.
+                ALE::Guard stateGuard(state->GetStateLock());
+                if (!state->HasLuaState())
+                {
+                    delete eq;
+                    return;
+                }
+                lua_State* SL = state->L;
 
                 // Get function
-                lua_rawgeti(L, LUA_REGISTRYINDEX, funcRef);
+                lua_rawgeti(SL, LUA_REGISTRYINDEX, funcRef);
 
                 // Push parameters
-                ALE::Push(L, eq);
+                ALE::Push(SL, eq);
 
                 // Call function
-                E->ExecuteCall(1, 0);
+                state->ExecuteCall(1, 0);
 
-                luaL_unref(L, LUA_REGISTRYINDEX, funcRef);
+                luaL_unref(SL, LUA_REGISTRYINDEX, funcRef);
 
                 // Decrement pending callbacks counter
-                E->DecrementCallbacks();
+                state->DecrementCallbacks();
             }));
+        }
 
         return 0;
     }
@@ -1687,7 +1723,7 @@ namespace LuaGlobalFunctions
         if (functionRef != LUA_REFNIL && functionRef != LUA_NOREF)
         {
             ALE* callingE = ALE::GetALE(L);
-            callingE->eventMgr->globalProcessor->AddEvent(functionRef, min, max, repeats, callingE->GetSelfPtr());
+            callingE->eventMgr->globalProcessor->AddEvent(functionRef, min, max, repeats, callingE->GetSelfRef());
             ALE::Push(L, functionRef);
         }
         return 1;
@@ -1971,7 +2007,10 @@ namespace LuaGlobalFunctions
     int Kick(lua_State* L)
     {
         Player* player = ALE::CHECKOBJ<Player>(L, 1);
-        player->GetSession()->KickPlayer();
+        // Socket close only; session may be gone mid-logout.
+        if (player)
+            if (WorldSession* session = player->GetSession())
+                session->KickPlayer();
         return 0;
     }
 
@@ -2653,7 +2692,12 @@ namespace LuaGlobalFunctions
         int funcRef = luaL_ref(L, LUA_REGISTRYINDEX);
         if (funcRef >= 0)
         {
-            ALE::GALE->httpManager.PushRequest(new HttpWorkItem(funcRef, httpVerb, url, body, bodyContentType, headers));
+            // Bound to the calling state (not GALE): the response must run
+            // on the registry that owns funcRef. Queues are mutex-guarded,
+            // so pushes from any map worker are safe.
+            ALE* callingE = ALE::GetALE(L);
+            callingE->httpManager.PushRequest(new HttpWorkItem(funcRef, callingE->GetSelfRef(),
+                callingE->luaGen.load(std::memory_order_acquire), httpVerb, url, body, bodyContentType, headers));
         }
         else
         {

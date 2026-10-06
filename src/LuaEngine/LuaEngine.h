@@ -26,6 +26,7 @@
 #include "LootMgr.h"
 #include "ALEFileWatcher.h"
 #include "ALEConfig.h"
+#include <atomic>
 #include <mutex>
 #include <shared_mutex>
 #include <map>
@@ -105,8 +106,10 @@ struct LuaScript
 #define LOCK_ALE ALE::Guard __guard(ALE::GetLock())
 #define LOCK_ALE_STATE \
     ALE::Guard __ale_guard(ALEConfig::GetInstance().IsCompatibilityModeEnabled() ? ALE::GetLock() : ALE::GetNoopLock()); \
-    Guard __ale_state_guard(this->GetStateLock())
+    ALE::Guard __ale_state_guard(this->GetStateLock())
 #define ALE_GLOBAL_STATE (uint32)(-1)
+
+#include "ALEEventMgr.h"
 
 inline uint64 ALEMapStateKey(uint32 mapId, uint32 instanceId) { return (static_cast<uint64>(mapId) << 32) | instanceId; }
 
@@ -120,7 +123,10 @@ public:
     {
         pendingCallbacks--;
         if (pendingCallbacks == 0 && reloadScheduled)
+        {
+            LOCK_ALE;
             _ReloadALE();
+        }
     }
     bool CanReload() const { return pendingCallbacks == 0; }
     typedef std::list<LuaScript> ScriptList;
@@ -135,13 +141,32 @@ public:
     static LockType& GetNoopLock() { thread_local LockType noop; return noop; }
     uint32 GetStateMapId() const { return stateMapId; }
     uint32 GetStateInstanceId() const { return stateInstanceId; }
-    ALE** GetSelfPtr() { return selfPtr ? selfPtr : &ALE::GALE; }
-    
+    const AleStateRef& GetSelfRef() const { return selfRef; }
+    uint64 GetStateSeq() const { return stateSeq; }
+    uint64 GetCallstackId() const { return callstackid; }
+
+    // Resolves a state ref into an owning reference (null when the state
+    // is gone or was recreated). Global refs resolve via the GALE holder.
+    static std::shared_ptr<ALE> LockStateRef(const AleStateRef& ref);
+    // Owning reference for a raw state pointer (scan under g_states shared).
+    // Null when the pointer is not a live state.
+    static std::shared_ptr<ALE> OwningRef(ALE* raw);
+
     static void RunScriptsOnAllMapStates()
     {
-        std::shared_lock lock(g_states_mutex);
-        for (auto& [key, state] : g_states)
-            state->RunScripts();
+        LOCK_ALE;
+        std::vector<std::shared_ptr<ALE>> states;
+        {
+            std::shared_lock lock(g_states_mutex);
+            for (auto& [key, state] : g_states)
+                if (state)
+                    states.push_back(state);
+        }
+        for (auto& state : states)
+        {
+            Guard stateGuard(state->GetStateLock());
+            state->RunScriptsLocked();
+        }
     }
     
     // Runtime-persistent object data cache, keyed by ObjectGuid
@@ -167,17 +192,30 @@ public:
     static std::string SerializeValue(lua_State* L, int idx);
     static bool DeserializeValue(lua_State* L, const std::string& data);
 
+public:
+    // Registry generation: bumped in CloseLua so DB/HTTP callbacks bound
+    // to a previous lua_State incarnation are dropped, never run or
+    // unref'd on the new state.
+    std::atomic<uint64> luaGen{0};
+    // Serializes AddCallback (Lua threads under state lock) against
+    // ProcessReadyCallbacks (world thread under global+state).
+    // Order tail is always state -> queryMutex.
+    mutable std::mutex queryMutex;
+
 private:
     LockType stateLock;
     uint32 stateMapId;
     uint32 stateInstanceId;
+    AleStateRef selfRef;
+    uint64 stateSeq = 0;
 
     std::atomic<int> pendingCallbacks{0};
     std::atomic<bool> reloadScheduled{false};
-    static bool reload;
+    static std::atomic<bool> reload;
     static bool initialized;
     static LockType lock;
     static std::unique_ptr<ALEFileWatcher> fileWatcher;
+    static std::atomic<uint64> s_stateSeq;
 
     static ScriptList lua_scripts;
     static ScriptList lua_extensions;
@@ -185,9 +223,12 @@ private:
     static std::string lua_requirepath;
     static std::string lua_requirecpath;
 
-    // Per-map+instance states. std::map used for pointer stability on insert/erase.
-    static std::map<uint64, ALE*> g_states;
+    // Per-map+instance states, shared-owned so timer/DB/HTTP holders and
+    // script-side users keep a state alive across concurrent destroy.
+    static std::map<uint64, std::shared_ptr<ALE>> g_states;
     static std::shared_mutex g_states_mutex;
+    // Shared ownership of the global state (GALE mirrors it raw).
+    static std::shared_ptr<ALE> GALE_HOLDER;
 
     uint64 callstackid = 2;
     uint32 event_level;
@@ -196,11 +237,11 @@ private:
     std::unordered_map<uint32, int> instanceDataRefs;
     std::unordered_map<uint32, int> continentDataRefs;
 
-    ALE** selfPtr;
-
-    ALE(ALE** selfPtr = nullptr, uint32 mapId = ALE_GLOBAL_STATE, uint32 instanceId = 0);
+public:
+    ALE(const AleStateRef& self, uint32 mapId = ALE_GLOBAL_STATE, uint32 instanceId = 0);
     ~ALE();
 
+private:
     ALE(ALE const&) = delete;
     ALE& operator=(const ALE&) = delete;
 
@@ -300,35 +341,33 @@ public:
 
     static void Initialize();
     static void Uninitialize();
-    static void ReloadALE() { LOCK_ALE; reload = true; }
+    // Lock-free set; the flag is consumed under LOCK_ALE in OnWorldUpdate.
+    // Must not take locks: callable from Lua callbacks holding state locks
+    // (lock order everywhere else is global -> state, never the reverse).
+    static void ReloadALE() { reload = true; }
     static LockType& GetLock() { return lock; }
     static bool IsInitialized() { return initialized; }
 
-    static ALE* GetMapState(uint32 mapId, uint32 instanceId = 0)
+    // Owning lookups: the returned shared_ptr keeps the state alive for
+    // the whole hook call, closing the lookup-vs-destroy TOCTOU.
+    static std::shared_ptr<ALE> GetMapState(uint32 mapId, uint32 instanceId = 0)
     {
         std::shared_lock lock(g_states_mutex);
         auto it = g_states.find(ALEMapStateKey(mapId, instanceId));
         return it != g_states.end() ? it->second : nullptr;
     }
 
-    static ALE* GetMapStateOrGlobal(uint32 mapId, uint32 instanceId = 0)
+    static std::shared_ptr<ALE> GetMapStateOrGlobal(uint32 mapId, uint32 instanceId = 0)
     {
         std::shared_lock lock(g_states_mutex);
         auto it = g_states.find(ALEMapStateKey(mapId, instanceId));
-        return it != g_states.end() ? it->second : GALE;
+        if (it != g_states.end() && it->second)
+            return it->second;
+        return GALE_HOLDER;
     }
 
-    static ALE** CreateMapState(uint32 mapId, uint32 instanceId = 0);
+    static std::shared_ptr<ALE> CreateMapState(uint32 mapId, uint32 instanceId = 0);
     static void DestroyMapState(uint32 mapId, uint32 instanceId = 0);
-
-    // Returns a stable pointer-to-pointer for the map state slot, for use by ALEEventProcessor.
-    static ALE** GetMapStateSlot(uint32 mapId, uint32 instanceId = 0)
-    {
-        std::shared_lock lock(g_states_mutex);
-        auto it = g_states.find(ALEMapStateKey(mapId, instanceId));
-        ASSERT(it != g_states.end());
-        return &it->second;
-    }
 
     static ALE* GetALE(lua_State* L)
     {
@@ -377,9 +416,12 @@ public:
     void PushInstanceData(lua_State* L, ALEInstanceAI* ai, bool incrementCounter = true);
 
     void RunScripts();
+    // Same as RunScripts but assumes the caller already holds LOCK_ALE
+    // (and this state's lock where applicable). Never takes global itself,
+    // so it preserves the global -> state lock order.
+    void RunScriptsLocked();
     bool ShouldReload() const { return reload; }
     bool HasLuaState() const { return L != NULL; }
-    uint64 GetCallstackId() const { return callstackid; }
     int Register(lua_State* L, uint8 reg, uint32 entry, ObjectGuid guid, uint32 instanceId, uint32 event_id, int functionRef, uint32 shots);
 
     template<typename T> static T CHECKVAL(lua_State* luastate, int narg);

@@ -48,13 +48,15 @@ std::string ALE::lua_folderpath;
 std::string ALE::lua_requirepath;
 std::string ALE::lua_requirecpath;
 ALE* ALE::GALE = NULL;
-bool ALE::reload = false;
+std::shared_ptr<ALE> ALE::GALE_HOLDER;
+std::atomic<bool> ALE::reload{false};
 bool ALE::initialized = false;
 ALE::LockType ALE::lock;
 std::unique_ptr<ALEFileWatcher> ALE::fileWatcher;
+std::atomic<uint64> ALE::s_stateSeq{0};
 
 // Multistate handling
-std::map<uint64, ALE*> ALE::g_states;
+std::map<uint64, std::shared_ptr<ALE>> ALE::g_states;
 std::shared_mutex ALE::g_states_mutex;
 
 // Runtime-persistent object and map data caches
@@ -85,8 +87,12 @@ void ALE::Initialize()
     // This is checked on ALE creation
     initialized = true;
 
-    // Create global ALE
-    GALE = new ALE(nullptr, ALE_GLOBAL_STATE);
+    // Create global ALE (shared-owned; GALE mirrors it raw)
+    {
+        AleStateRef globalRef;
+        GALE_HOLDER = std::shared_ptr<ALE>(new ALE(globalRef, ALE_GLOBAL_STATE));
+        GALE = GALE_HOLDER.get();
+    }
 
     // Start file watcher if enabled
     if (ALEConfig::GetInstance().IsAutoReloadEnabled())
@@ -109,15 +115,33 @@ void ALE::Uninitialize()
     }
 
     {
-        std::unique_lock lock(g_states_mutex);
-        for (auto& [key, state] : g_states)
+        // Timer/DB/HTTP holders resolve via LockStateRef and keep their own
+        // shared copies; clearing the map makes every stale ref resolve to
+        // null (skip path), and per-state locks below drain in-flight Lua.
+        // lua_close reclaims each registry, so skipped unrefs lose nothing.
+        std::vector<std::shared_ptr<ALE>> states;
         {
-            delete state;
+            std::unique_lock lock(g_states_mutex);
+            for (auto& [key, state] : g_states)
+                if (state)
+                    states.push_back(state);
+            g_states.clear();
         }
-        g_states.clear();
+        for (auto& state : states)
+        {
+            Guard stateGuard(state->GetStateLock());
+            state->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
+        }
+        // Shared copies drop here: ~ALE runs CloseLua exactly once per
+        // state. Stale timer/DB/HTTP refs resolve to null and skip.
+        states.clear();
     }
 
-    delete GALE;
+    {
+        Guard galeGuard(GALE->GetStateLock());
+        GALE->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
+    }
+    GALE_HOLDER.reset();
     GALE = NULL;
 
     lua_scripts.clear();
@@ -128,35 +152,85 @@ void ALE::Uninitialize()
     initialized = false;
 }
 
-ALE** ALE::CreateMapState(uint32 mapId, uint32 instanceId)
+std::shared_ptr<ALE> ALE::LockStateRef(const AleStateRef& ref)
+{
+    if (ref.global)
+        return GALE_HOLDER;
+    std::shared_lock lock(g_states_mutex);
+    auto it = g_states.find(ALEMapStateKey(ref.mapId, ref.instanceId));
+    if (it == g_states.end() || !it->second || it->second->GetStateSeq() != ref.seq)
+        return nullptr;
+    return it->second;
+}
+
+std::shared_ptr<ALE> ALE::OwningRef(ALE* raw)
+{
+    if (!raw)
+        return nullptr;
+    if (raw == GALE)
+        return GALE_HOLDER;
+    std::shared_lock lock(g_states_mutex);
+    for (auto& [key, state] : g_states)
+        if (state && state.get() == raw)
+            return state;
+    return nullptr;
+}
+
+std::shared_ptr<ALE> ALE::CreateMapState(uint32 mapId, uint32 instanceId)
 {
     if (!ALEConfig::GetInstance().ShouldMapLoadALE(mapId))
         return nullptr;
 
-    ALE** slotPtr;
+    // Strict global -> g_states -> state nesting, matching Uninitialize
+    // and _ReloadALE, so no path ever takes global while holding a state.
+    LOCK_ALE;
     uint64 key = ALEMapStateKey(mapId, instanceId);
+    uint64 seq = ++s_stateSeq;
+    AleStateRef ref{ false, mapId, instanceId, seq };
+    std::shared_ptr<ALE> state;
     {
         std::unique_lock lock(g_states_mutex);
         ASSERT(g_states.find(key) == g_states.end());
-        auto& slot = g_states[key];
-        slot = nullptr;
-        slotPtr = &slot;
-        slot = new ALE(slotPtr, mapId, instanceId);
+        state = std::shared_ptr<ALE>(new ALE(ref, mapId, instanceId));
+        g_states[key] = state;
     }
 
-    (*slotPtr)->RunScripts();
-    return slotPtr;
+    {
+        Guard stateGuard(state->GetStateLock());
+        state->RunScriptsLocked();
+    }
+    return state;
 }
 
 void ALE::DestroyMapState(uint32 mapId, uint32 instanceId)
 {
-    std::unique_lock lock(g_states_mutex);
     uint64 key = ALEMapStateKey(mapId, instanceId);
-    auto it = g_states.find(key);
-    if (it != g_states.end())
+    std::shared_ptr<ALE> dying;
     {
-        delete it->second;
-        g_states.erase(it);
+        std::unique_lock lock(g_states_mutex);
+        auto it = g_states.find(key);
+        if (it == g_states.end())
+            return;
+        dying = it->second;
+        if (!dying)
+        {
+            g_states.erase(it);
+            return;
+        }
+    }
+    {
+        // Drain in-flight Lua on the shared-owned state. Timer/DB/HTTP
+        // holders keep their own copies and resolve-then-skip; nothing
+        // dangles because no raw slot addresses exist anymore.
+        // Core premise: its map runs no more updates past OnDestroyMap.
+        Guard stateGuard(dying->GetStateLock());
+    }
+    {
+        std::unique_lock lock(g_states_mutex);
+        auto it = g_states.find(key);
+        // Leave alone a state recreated concurrently (new seq).
+        if (it != g_states.end() && it->second == dying)
+            g_states.erase(it);
     }
 }
 
@@ -218,21 +292,30 @@ void ALE::_ReloadALE()
         ChatHandler(nullptr).SendGMText(SERVER_MSG_STRING, "Reloading ALE...");
 
     sALE->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
+    sALE->httpManager.DropPending();
     sALE->CloseLua();
 
     LoadScriptPaths();
 
     sALE->OpenLua();
-    sALE->RunScripts();
+    sALE->RunScriptsLocked();
 
     {
         std::shared_lock lock(g_states_mutex);
         for (auto& [key, state] : g_states)
         {
+            if (!state)
+                continue;
+            // Map threads run Lua on their state under this same lock;
+            // closing it out from under them would free lua_State mid-call.
+            // CloseLua bumps luaGen so DB/HTTP callbacks bound to the old
+            // registry are dropped, never run on the new one.
+            Guard stateGuard(state->GetStateLock());
             state->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
+            state->httpManager.DropPending();
             state->CloseLua();
             state->OpenLua();
-            state->RunScripts();
+            state->RunScriptsLocked();
         }
     }
 
@@ -281,12 +364,13 @@ bool ALE::DeserializeValue(lua_State* L, const std::string& data)
     return true;
 }
 
-ALE::ALE(ALE** _selfPtr, uint32 mapId, uint32 instanceId) :
+ALE::ALE(const AleStateRef& self, uint32 mapId, uint32 instanceId) :
 stateMapId(mapId),
 stateInstanceId(instanceId),
+selfRef(self),
+stateSeq(self.seq),
 event_level(0),
 push_counter(0),
-selfPtr(_selfPtr),
 
 L(NULL),
 eventMgr(NULL),
@@ -320,8 +404,7 @@ CreatureUniqueBindings(NULL)
 
     OpenLua();
 
-    ALE** evtPtr = selfPtr ? selfPtr : &ALE::GALE;
-    eventMgr = new EventMgr(evtPtr);
+    eventMgr = new EventMgr(selfRef);
 }
 
 
@@ -337,6 +420,10 @@ ALE::~ALE()
 
 void ALE::CloseLua()
 {
+    // Invalidate every pending DB/HTTP callback bound to this registry
+    // before it is reclaimed. Callers hold this state's lock.
+    ++luaGen;
+
     OnLuaStateClose();
 
     DestroyBindStores();
@@ -778,6 +865,11 @@ static bool ScriptPathComparator(const LuaScript& first, const LuaScript& second
 void ALE::RunScripts()
 {
     LOCK_ALE;
+    RunScriptsLocked();
+}
+
+void ALE::RunScriptsLocked()
+{
     if (!ALEConfig::GetInstance().IsALEEnabled())
         return;
 
@@ -1791,7 +1883,9 @@ void ALE::CreateInstanceData(Map const* map)
  */
 void ALE::FreeInstanceId(uint32 instanceId)
 {
-    LOCK_ALE;
+    // This state's lock (never global): every other binding access runs
+    // under this same state lock, so Clear/unref cannot race Lua use.
+    Guard stateGuard(GetStateLock());
 
     if (!ALEConfig::GetInstance().IsALEEnabled())
         return;

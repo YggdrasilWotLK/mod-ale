@@ -11,6 +11,7 @@
 #include "ALEEventMgr.h"
 #include "ALEIncludes.h"
 #include "ALETemplate.h"
+#include "AleDefer.h"
 
 using namespace Hooks;
 
@@ -276,19 +277,38 @@ void ALE::OnWorldUpdate(uint32 diff)
             _ReloadALE();
     }
 
+    // Deferred far teleports/logouts (maps idle here). Deliberately without
+    // LOCK_ALE: the queue has its own mutex, and holding global across the
+    // hooks below would invert the lock order (global -> state here vs
+    // state-first on Lua entry paths).
+    AleDefer::Drain();
+
     eventMgr->globalProcessor->Update(diff);
-    httpManager.HandleHttpResponses();
-    queryProcessor.ProcessReadyCallbacks();
+    {
+        LOCK_ALE;
+        std::lock_guard<std::mutex> qguard(queryMutex);
+        httpManager.HandleHttpResponses(this, true);
+        queryProcessor.ProcessReadyCallbacks();
+    }
 
     {
-        std::shared_lock lock(g_states_mutex);
-        for (auto& [mapId, state] : g_states)
+        // Copy owning references and release g_states before touching
+        // callbacks: callbacks take global -> state, so holding g_states
+        // shared across them would invert the order (g_states -> global).
+        std::vector<std::shared_ptr<ALE>> states;
         {
-            if (state)
-            {
-                state->httpManager.HandleHttpResponses();
-                state->queryProcessor.ProcessReadyCallbacks();
-            }
+            std::shared_lock lock(g_states_mutex);
+            for (auto& [mapId, state] : g_states)
+                if (state)
+                    states.push_back(state);
+        }
+        for (auto& state : states)
+        {
+            LOCK_ALE;
+            Guard stateGuard(state->GetStateLock());
+            std::lock_guard<std::mutex> qguard(state->queryMutex);
+            state->httpManager.HandleHttpResponses(state.get(), false);
+            state->queryProcessor.ProcessReadyCallbacks();
         }
     }
 

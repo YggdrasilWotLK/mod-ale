@@ -8,6 +8,8 @@
 #define MAPMETHODS_H
 
 #include "ALEInstanceAI.h"
+#include "ObjectAccessor.h"
+#include <shared_mutex>
 
 /***
  * A game map, e.g. Azeroth, Eastern Kingdoms, the Molten Core, etc.
@@ -306,16 +308,24 @@ namespace LuaMap
         int tbl = lua_gettop(L);
         uint32 i = 0;
 
-        Map::PlayerList const& players = map->GetPlayers();
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        // Iterates the global player store under its lock instead of the
+        // map's local list, so this is safe from any thread at any thread
+        // count. Pointers are validated again on use via liveness check.
         {
-            Player* player = itr->GetSource();
-            if (!player)
-                continue;
-            if (player->GetSession() && (team >= TEAM_NEUTRAL || player->GetTeamId() == team))
+            std::shared_lock<std::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
+            HashMapHolder<Player>::MapType const& players = eObjectAccessor()GetPlayers();
+            for (auto const& pair : players)
             {
-                ALE::Push(L, player);
-                lua_rawseti(L, tbl, ++i);
+                Player* player = pair.second;
+                if (!player)
+                    continue;
+                if (player->FindMap() != map)
+                    continue;
+                if (player->GetSession() && (team >= TEAM_NEUTRAL || player->GetTeamId() == team))
+                {
+                    ALE::Push(L, player);
+                    lua_rawseti(L, tbl, ++i);
+                }
             }
         }
 
