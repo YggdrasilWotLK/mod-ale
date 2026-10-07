@@ -350,22 +350,22 @@ public:
 
     void OnBattlegroundStart(Battleground* bg) override
     {
-        ALE::GetMapStateOrGlobal(bg->GetMapId(), bg->GetInstanceId())->OnBGStart(bg, bg->GetBgTypeID(), bg->GetInstanceID());
+        ALE::GetMapStateOrGlobal(bg->GetMapId(), bg->GetInstanceID())->OnBGStart(bg, bg->GetBgTypeID(), bg->GetInstanceID());
     }
 
     void OnBattlegroundEnd(Battleground* bg, TeamId winnerTeam) override
     {
-        ALE::GetMapStateOrGlobal(bg->GetMapId(), bg->GetInstanceId())->OnBGEnd(bg, bg->GetBgTypeID(), bg->GetInstanceID(), winnerTeam);
+        ALE::GetMapStateOrGlobal(bg->GetMapId(), bg->GetInstanceID())->OnBGEnd(bg, bg->GetBgTypeID(), bg->GetInstanceID(), winnerTeam);
     }
 
     void OnBattlegroundDestroy(Battleground* bg) override
     {
-        ALE::GetMapStateOrGlobal(bg->GetMapId(), bg->GetInstanceId())->OnBGDestroy(bg, bg->GetBgTypeID(), bg->GetInstanceID());
+        ALE::GetMapStateOrGlobal(bg->GetMapId(), bg->GetInstanceID())->OnBGDestroy(bg, bg->GetBgTypeID(), bg->GetInstanceID());
     }
 
     void OnBattlegroundCreate(Battleground* bg) override
     {
-        ALE::GetMapStateOrGlobal(bg->GetMapId(), bg->GetInstanceId())->OnBGCreate(bg, bg->GetBgTypeID(), bg->GetInstanceID());
+        ALE::GetMapStateOrGlobal(bg->GetMapId(), bg->GetInstanceID())->OnBGCreate(bg, bg->GetBgTypeID(), bg->GetInstanceID());
     }
 };
 
