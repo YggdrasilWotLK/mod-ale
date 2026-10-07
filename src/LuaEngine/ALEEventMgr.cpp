@@ -160,6 +160,13 @@ void ALEEventProcessor::Update(uint32 diff)
         if (!fire)
             continue;
 
+        // Publish the in-flight event so targeted SetState from Lua
+        // (self-removal) reaches it: it was popped from the containers.
+        {
+            Guard guard(mutex);
+            firing = call.luaEvent;
+        }
+
         // Resolve the owning state into a shared reference that keeps it
         // alive for the whole call. Destroyed/recreated states resolve to
         // null and are skipped: no raw slot is ever dereferenced. Locking
@@ -179,6 +186,7 @@ void ALEEventProcessor::Update(uint32 diff)
             // processor down meanwhile, and no mass removal swept during
             // the call (sole ownership returns to the containers exactly
             // once). Anything else is deleted below.
+            firing = nullptr;
             if (!call.remove && !dead && call.luaEvent->state == LUAEVENT_STATE_RUN &&
                 massSweep.load(std::memory_order_acquire) == call.sweep)
                 AddEvent(call.luaEvent);
@@ -222,6 +230,8 @@ void ALEEventProcessor::SetState(int eventId, LuaEventState state)
     Guard guard(mutex);
     if (eventMap.find(eventId) != eventMap.end())
         eventMap[eventId]->SetState(state);
+    else if (firing && firing->funcRef == eventId)
+        firing->SetState(state);
     if (state == LUAEVENT_STATE_ERASE)
         eventMap.erase(eventId);
 }

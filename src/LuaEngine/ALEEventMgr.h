@@ -125,6 +125,8 @@ private:
     // containers no longer hold it, so the sweep could not mark it) and
     // must not be re-added. Targeted SetState bumps nothing.
     std::atomic<uint64> massSweep{0};
+    // Event currently firing (sole-owned by the firing loop, not in containers).
+    LuaEvent* firing = nullptr;
 };
 
 class EventMgr : public ALEUtil::Lockable
