@@ -140,6 +140,15 @@ ALEGlobalRegister GlobalMethods[] =
     { "GetGossipMenuOptionLocale", &LuaGlobalFunctions::GetGossipMenuOptionLocale },
     { "GetMapEntrance", &LuaGlobalFunctions::GetMapEntrance },
     { "GetSpellInfo", &LuaGlobalFunctions::GetSpellInfo },
+    { "GetWintergraspDefenderTeam", &LuaGlobalFunctions::GetWintergraspDefenderTeam },
+    { "GetWintergraspAttackerTeam", &LuaGlobalFunctions::GetWintergraspAttackerTeam },
+    { "GetWintergraspTimer", &LuaGlobalFunctions::GetWintergraspTimer },
+    { "GetWintergraspIntactTowers", &LuaGlobalFunctions::GetWintergraspIntactTowers },
+    { "GetWintergraspDamagedTowers", &LuaGlobalFunctions::GetWintergraspDamagedTowers },
+    { "GetWintergraspBrokenTowers", &LuaGlobalFunctions::GetWintergraspBrokenTowers },
+    { "GetWintergraspVehiclesAlliance", &LuaGlobalFunctions::GetWintergraspVehiclesAlliance },
+    { "GetWintergraspVehiclesHorde", &LuaGlobalFunctions::GetWintergraspVehiclesHorde },
+    { "GetWintergraspRelic", &LuaGlobalFunctions::GetWintergraspRelic },
 
     // Boolean
     { "IsCompatibilityMode", &LuaGlobalFunctions::IsCompatibilityMode },
@@ -148,6 +157,10 @@ ALEGlobalRegister GlobalMethods[] =
     { "IsBankPos", &LuaGlobalFunctions::IsBankPos },
     { "IsBagPos", &LuaGlobalFunctions::IsBagPos },
     { "IsGameEventActive", &LuaGlobalFunctions::IsGameEventActive, METHOD_REG_WORLD },
+    { "IsWintergraspWarTime", &LuaGlobalFunctions::IsWintergraspWarTime },
+    { "IsWintergraspEnabled", &LuaGlobalFunctions::IsWintergraspEnabled },
+    { "CanInteractWithWintergraspRelic", &LuaGlobalFunctions::CanInteractWithWintergraspRelic },
+    { "CanFlyInWintergrasp", &LuaGlobalFunctions::CanFlyInWintergrasp },
 
     // Other
     { "ReloadALE", &LuaGlobalFunctions::ReloadALE },
@@ -182,6 +195,10 @@ ALEGlobalRegister GlobalMethods[] =
     { "HttpRequest", &LuaGlobalFunctions::HttpRequest },
     { "SetOwnerHalaa", &LuaGlobalFunctions::SetOwnerHalaa, METHOD_REG_WORLD },
     { "LookupEntry", &LuaGlobalFunctions::LookupEntry },
+    { "SetWintergraspDefenderTeam", &LuaGlobalFunctions::SetWintergraspDefenderTeam, METHOD_REG_WORLD },
+    { "SetWintergraspTimer", &LuaGlobalFunctions::SetWintergraspTimer, METHOD_REG_WORLD },
+    { "StartWintergraspBattle", &LuaGlobalFunctions::StartWintergraspBattle, METHOD_REG_WORLD },
+    { "EndWintergraspBattle", &LuaGlobalFunctions::EndWintergraspBattle, METHOD_REG_WORLD },
 
     { NULL, NULL }
 };
@@ -469,6 +486,7 @@ ALERegister<Unit> UnitMethods[] =
     { "MoveFleeing", &LuaUnit::MoveFleeing },
     { "MoveTo", &LuaUnit::MoveTo },
     { "MoveJump", &LuaUnit::MoveJump },
+    { "MoveFall", &LuaUnit::MoveFall },
     { "MoveStop", &LuaUnit::MoveStop },
     { "MoveExpire", &LuaUnit::MoveExpire },
     { "MoveClear", &LuaUnit::MoveClear },
