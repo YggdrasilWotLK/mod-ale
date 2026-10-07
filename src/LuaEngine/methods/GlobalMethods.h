@@ -3833,5 +3833,74 @@ namespace LuaGlobalFunctions
 
         return luaL_error(L, "Invalid DBC name: %s", dbcName);
     }
+
+    /**
+     * Returns a value from the runtime-persistent world data cache.
+     * Values are written with [Global:SetWorldData] (world state only) and
+     * are readable from every state. Data survives Lua reloads and is cleared
+     * on server restart. Table values are returned as a proxy; call AsTable()
+     * on it to get the plain table.
+     *
+     * @param string key
+     * @return value or nil if unset
+     */
+    int GetWorldData(lua_State* L)
+    {
+        const char* key = ALE::CHECKVAL<const char*>(L, 1);
+
+        std::lock_guard lock(ALE::worldDataMutex);
+        auto it = ALE::worldDataCache.find(key);
+        if (it == ALE::worldDataCache.end())
+        {
+            lua_pushnil(L);
+            return 1;
+        }
+
+        ALE::DeserializeValue(L, it->second);
+        if (!lua_istable(L, -1))
+            return 1;
+
+        lua_newtable(L);
+        int proxy = lua_gettop(L);
+
+        lua_pushstring(L, "__inner");
+        lua_pushvalue(L, -3);
+        lua_rawset(L, proxy);
+
+        lua_pushstring(L, "AsTable");
+        lua_pushcclosure(L, [](lua_State* L) -> int {
+            lua_getfield(L, 1, "__inner");
+            return 1;
+        }, 0);
+        lua_rawset(L, proxy);
+
+        lua_remove(L, -2);
+        return 1;
+    }
+
+    /**
+     * Writes a value into the runtime-persistent world data cache.
+     * World state only (not registered in map states). Values must be
+     * marshallable (numbers, strings, booleans, plain tables). Pass nil to
+     * erase the key.
+     *
+     * @param string key
+     * @param value value (nil erases)
+     */
+    int SetWorldData(lua_State* L)
+    {
+        const char* key = ALE::CHECKVAL<const char*>(L, 1);
+
+        std::lock_guard lock(ALE::worldDataMutex);
+        if (lua_isnoneornil(L, 2))
+            ALE::worldDataCache.erase(key);
+        else
+        {
+            std::string serialized = ALE::SerializeValue(L, 2);
+            if (!serialized.empty())
+                ALE::worldDataCache[key] = serialized;
+        }
+        return 0;
+    }
 }
 #endif

@@ -177,6 +177,12 @@ public:
     static std::unordered_map<uint32, std::unordered_map<std::string, std::string>> mapDataCache;
     static std::mutex mapDataMutex;
 
+    // Runtime-persistent world data cache, keyed by string. Written by the
+    // world state only (SetWorldData is world-registered), readable from
+    // every state (GetWorldData is registered everywhere).
+    static std::unordered_map<std::string, std::string> worldDataCache;
+    static std::mutex worldDataMutex;
+
     static void ClearObjectData(ObjectGuid guid)
     {
         std::lock_guard lock(objectDataMutex);

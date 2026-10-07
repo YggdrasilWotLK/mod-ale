@@ -64,6 +64,8 @@ std::unordered_map<ObjectGuid, std::unordered_map<std::string, std::string>> ALE
 std::mutex ALE::objectDataMutex;
 std::unordered_map<uint32, std::unordered_map<std::string, std::string>> ALE::mapDataCache;
 std::mutex ALE::mapDataMutex;
+std::unordered_map<std::string, std::string> ALE::worldDataCache;
+std::mutex ALE::worldDataMutex;
 
 // Global bytecode cache that survives ALE reloads
 static std::unordered_map<std::string, GlobalCacheEntry> globalBytecodeCache;
