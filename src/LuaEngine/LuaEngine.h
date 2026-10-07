@@ -203,10 +203,8 @@ public:
     // to a previous lua_State incarnation are dropped, never run or
     // unref'd on the new state.
     std::atomic<uint64> luaGen{0};
-    // Serializes AddCallback (Lua threads under state lock) against
-    // ProcessReadyCallbacks (world thread under global+state).
-    // Order tail is always state -> queryMutex.
-    mutable std::mutex queryMutex;
+    // Recursive: callbacks run under this lock and may issue nested async queries.
+    mutable std::recursive_mutex queryMutex;
 
 private:
     LockType stateLock;

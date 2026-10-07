@@ -1408,7 +1408,7 @@ namespace LuaGlobalFunctions
         AleStateRef owner = E->GetSelfRef();
         uint64 gen = E->luaGen.load(std::memory_order_acquire);
         {
-            std::lock_guard<std::mutex> qguard(E->queryMutex);
+            std::lock_guard<std::recursive_mutex> qguard(E->queryMutex);
             E->queryProcessor.AddCallback(db.AsyncQuery(query).WithCallback([funcRef, owner, gen](QueryResult result)
             {
                 ALEQuery* eq = result ? new ALEQuery(result) : nullptr;

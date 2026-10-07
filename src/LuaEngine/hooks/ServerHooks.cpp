@@ -286,7 +286,7 @@ void ALE::OnWorldUpdate(uint32 diff)
     eventMgr->globalProcessor->Update(diff);
     {
         LOCK_ALE;
-        std::lock_guard<std::mutex> qguard(queryMutex);
+        std::lock_guard<std::recursive_mutex> qguard(queryMutex);
         httpManager.HandleHttpResponses(this, true);
         queryProcessor.ProcessReadyCallbacks();
     }
@@ -306,7 +306,7 @@ void ALE::OnWorldUpdate(uint32 diff)
         {
             LOCK_ALE;
             Guard stateGuard(state->GetStateLock());
-            std::lock_guard<std::mutex> qguard(state->queryMutex);
+            std::lock_guard<std::recursive_mutex> qguard(state->queryMutex);
             state->httpManager.HandleHttpResponses(state.get(), false);
             state->queryProcessor.ProcessReadyCallbacks();
         }
