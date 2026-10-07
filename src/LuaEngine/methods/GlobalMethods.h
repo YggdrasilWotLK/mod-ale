@@ -1795,7 +1795,18 @@ namespace LuaGlobalFunctions
         bool save = ALE::CHECKVAL<bool>(L, 9, false);
         uint32 durorresptime = ALE::CHECKVAL<uint32>(L, 10, 0);
         uint32 phase = ALE::CHECKVAL<uint32>(L, 11, PHASEMASK_NORMAL);
-        
+
+        // Map-state Lua may only spawn into its own map+instance: anything
+        // else inserts objects into a map owned by another worker.
+        // Global-state callers keep existing behavior either way.
+        ALE* callingE = ALE::GetALE(L);
+        if (callingE->GetStateMapId() != ALE_GLOBAL_STATE &&
+            (mapID != callingE->GetStateMapId() || instanceID != callingE->GetStateInstanceId()))
+        {
+            ALE::Push(L);
+            return 1;
+        }
+
         if (!phase)
         {
             ALE::Push(L);

@@ -18,6 +18,15 @@
  */
 namespace LuaMap
 {
+    // Map-state Lua may only walk the stores of its own map+instance: any
+    // other map is owned by another worker (or the world). Global-state
+    // callers run with maps idle and keep existing behavior either way.
+    static bool IsOwnMap(lua_State* L, Map* map)
+    {
+        ALE* callingE = ALE::GetALE(L);
+        return callingE->GetStateMapId() == ALE_GLOBAL_STATE ||
+            (map->GetId() == callingE->GetStateMapId() && map->GetInstanceId() == callingE->GetStateInstanceId());
+    }
 
     /**
      * Returns `true` if the [Map] is an arena [BattleGround], `false` otherwise.
@@ -192,6 +201,12 @@ namespace LuaMap
     {
         ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
 
+        if (!IsOwnMap(L, map))
+        {
+            ALE::Push(L);
+            return 1;
+        }
+
         switch (guid.GetHigh())
         {
             case HIGHGUID_PLAYER:
@@ -243,6 +258,9 @@ namespace LuaMap
         uint32 zoneId = ALE::CHECKVAL<uint32>(L, 2);
         uint32 weatherType = ALE::CHECKVAL<uint32>(L, 3);
         float grade = ALE::CHECKVAL<float>(L, 4);
+
+        if (!IsOwnMap(L, map))
+            return 0;
 
         Weather* weather = map->GetOrGenerateZoneDefaultWeather(zoneId);
         if (weather)
@@ -340,6 +358,12 @@ namespace LuaMap
      */
     int GetCreatures(lua_State* L, Map* map)
     {
+        if (!IsOwnMap(L, map))
+        {
+            lua_newtable(L);
+            return 1;
+        }
+
         const auto& creatures = map->GetCreatureBySpawnIdStore();
 
         lua_createtable(L, creatures.size(), 0);
@@ -366,6 +390,13 @@ namespace LuaMap
     int GetCreaturesByAreaId(lua_State* L, Map* map)
     {
         int32 areaId = ALE::CHECKVAL<int32>(L, 2, -1);
+
+        if (!IsOwnMap(L, map))
+        {
+            lua_newtable(L);
+            return 1;
+        }
+
         std::vector<Creature*> filteredCreatures;
 
         for (const auto& pair : map->GetCreatureBySpawnIdStore())
@@ -397,6 +428,12 @@ namespace LuaMap
      */
     int GetTransports(lua_State* L, Map* map)
     {
+        if (!IsOwnMap(L, map))
+        {
+            lua_newtable(L);
+            return 1;
+        }
+
         TransportsContainer const& transports = map->GetAllTransports();
         lua_newtable(L);
         int i = 1;
