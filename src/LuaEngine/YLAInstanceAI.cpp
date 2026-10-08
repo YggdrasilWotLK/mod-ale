@@ -4,15 +4,15 @@
 * Please see the included DOCS/LICENSE.md for more information
 */
 
-#include "ALEInstanceAI.h"
+#include "YLAInstanceAI.h"
 #include <sstream>
 
-void ALEInstanceAI::Initialize()
+void YLAInstanceAI::Initialize()
 {
     sALE->OnInitialize(this);
 }
 
-void ALEInstanceAI::Load(const char* data)
+void YLAInstanceAI::Load(const char* data)
 {
     if (data)
     {
@@ -45,7 +45,7 @@ void ALEInstanceAI::Load(const char* data)
     sALE->OnLoad(this);
 }
 
-const char* ALEInstanceAI::Save() const
+const char* YLAInstanceAI::Save() const
 {
     std::ostringstream oss;
     if (!dataStore.empty())
@@ -64,24 +64,24 @@ const char* ALEInstanceAI::Save() const
     return lastSaveData.c_str();
 }
 
-uint32 ALEInstanceAI::GetData(uint32 key) const
+uint32 YLAInstanceAI::GetData(uint32 key) const
 {
     auto it = dataStore.find(key);
     return it != dataStore.end() ? it->second : 0;
 }
 
-void ALEInstanceAI::SetData(uint32 key, uint32 value)
+void YLAInstanceAI::SetData(uint32 key, uint32 value)
 {
     dataStore[key] = value;
 }
 
-uint64 ALEInstanceAI::GetData64(uint32 key) const
+uint64 YLAInstanceAI::GetData64(uint32 key) const
 {
     auto it = dataStore64.find(key);
     return it != dataStore64.end() ? it->second : 0;
 }
 
-void ALEInstanceAI::SetData64(uint32 key, uint64 value)
+void YLAInstanceAI::SetData64(uint32 key, uint64 value)
 {
     dataStore64[key] = value;
 }

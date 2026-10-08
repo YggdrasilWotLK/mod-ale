@@ -14,8 +14,8 @@ extern "C"
 #include "lauxlib.h"
 };
 #include "LuaEngine.h"
-#include "ALECompat.h"
-#include "ALEUtility.h"
+#include "YLACompat.h"
+#include "YLAUtility.h"
 #include "YlaAlive.h"
 #include "ObjectAccessor.h"
 #include "ObjectGuid.h"
@@ -178,7 +178,7 @@ struct ALERegister
 };
 
 template<typename T>
-class ALETemplate
+class YLATemplate
 {
 public:
     static const char* tname;
@@ -473,7 +473,7 @@ public:
 
     // Metamethods ("virtual")
 
-    // Remember special cases like ALETemplate<Vehicle>::CollectGarbage
+    // Remember special cases like YLATemplate<Vehicle>::CollectGarbage
     static int CollectGarbage(lua_State* L)
     {
         // Get object pointer (and check type, no error)
@@ -509,17 +509,17 @@ public:
 };
 
 template<typename T>
-ALEObject::ALEObject(T * obj, bool manageMemory, uint64 snapId) : callstackid(1), _invalidate(!manageMemory), object(obj), type_name(ALETemplate<T>::tname)
+ALEObject::ALEObject(T * obj, bool manageMemory, uint64 snapId) : callstackid(1), _invalidate(!manageMemory), object(obj), type_name(YLATemplate<T>::tname)
 {
     SetValid(true, snapId);
 }
 
-inline ALEObject::ALEObject(Player* obj, bool manageMemory, uint64 snapId) : callstackid(1), _invalidate(!manageMemory), object(obj), type_name(ALETemplate<Player>::tname), playerGuid(obj ? obj->GetGUID() : ObjectGuid::Empty)
+inline ALEObject::ALEObject(Player* obj, bool manageMemory, uint64 snapId) : callstackid(1), _invalidate(!manageMemory), object(obj), type_name(YLATemplate<Player>::tname), playerGuid(obj ? obj->GetGUID() : ObjectGuid::Empty)
 {
     SetValid(true, snapId);
 }
 
-template<typename T> const char* ALETemplate<T>::tname = NULL;
-template<typename T> bool ALETemplate<T>::manageMemory = false;
+template<typename T> const char* YLATemplate<T>::tname = NULL;
+template<typename T> bool YLATemplate<T>::manageMemory = false;
 
 #endif

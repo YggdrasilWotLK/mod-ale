@@ -12,8 +12,8 @@ Un módulo de Eluna para AzerothCore.
 Cómo instalar:
 
 1. Descargar o clonar este módulo:  
->   [Descargar archivo zip](https://github.com/azerothcore/mod-yla-lua-engine/archive/master.zip)  
->   o clonar `git clone https://github.com/azerothcore/mod-yla-lua-engine.git`  
+>   [Descargar archivo zip](https://github.com/azerothcore/mod-ale-lua-engine/archive/master.zip)  
+>   o clonar `git clone https://github.com/azerothcore/mod-ale-lua-engine.git`  
 2. Póngalo en la carpeta de módulos del Azerothcore.
 >	$HOME/azerothcore/modules/  
 3. Descargar o clonar el archivo central de ELUNA:

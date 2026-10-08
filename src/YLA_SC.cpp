@@ -16,7 +16,7 @@
  */
 
 #include "Chat.h"
-#include "ALEEventMgr.h"
+#include "YLAEventMgr.h"
 #include "YlaAlive.h"
 #include "Log.h"
 #include "LuaEngine.h"
@@ -259,7 +259,7 @@ public:
 
     void OnBeforeCreateInstanceScript(InstanceMap* instanceMap, InstanceScript** instanceData, bool /*load*/, std::string /*data*/, uint32 /*completedEncounterMask*/) override
     {
-        if (!ALEConfig::GetInstance().IsCompatibilityModeEnabled())
+        if (!YLAConfig::GetInstance().IsCompatibilityModeEnabled())
         {
             if (!ALE::GetMapState(instanceMap->GetId(), instanceMap->GetInstanceId()))
                 ALE::CreateMapState(instanceMap->GetId(), instanceMap->GetInstanceId());
@@ -275,7 +275,7 @@ public:
 
     void OnCreateMap(Map* map) override
     {
-        if (!ALEConfig::GetInstance().IsCompatibilityModeEnabled())
+        if (!YLAConfig::GetInstance().IsCompatibilityModeEnabled())
         {
             if (!ALE::GetMapState(map->GetId(), map->GetInstanceId()))
                 ALE::CreateMapState(map->GetId(), map->GetInstanceId());
@@ -288,7 +288,7 @@ public:
         ALE::GetMapStateOrGlobal(map->GetId(), map->GetInstanceId())->OnDestroy(map);
         ALE::ClearMapData(map->GetId());
         ALE::ClearMapBox(map->GetId(), map->GetInstanceId());
-        if (!ALEConfig::GetInstance().IsCompatibilityModeEnabled())
+        if (!YLAConfig::GetInstance().IsCompatibilityModeEnabled())
             ALE::DestroyMapState(map->GetId(), map->GetInstanceId());
     }
 
@@ -385,10 +385,10 @@ public:
     }
 };
 
-class YLA_ALEScript : public ALEScript
+class YLA_YLAScript : public YLAScript
 {
 public:
-    YLA_ALEScript() : ALEScript("YLA_ALEScript") { }
+    YLA_YLAScript() : YLAScript("YLA_YLAScript") { }
 
     void OnWeatherChange(Weather* weather, WeatherState state, float grade) override
     {
@@ -856,8 +856,8 @@ public:
     // WORLD
     void OnPlayerLogin(Player* player) override
     {
-        if (player->ALEEvents)
-            player->ALEEvents->CaptureGuid();
+        if (player->YLAEvents)
+            player->YLAEvents->CaptureGuid();
         gALE->OnLogin(player);
     }
 
@@ -1131,38 +1131,38 @@ public:
         // Players-only: GUID and type are still valid inside ~WorldObject.
         if (object->GetTypeId() == TYPEID_PLAYER)
             YlaAlive::Erase(object->GetGUID(), object);
-        if (object->ALEEvents)
+        if (object->YLAEvents)
         {
-            delete object->ALEEvents;
-            object->ALEEvents = nullptr;
+            delete object->YLAEvents;
+            object->YLAEvents = nullptr;
         }
     }
     
     void OnWorldObjectCreate(WorldObject* object) override
     {
-        object->ALEEvents = nullptr;
+        object->YLAEvents = nullptr;
     }
 
     void OnWorldObjectSetMap(WorldObject* object, Map* map) override
     {
-        if (!object->ALEEvents)
+        if (!object->YLAEvents)
         {
-            if (!ALEConfig::GetInstance().IsCompatibilityModeEnabled())
+            if (!YLAConfig::GetInstance().IsCompatibilityModeEnabled())
             {
                 if (auto state = ALE::GetMapState(map->GetId(), map->GetInstanceId()))
-                    object->ALEEvents = new ALEEventProcessor(state->GetSelfRef(), state, object);
+                    object->YLAEvents = new YLAEventProcessor(state->GetSelfRef(), state, object);
                 else if (ALE::GALE)
-                    object->ALEEvents = new ALEEventProcessor(ALE::GALE->GetSelfRef(), ALE::OwningRef(ALE::GALE), object);
+                    object->YLAEvents = new YLAEventProcessor(ALE::GALE->GetSelfRef(), ALE::OwningRef(ALE::GALE), object);
                 else
-                    object->ALEEvents = new ALEEventProcessor(YlaStateRef(), nullptr, object);
+                    object->YLAEvents = new YLAEventProcessor(YlaStateRef(), nullptr, object);
             }
             else if (ALE::GALE)
             {
-                object->ALEEvents = new ALEEventProcessor(ALE::GALE->GetSelfRef(), ALE::OwningRef(ALE::GALE), object);
+                object->YLAEvents = new YLAEventProcessor(ALE::GALE->GetSelfRef(), ALE::OwningRef(ALE::GALE), object);
             }
             else
             {
-                object->ALEEvents = new ALEEventProcessor(YlaStateRef(), nullptr, object);
+                object->YLAEvents = new YLAEventProcessor(YlaStateRef(), nullptr, object);
             }
         }
         // Players-only: OnWorldObjectCreate fires in the WorldObject base
@@ -1173,8 +1173,8 @@ public:
 
     void OnWorldObjectUpdate(WorldObject* object, uint32 diff) override
     {
-        if (object->ALEEvents)
-            object->ALEEvents->Update(diff);
+        if (object->YLAEvents)
+            object->YLAEvents->Update(diff);
     }
 };
 
@@ -1201,7 +1201,7 @@ public:
 
     void OnBeforeConfigLoad(bool reload) override
     {
-        ALEConfig::GetInstance().Initialize(reload);
+        YLAConfig::GetInstance().Initialize(reload);
         if (!reload)
         {
             ///- Initialize Lua Engine
@@ -1333,7 +1333,7 @@ void AddSC_ALE()
     new YLA_AuctionHouseScript();
     new YLA_BGScript();
     new YLA_CommandSC();
-    new YLA_ALEScript();
+    new YLA_YLAScript();
     new YLA_GameEventScript();
     new YLA_GroupScript();
     new YLA_GuildScript();

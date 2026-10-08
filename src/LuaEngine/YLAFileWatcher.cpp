@@ -4,31 +4,31 @@
 * Please see the included DOCS/LICENSE.md for more information
 */
 
-#include "ALEFileWatcher.h"
+#include "YLAFileWatcher.h"
 #include "LuaEngine.h"
-#include "ALEUtility.h"
+#include "YLAUtility.h"
 #include <boost/filesystem.hpp>
 
-ALEFileWatcher::ALEFileWatcher() : running(false), checkInterval(1)
+YLAFileWatcher::YLAFileWatcher() : running(false), checkInterval(1)
 {
 }
 
-ALEFileWatcher::~ALEFileWatcher()
+YLAFileWatcher::~YLAFileWatcher()
 {
     StopWatching();
 }
 
-void ALEFileWatcher::StartWatching(const std::string& scriptPath, uint32 intervalSeconds)
+void YLAFileWatcher::StartWatching(const std::string& scriptPath, uint32 intervalSeconds)
 {
     if (running.load())
     {
-        YLA_LOG_DEBUG("[ALEFileWatcher]: Already watching files");
+        YLA_LOG_DEBUG("[YLAFileWatcher]: Already watching files");
         return;
     }
 
     if (scriptPath.empty())
     {
-        YLA_LOG_ERROR("[ALEFileWatcher]: Cannot start watching - script path is empty");
+        YLA_LOG_ERROR("[YLAFileWatcher]: Cannot start watching - script path is empty");
         return;
     }
 
@@ -38,12 +38,12 @@ void ALEFileWatcher::StartWatching(const std::string& scriptPath, uint32 interva
 
     ScanDirectory(watchPath);
 
-    watcherThread = std::thread(&ALEFileWatcher::WatchLoop, this);
+    watcherThread = std::thread(&YLAFileWatcher::WatchLoop, this);
     
-    YLA_LOG_INFO("[ALEFileWatcher]: Started watching '{}' (interval: {}s)", watchPath, checkInterval);
+    YLA_LOG_INFO("[YLAFileWatcher]: Started watching '{}' (interval: {}s)", watchPath, checkInterval);
 }
 
-void ALEFileWatcher::StopWatching()
+void YLAFileWatcher::StopWatching()
 {
     if (!running.load())
         return;
@@ -55,10 +55,10 @@ void ALEFileWatcher::StopWatching()
 
     fileTimestamps.clear();
     
-    YLA_LOG_INFO("[ALEFileWatcher]: Stopped watching files");
+    YLA_LOG_INFO("[YLAFileWatcher]: Stopped watching files");
 }
 
-void ALEFileWatcher::WatchLoop()
+void YLAFileWatcher::WatchLoop()
 {
     while (running.load())
     {
@@ -68,20 +68,20 @@ void ALEFileWatcher::WatchLoop()
         }
         catch (const std::exception& e)
         {
-            YLA_LOG_ERROR("[ALEFileWatcher]: Error during file watching: {}", e.what());
+            YLA_LOG_ERROR("[YLAFileWatcher]: Error during file watching: {}", e.what());
         }
 
         std::this_thread::sleep_for(std::chrono::seconds(checkInterval));
     }
 }
 
-bool ALEFileWatcher::IsWatchedFileType(const std::string& filename) {
+bool YLAFileWatcher::IsWatchedFileType(const std::string& filename) {
     return (filename.length() >= 4 && filename.substr(filename.length() - 4) == ".lua") ||
         (filename.length() >= 4 && filename.substr(filename.length() - 4) == ".ext") ||
         (filename.length() >= 5 && filename.substr(filename.length() - 5) == ".moon");
 }
 
-void ALEFileWatcher::ScanDirectory(const std::string& path)
+void YLAFileWatcher::ScanDirectory(const std::string& path)
 {
     try
     {
@@ -113,11 +113,11 @@ void ALEFileWatcher::ScanDirectory(const std::string& path)
     }
     catch (const std::exception& e)
     {
-        YLA_LOG_ERROR("[ALEFileWatcher]: Error scanning directory '{}': {}", path, e.what());
+        YLA_LOG_ERROR("[YLAFileWatcher]: Error scanning directory '{}': {}", path, e.what());
     }
 }
 
-void ALEFileWatcher::CheckForChanges()
+void YLAFileWatcher::CheckForChanges()
 {
     bool hasChanges = false;
     
@@ -140,7 +140,7 @@ void ALEFileWatcher::CheckForChanges()
         {
             if (!boost::filesystem::exists(it->first))
             {
-                YLA_LOG_DEBUG("[ALEFileWatcher]: File deleted: {}", it->first);
+                YLA_LOG_DEBUG("[YLAFileWatcher]: File deleted: {}", it->first);
                 it = fileTimestamps.erase(it);
                 hasChanges = true;
             }
@@ -152,20 +152,20 @@ void ALEFileWatcher::CheckForChanges()
     }
     catch (const std::exception& e)
     {
-        YLA_LOG_ERROR("[ALEFileWatcher]: Error checking for changes: {}", e.what());
+        YLA_LOG_ERROR("[YLAFileWatcher]: Error checking for changes: {}", e.what());
         return;
     }
 
     if (hasChanges)
     {
-        YLA_LOG_INFO("[ALEFileWatcher]: Lua script changes detected - triggering reload");
+        YLA_LOG_INFO("[YLAFileWatcher]: Lua script changes detected - triggering reload");
         ALE::ReloadALE();
         
         ScanDirectory(watchPath);
     }
 }
 
-bool ALEFileWatcher::ShouldReloadFile(const std::string& filepath)
+bool YLAFileWatcher::ShouldReloadFile(const std::string& filepath)
 {
     try
     {
@@ -195,21 +195,21 @@ bool ALEFileWatcher::ShouldReloadFile(const std::string& filepath)
         
         if (it == fileTimestamps.end())
         {
-            YLA_LOG_DEBUG("[ALEFileWatcher]: New file detected: {}", filepath);
+            YLA_LOG_DEBUG("[YLAFileWatcher]: New file detected: {}", filepath);
             fileTimestamps[filepath] = currentTime;
             return true;
         }
         
         if (it->second != currentTime)
         {
-            YLA_LOG_DEBUG("[ALEFileWatcher]: File modified: {}", filepath);
+            YLA_LOG_DEBUG("[YLAFileWatcher]: File modified: {}", filepath);
             it->second = currentTime;
             return true;
         }
     }
     catch (const std::exception& e)
     {
-        YLA_LOG_ERROR("[ALEFileWatcher]: Error checking file '{}': {}", filepath, e.what());
+        YLA_LOG_ERROR("[YLAFileWatcher]: Error checking file '{}': {}", filepath, e.what());
     }
     
     return false;

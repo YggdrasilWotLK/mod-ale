@@ -7,7 +7,7 @@
 #ifndef _YLA_EVENT_MGR_H
 #define _YLA_EVENT_MGR_H
 
-#include "ALEUtility.h"
+#include "YLAUtility.h"
 #include "Common.h"
 #include "Util.h"
 #include <atomic>
@@ -20,7 +20,7 @@
 
 class ALE;
 class EventMgr;
-class ALEEventProcessor;
+class YLAEventProcessor;
 class WorldObject;
 
 // Value-type identity of a Lua state for timer/HTTP/DB ownership.
@@ -73,7 +73,7 @@ struct LuaEvent
     YlaStateRef owner;
 };
 
-class ALEEventProcessor
+class YLAEventProcessor
 {
     friend class EventMgr;
 
@@ -83,8 +83,8 @@ public:
 
     // ownerLock keeps the owning state alive for registry insert/erase;
     // owner is the long-term identity used to resolve at fire/unref time.
-    ALEEventProcessor(const YlaStateRef& owner, std::shared_ptr<ALE> ownerLock, WorldObject* _obj);
-    ~ALEEventProcessor();
+    YLAEventProcessor(const YlaStateRef& owner, std::shared_ptr<ALE> ownerLock, WorldObject* _obj);
+    ~YLAEventProcessor();
 
     void CaptureGuid();
     void Update(uint32 diff);
@@ -129,12 +129,12 @@ private:
     LuaEvent* firing = nullptr;
 };
 
-class EventMgr : public ALEUtil::Lockable
+class EventMgr : public YLAUtil::Lockable
 {
 public:
-    typedef std::unordered_set<ALEEventProcessor*> ProcessorSet;
+    typedef std::unordered_set<YLAEventProcessor*> ProcessorSet;
     ProcessorSet processors;
-    ALEEventProcessor* globalProcessor;
+    YLAEventProcessor* globalProcessor;
     YlaStateRef owner;
 
     EventMgr(const YlaStateRef& owner);

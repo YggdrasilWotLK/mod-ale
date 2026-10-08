@@ -11,10 +11,10 @@ extern "C"
 
 // ALE
 #include "LuaEngine.h"
-#include "ALEEventMgr.h"
-#include "ALEIncludes.h"
-#include "ALETemplate.h"
-#include "ALEUtility.h"
+#include "YLAEventMgr.h"
+#include "YLAIncludes.h"
+#include "YLATemplate.h"
+#include "YLAUtility.h"
 
 // Method includes
 #include "GlobalMethods.h"
@@ -26,7 +26,7 @@ extern "C"
 #include "GroupMethods.h"
 #include "GuildMethods.h"
 #include "GameObjectMethods.h"
-#include "ALEQueryMethods.h"
+#include "YLAQueryMethods.h"
 #include "AuraMethods.h"
 #include "ItemMethods.h"
 #include "WorldPacketMethods.h"
@@ -1845,7 +1845,7 @@ ALERegister<Transport> TransportMethods[] =
 };
 
 // fix compile error about accessing vehicle destructor
-template<> int ALETemplate<Vehicle>::CollectGarbage(lua_State* L)
+template<> int YLATemplate<Vehicle>::CollectGarbage(lua_State* L)
 {
     ASSERT(!manageMemory);
 
@@ -1856,7 +1856,7 @@ template<> int ALETemplate<Vehicle>::CollectGarbage(lua_State* L)
 }
 
 // Group/Guild are manager-owned zombies; Lua must never destroy them.
-template<> int ALETemplate<Group>::CollectGarbage(lua_State* L)
+template<> int YLATemplate<Group>::CollectGarbage(lua_State* L)
 {
     ASSERT(!manageMemory);
 
@@ -1865,7 +1865,7 @@ template<> int ALETemplate<Group>::CollectGarbage(lua_State* L)
     return 0;
 }
 
-template<> int ALETemplate<Guild>::CollectGarbage(lua_State* L)
+template<> int YLATemplate<Guild>::CollectGarbage(lua_State* L)
 {
     ASSERT(!manageMemory);
 
@@ -1875,21 +1875,21 @@ template<> int ALETemplate<Guild>::CollectGarbage(lua_State* L)
 }
 
 // Template by Mud from http://stackoverflow.com/questions/4484437/lua-integer-type/4485511#4485511
-template<> int ALETemplate<unsigned long long>::Add(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) + ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int ALETemplate<unsigned long long>::Substract(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) - ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int ALETemplate<unsigned long long>::Multiply(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) * ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int ALETemplate<unsigned long long>::Divide(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) / ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int ALETemplate<unsigned long long>::Mod(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) % ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-// template<> int ALETemplate<unsigned long long>::UnaryMinus(lua_State* L) { ALE::Push(L, -ALE::CHECKVAL<unsigned long long>(L, 1)); return 1; }
-template<> int ALETemplate<unsigned long long>::Equal(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) == ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int ALETemplate<unsigned long long>::Less(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) < ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int ALETemplate<unsigned long long>::LessOrEqual(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) <= ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int ALETemplate<unsigned long long>::Pow(lua_State* L)
+template<> int YLATemplate<unsigned long long>::Add(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) + ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int YLATemplate<unsigned long long>::Substract(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) - ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int YLATemplate<unsigned long long>::Multiply(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) * ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int YLATemplate<unsigned long long>::Divide(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) / ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int YLATemplate<unsigned long long>::Mod(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) % ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+// template<> int YLATemplate<unsigned long long>::UnaryMinus(lua_State* L) { ALE::Push(L, -ALE::CHECKVAL<unsigned long long>(L, 1)); return 1; }
+template<> int YLATemplate<unsigned long long>::Equal(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) == ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int YLATemplate<unsigned long long>::Less(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) < ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int YLATemplate<unsigned long long>::LessOrEqual(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) <= ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int YLATemplate<unsigned long long>::Pow(lua_State* L)
 {
     ALE::Push(L, static_cast<unsigned long long>(powl(static_cast<long double>(ALE::CHECKVAL<unsigned long long>(L, 1)), static_cast<long double>(ALE::CHECKVAL<unsigned long long>(L, 2)))));
     return 1;
 }
-template<> int ALETemplate<unsigned long long>::ToString(lua_State* L)
+template<> int YLATemplate<unsigned long long>::ToString(lua_State* L)
 {
     unsigned long long l = ALE::CHECKVAL<unsigned long long>(L, 1);
     std::ostringstream ss;
@@ -1898,21 +1898,21 @@ template<> int ALETemplate<unsigned long long>::ToString(lua_State* L)
     return 1;
 }
 
-template<> int ALETemplate<long long>::Add(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) + ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ALETemplate<long long>::Substract(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) - ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ALETemplate<long long>::Multiply(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) * ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ALETemplate<long long>::Divide(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) / ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ALETemplate<long long>::Mod(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) % ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ALETemplate<long long>::UnaryMinus(lua_State* L) { ALE::Push(L, -ALE::CHECKVAL<long long>(L, 1)); return 1; }
-template<> int ALETemplate<long long>::Equal(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) == ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ALETemplate<long long>::Less(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) < ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ALETemplate<long long>::LessOrEqual(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) <= ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int ALETemplate<long long>::Pow(lua_State* L)
+template<> int YLATemplate<long long>::Add(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) + ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::Substract(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) - ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::Multiply(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) * ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::Divide(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) / ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::Mod(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) % ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::UnaryMinus(lua_State* L) { ALE::Push(L, -ALE::CHECKVAL<long long>(L, 1)); return 1; }
+template<> int YLATemplate<long long>::Equal(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) == ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::Less(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) < ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::LessOrEqual(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) <= ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::Pow(lua_State* L)
 {
     ALE::Push(L, static_cast<long long>(powl(static_cast<long double>(ALE::CHECKVAL<long long>(L, 1)), static_cast<long double>(ALE::CHECKVAL<long long>(L, 2)))));
     return 1;
 }
-template<> int ALETemplate<long long>::ToString(lua_State* L)
+template<> int YLATemplate<long long>::ToString(lua_State* L)
 {
     long long l = ALE::CHECKVAL<long long>(L, 1);
     std::ostringstream ss;
@@ -1925,110 +1925,110 @@ void RegisterFunctions(ALE* E)
 {
     ALEGlobal::SetMethods(E, GlobalMethods);
 
-    ALETemplate<Object>::Register(E, "Object");
-    ALETemplate<Object>::SetMethods(E, ObjectMethods);
+    YLATemplate<Object>::Register(E, "Object");
+    YLATemplate<Object>::SetMethods(E, ObjectMethods);
 
-    ALETemplate<WorldObject>::Register(E, "WorldObject");
-    ALETemplate<WorldObject>::SetMethods(E, ObjectMethods);
-    ALETemplate<WorldObject>::SetMethods(E, WorldObjectMethods);
+    YLATemplate<WorldObject>::Register(E, "WorldObject");
+    YLATemplate<WorldObject>::SetMethods(E, ObjectMethods);
+    YLATemplate<WorldObject>::SetMethods(E, WorldObjectMethods);
 
-    ALETemplate<Unit>::Register(E, "Unit");
-    ALETemplate<Unit>::SetMethods(E, ObjectMethods);
-    ALETemplate<Unit>::SetMethods(E, WorldObjectMethods);
-    ALETemplate<Unit>::SetMethods(E, UnitMethods);
+    YLATemplate<Unit>::Register(E, "Unit");
+    YLATemplate<Unit>::SetMethods(E, ObjectMethods);
+    YLATemplate<Unit>::SetMethods(E, WorldObjectMethods);
+    YLATemplate<Unit>::SetMethods(E, UnitMethods);
 
-    ALETemplate<Player>::Register(E, "Player");
-    ALETemplate<Player>::SetMethods(E, ObjectMethods);
-    ALETemplate<Player>::SetMethods(E, WorldObjectMethods);
-    ALETemplate<Player>::SetMethods(E, UnitMethods);
-    ALETemplate<Player>::SetMethods(E, PlayerMethods);
+    YLATemplate<Player>::Register(E, "Player");
+    YLATemplate<Player>::SetMethods(E, ObjectMethods);
+    YLATemplate<Player>::SetMethods(E, WorldObjectMethods);
+    YLATemplate<Player>::SetMethods(E, UnitMethods);
+    YLATemplate<Player>::SetMethods(E, PlayerMethods);
 
-    ALETemplate<Creature>::Register(E, "Creature");
-    ALETemplate<Creature>::SetMethods(E, ObjectMethods);
-    ALETemplate<Creature>::SetMethods(E, WorldObjectMethods);
-    ALETemplate<Creature>::SetMethods(E, UnitMethods);
-    ALETemplate<Creature>::SetMethods(E, CreatureMethods);
+    YLATemplate<Creature>::Register(E, "Creature");
+    YLATemplate<Creature>::SetMethods(E, ObjectMethods);
+    YLATemplate<Creature>::SetMethods(E, WorldObjectMethods);
+    YLATemplate<Creature>::SetMethods(E, UnitMethods);
+    YLATemplate<Creature>::SetMethods(E, CreatureMethods);
 
-    ALETemplate<GameObject>::Register(E, "GameObject");
-    ALETemplate<GameObject>::SetMethods(E, ObjectMethods);
-    ALETemplate<GameObject>::SetMethods(E, WorldObjectMethods);
-    ALETemplate<GameObject>::SetMethods(E, GameObjectMethods);
+    YLATemplate<GameObject>::Register(E, "GameObject");
+    YLATemplate<GameObject>::SetMethods(E, ObjectMethods);
+    YLATemplate<GameObject>::SetMethods(E, WorldObjectMethods);
+    YLATemplate<GameObject>::SetMethods(E, GameObjectMethods);
     
-    ALETemplate<Transport>::Register(E, "Transport");
-    ALETemplate<Transport>::SetMethods(E, ObjectMethods);
-    ALETemplate<Transport>::SetMethods(E, WorldObjectMethods);
-    ALETemplate<Transport>::SetMethods(E, GameObjectMethods);
-    ALETemplate<Transport>::SetMethods(E, TransportMethods);
+    YLATemplate<Transport>::Register(E, "Transport");
+    YLATemplate<Transport>::SetMethods(E, ObjectMethods);
+    YLATemplate<Transport>::SetMethods(E, WorldObjectMethods);
+    YLATemplate<Transport>::SetMethods(E, GameObjectMethods);
+    YLATemplate<Transport>::SetMethods(E, TransportMethods);
 
-    ALETemplate<Corpse>::Register(E, "Corpse");
-    ALETemplate<Corpse>::SetMethods(E, ObjectMethods);
-    ALETemplate<Corpse>::SetMethods(E, WorldObjectMethods);
-    ALETemplate<Corpse>::SetMethods(E, CorpseMethods);
+    YLATemplate<Corpse>::Register(E, "Corpse");
+    YLATemplate<Corpse>::SetMethods(E, ObjectMethods);
+    YLATemplate<Corpse>::SetMethods(E, WorldObjectMethods);
+    YLATemplate<Corpse>::SetMethods(E, CorpseMethods);
 
-    ALETemplate<Item>::Register(E, "Item");
-    ALETemplate<Item>::SetMethods(E, ObjectMethods);
-    ALETemplate<Item>::SetMethods(E, ItemMethods);
+    YLATemplate<Item>::Register(E, "Item");
+    YLATemplate<Item>::SetMethods(E, ObjectMethods);
+    YLATemplate<Item>::SetMethods(E, ItemMethods);
 
-    ALETemplate<ItemTemplate>::Register(E, "ItemTemplate");
-    ALETemplate<ItemTemplate>::SetMethods(E, ItemTemplateMethods);
+    YLATemplate<ItemTemplate>::Register(E, "ItemTemplate");
+    YLATemplate<ItemTemplate>::SetMethods(E, ItemTemplateMethods);
 
-    ALETemplate<Vehicle>::Register(E, "Vehicle");
-    ALETemplate<Vehicle>::SetMethods(E, VehicleMethods);
+    YLATemplate<Vehicle>::Register(E, "Vehicle");
+    YLATemplate<Vehicle>::SetMethods(E, VehicleMethods);
 
-    ALETemplate<Group>::Register(E, "Group");
-    ALETemplate<Group>::SetMethods(E, GroupMethods);
+    YLATemplate<Group>::Register(E, "Group");
+    YLATemplate<Group>::SetMethods(E, GroupMethods);
 
-    ALETemplate<Guild>::Register(E, "Guild");
-    ALETemplate<Guild>::SetMethods(E, GuildMethods);
+    YLATemplate<Guild>::Register(E, "Guild");
+    YLATemplate<Guild>::SetMethods(E, GuildMethods);
 
-    ALETemplate<Aura>::Register(E, "Aura");
-    ALETemplate<Aura>::SetMethods(E, AuraMethods);
+    YLATemplate<Aura>::Register(E, "Aura");
+    YLATemplate<Aura>::SetMethods(E, AuraMethods);
 
-    ALETemplate<Spell>::Register(E, "Spell");
-    ALETemplate<Spell>::SetMethods(E, SpellMethods);
+    YLATemplate<Spell>::Register(E, "Spell");
+    YLATemplate<Spell>::SetMethods(E, SpellMethods);
 
-    ALETemplate<Quest>::Register(E, "Quest");
-    ALETemplate<Quest>::SetMethods(E, QuestMethods);
+    YLATemplate<Quest>::Register(E, "Quest");
+    YLATemplate<Quest>::SetMethods(E, QuestMethods);
 
-    ALETemplate<Map>::Register(E, "Map");
-    ALETemplate<Map>::SetMethods(E, MapMethods);
+    YLATemplate<Map>::Register(E, "Map");
+    YLATemplate<Map>::SetMethods(E, MapMethods);
 
-    ALETemplate<AuctionHouseEntry>::Register(E, "AuctionHouseEntry");
-    ALETemplate<AuctionHouseEntry>::SetMethods(E, AuctionMethods);
+    YLATemplate<AuctionHouseEntry>::Register(E, "AuctionHouseEntry");
+    YLATemplate<AuctionHouseEntry>::SetMethods(E, AuctionMethods);
 
-    ALETemplate<BattleGround>::Register(E, "BattleGround");
-    ALETemplate<BattleGround>::SetMethods(E, BattleGroundMethods);
+    YLATemplate<BattleGround>::Register(E, "BattleGround");
+    YLATemplate<BattleGround>::SetMethods(E, BattleGroundMethods);
 
-    ALETemplate<ChatHandler>::Register(E, "ChatHandler");
-    ALETemplate<ChatHandler>::SetMethods(E, ChatHandlerMethods);
+    YLATemplate<ChatHandler>::Register(E, "ChatHandler");
+    YLATemplate<ChatHandler>::SetMethods(E, ChatHandlerMethods);
 
-    ALETemplate<WorldPacket>::Register(E, "WorldPacket", true);
-    ALETemplate<WorldPacket>::SetMethods(E, PacketMethods);
+    YLATemplate<WorldPacket>::Register(E, "WorldPacket", true);
+    YLATemplate<WorldPacket>::SetMethods(E, PacketMethods);
 
-    ALETemplate<ALEQuery>::Register(E, "ALEQuery", true);
-    ALETemplate<ALEQuery>::SetMethods(E, QueryMethods);
+    YLATemplate<ALEQuery>::Register(E, "ALEQuery", true);
+    YLATemplate<ALEQuery>::SetMethods(E, QueryMethods);
 
-    ALETemplate<AchievementEntry>::Register(E, "AchievementEntry");
-    ALETemplate<AchievementEntry>::SetMethods(E, AchievementMethods);
+    YLATemplate<AchievementEntry>::Register(E, "AchievementEntry");
+    YLATemplate<AchievementEntry>::SetMethods(E, AchievementMethods);
 
-    ALETemplate<Roll>::Register(E, "Roll");
-    ALETemplate<Roll>::SetMethods(E, RollMethods);
+    YLATemplate<Roll>::Register(E, "Roll");
+    YLATemplate<Roll>::SetMethods(E, RollMethods);
 
-    ALETemplate<GmTicket>::Register(E, "Ticket");
-    ALETemplate<GmTicket>::SetMethods(E, TicketMethods);
+    YLATemplate<GmTicket>::Register(E, "Ticket");
+    YLATemplate<GmTicket>::SetMethods(E, TicketMethods);
 
-    ALETemplate<SpellInfo>::Register(E, "SpellInfo");
-    ALETemplate<SpellInfo>::SetMethods(E, SpellInfoMethods);
+    YLATemplate<SpellInfo>::Register(E, "SpellInfo");
+    YLATemplate<SpellInfo>::SetMethods(E, SpellInfoMethods);
 
-    ALETemplate<GemPropertiesEntry>::Register(E, "GemPropertiesEntry");
-    ALETemplate<GemPropertiesEntry>::SetMethods(E, GemPropertiesEntryMethods);
+    YLATemplate<GemPropertiesEntry>::Register(E, "GemPropertiesEntry");
+    YLATemplate<GemPropertiesEntry>::SetMethods(E, GemPropertiesEntryMethods);
 
-    ALETemplate<SpellEntry>::Register(E, "SpellEntry");
-    ALETemplate<SpellEntry>::SetMethods(E, SpellEntryMethods);
+    YLATemplate<SpellEntry>::Register(E, "SpellEntry");
+    YLATemplate<SpellEntry>::SetMethods(E, SpellEntryMethods);
 
-    ALETemplate<CreatureTemplate>::Register(E, "CreatureTemplate");
+    YLATemplate<CreatureTemplate>::Register(E, "CreatureTemplate");
 
-    ALETemplate<long long>::Register(E, "long long", true);
+    YLATemplate<long long>::Register(E, "long long", true);
 
-    ALETemplate<unsigned long long>::Register(E, "unsigned long long", true);
+    YLATemplate<unsigned long long>::Register(E, "unsigned long long", true);
 }

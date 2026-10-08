@@ -54,7 +54,7 @@ class Unit;
 class WorldObject;
 struct FactionTemplateEntry;
 
-namespace ALEUtil
+namespace YLAUtil
 {
     uint32 GetCurrTime();
 

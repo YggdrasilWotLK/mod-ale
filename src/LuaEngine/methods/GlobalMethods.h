@@ -8,7 +8,7 @@
 #define GLOBALMETHODS_H
 
 #include "BindingMap.h"
-#include "ALEDBCRegistry.h"
+#include "YLADBCRegistry.h"
 
 #include "BanMgr.h"
 #include "GameTime.h"
@@ -34,7 +34,7 @@ namespace LuaGlobalFunctions
     /**
      * Returns Lua engine's name.
      *
-     * Always returns "ALEEngine" on ALE.
+     * Always returns "ALEEngine" on YLA.
      *
      * @return string engineName
      */
@@ -2424,7 +2424,7 @@ namespace LuaGlobalFunctions
      */
     int IsCompatibilityMode(lua_State* L)
     {
-        ALE::Push(L, ALEConfig::GetInstance().IsCompatibilityModeEnabled());
+        ALE::Push(L, YLAConfig::GetInstance().IsCompatibilityModeEnabled());
         return 1;
     }
 
@@ -2538,7 +2538,7 @@ namespace LuaGlobalFunctions
      */
     int GetCurrTime(lua_State* L)
     {
-        ALE::Push(L, ALEUtil::GetCurrTime());
+        ALE::Push(L, YLAUtil::GetCurrTime());
         return 1;
     }
 
@@ -2552,7 +2552,7 @@ namespace LuaGlobalFunctions
     {
         uint32 oldtimems = ALE::CHECKVAL<uint32>(L, 1);
 
-        ALE::Push(L, ALEUtil::GetTimeDiff(oldtimems));
+        ALE::Push(L, YLAUtil::GetTimeDiff(oldtimems));
         return 1;
     }
 

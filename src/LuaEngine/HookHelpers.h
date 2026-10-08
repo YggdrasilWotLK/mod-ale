@@ -8,7 +8,7 @@
 #define _HOOK_HELPERS_H
 
 #include "LuaEngine.h"
-#include "ALEUtility.h"
+#include "YLAUtility.h"
 
 /*
  * Sets up the stack so that event handlers can be called.

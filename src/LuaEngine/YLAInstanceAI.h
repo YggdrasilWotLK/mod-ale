@@ -13,13 +13,13 @@
 
 /*
  * This class is a small wrapper around `InstanceData`,
- *   allowing instances to be scripted with ALE.
+ *   allowing instances to be scripted with YLA.
  *
  *
  * Note 1
  * ======
  *
- * Instances of `ALEInstanceAI` are owned by the core, so they
+ * Instances of `YLAInstanceAI` are owned by the core, so they
  *   are not deleted when ALE is reloaded. Thus `Load` is only called
  *   by the core once, no matter how many times ALE is reloaded.
  *
@@ -29,7 +29,7 @@
  *   1. Store the last save data in the member var `lastSaveData`.
  *
  *      At first this is just the data given to us by the core when it calls `Load`,
- *        but later on once we start saving new data this is from ALE.
+ *        but later on once we start saving new data this is from YLA.
  *
  *   2. When retrieving instance data from ALE, check if it's missing.
  *
@@ -49,7 +49,7 @@
  * Therefore, none of the hooks are `const`-safe, and `const_cast` is used
  *   to escape from these restrictions.
  */
-class ALEInstanceAI : public InstanceData
+class YLAInstanceAI : public InstanceData
 {
 private:
     // The last save data to pass through this class,
@@ -59,7 +59,7 @@ private:
     std::unordered_map<uint32, uint64> dataStore64;
 
 public:
-    ALEInstanceAI(Map* map) : InstanceData(map)
+    YLAInstanceAI(Map* map) : InstanceData(map)
     {
     }
 
@@ -80,7 +80,7 @@ public:
 
     /*
      * Calls `Load` with the last save data that was passed to
-     * or from ALE.
+     * or from YLA.
      *
      * See: big documentation blurb at the top of this class.
      */
@@ -99,7 +99,7 @@ public:
     void SetData64(uint32 key, uint64 value) override;
 
     /*
-     * These methods are just thin wrappers around ALE.
+     * These methods are just thin wrappers around YLA.
      */
     void Update(uint32 diff) override
     {
@@ -115,7 +115,7 @@ public:
 
     bool IsEncounterInProgress() const override
     {
-        return ALE::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId())->OnCheckEncounterInProgress(const_cast<ALEInstanceAI*>(this));
+        return ALE::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId())->OnCheckEncounterInProgress(const_cast<YLAInstanceAI*>(this));
     }
 
     void OnPlayerEnter(Player* player) override

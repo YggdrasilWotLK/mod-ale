@@ -11,7 +11,7 @@
 
 struct ScriptedAI;
 
-struct ALECreatureAI : ScriptedAI
+struct YLACreatureAI : ScriptedAI
 {
     bool justSpawned;
     std::vector<std::pair<uint32, uint32>> movepoints;
@@ -19,12 +19,12 @@ struct ALECreatureAI : ScriptedAI
     // AI lifetime instead of dangling across map-state destroy.
     std::shared_ptr<ALE> E;
 
-    ALECreatureAI(Creature* creature) : ScriptedAI(creature), justSpawned(true),
+    YLACreatureAI(Creature* creature) : ScriptedAI(creature), justSpawned(true),
         E(ALE::GetMapStateOrGlobal(creature->GetMapId(), creature->GetInstanceId()))
     {
     }
 
-    ~ALECreatureAI() { }
+    ~YLACreatureAI() { }
 
     void UpdateAI(uint32 diff) override
     {

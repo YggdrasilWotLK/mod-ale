@@ -8,15 +8,15 @@
 #include "HookHelpers.h"
 #include "LuaEngine.h"
 #include "BindingMap.h"
-#include "ALEEventMgr.h"
-#include "ALEIncludes.h"
-#include "ALETemplate.h"
+#include "YLAEventMgr.h"
+#include "YLAIncludes.h"
+#include "YLATemplate.h"
 #include "YlaDefer.h"
 
 using namespace Hooks;
 
 #define START_HOOK_WORLD(EVENT) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
     auto key = EventKey<ServerEvents>(EVENT);\
     if (!ServerEventBindings->HasBindingsFor(key))\
@@ -24,7 +24,7 @@ using namespace Hooks;
     LOCK_ALE
 
 #define START_HOOK_WORLD_WITH_RETVAL(EVENT, RETVAL) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return RETVAL;\
     auto key = EventKey<ServerEvents>(EVENT);\
     if (!ServerEventBindings->HasBindingsFor(key))\
@@ -32,7 +32,7 @@ using namespace Hooks;
     LOCK_ALE
 
 #define START_HOOK_MAP(EVENT) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
     auto key = EventKey<ServerEvents>(EVENT);\
     if (!ServerEventBindings->HasBindingsFor(key))\
@@ -40,7 +40,7 @@ using namespace Hooks;
     LOCK_YLA_STATE
 
 #define START_HOOK_MAP_WITH_RETVAL(EVENT, RETVAL) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return RETVAL;\
     auto key = EventKey<ServerEvents>(EVENT);\
     if (!ServerEventBindings->HasBindingsFor(key))\

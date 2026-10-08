@@ -8,13 +8,13 @@
 #include "LuaEngine.h"
 #include "BindingMap.h"
 #include "Chat.h"
-#include "ALECompat.h"
-#include "ALEEventMgr.h"
-#include "ALEIncludes.h"
-#include "ALETemplate.h"
-#include "ALEUtility.h"
-#include "ALECreatureAI.h"
-#include "ALEInstanceAI.h"
+#include "YLACompat.h"
+#include "YLAEventMgr.h"
+#include "YLAIncludes.h"
+#include "YLATemplate.h"
+#include "YLAUtility.h"
+#include "YLACreatureAI.h"
+#include "YLAInstanceAI.h"
 #include "lmarshal.h"
 
 #if AC_PLATFORM == AC_PLATFORM_WINDOWS
@@ -52,7 +52,7 @@ std::shared_ptr<ALE> ALE::GALE_HOLDER;
 std::atomic<bool> ALE::reload{false};
 bool ALE::initialized = false;
 ALE::LockType ALE::lock;
-std::unique_ptr<ALEFileWatcher> ALE::fileWatcher;
+std::unique_ptr<YLAFileWatcher> ALE::fileWatcher;
 std::atomic<uint64> ALE::s_stateSeq{0};
 
 // Multistate handling
@@ -99,10 +99,10 @@ void ALE::Initialize()
     }
 
     // Start file watcher if enabled
-    if (ALEConfig::GetInstance().IsAutoReloadEnabled())
+    if (YLAConfig::GetInstance().IsAutoReloadEnabled())
     {
-        uint32 watchInterval = eConfigMgr->GetOption<uint32>("ALE.AutoReloadInterval", 1);
-        fileWatcher = std::make_unique<ALEFileWatcher>();
+        uint32 watchInterval = eConfigMgr->GetOption<uint32>("YLA.AutoReloadInterval", 1);
+        fileWatcher = std::make_unique<YLAFileWatcher>();
         fileWatcher->StartWatching(lua_folderpath, watchInterval);
     }
 }
@@ -182,7 +182,7 @@ std::shared_ptr<ALE> ALE::OwningRef(ALE* raw)
 
 std::shared_ptr<ALE> ALE::CreateMapState(uint32 mapId, uint32 instanceId)
 {
-    if (!ALEConfig::GetInstance().ShouldMapLoadALE(mapId))
+    if (!YLAConfig::GetInstance().ShouldMapLoadALE(mapId))
         return nullptr;
 
     // Strict global -> g_states -> state nesting, matching Uninitialize
@@ -240,14 +240,14 @@ void ALE::DestroyMapState(uint32 mapId, uint32 instanceId)
 
 void ALE::LoadScriptPaths()
 {
-    uint32 oldMSTime = ALEUtil::GetCurrTime();
+    uint32 oldMSTime = YLAUtil::GetCurrTime();
 
     lua_scripts.clear();
     lua_extensions.clear();
 
-    lua_folderpath = ALEConfig::GetInstance().GetScriptPath();
-    const std::string& lua_path_extra = static_cast<std::string>(ALEConfig::GetInstance().GetRequirePath());
-    const std::string& lua_cpath_extra = static_cast<std::string>(ALEConfig::GetInstance().GetRequireCPath());
+    lua_folderpath = YLAConfig::GetInstance().GetScriptPath();
+    const std::string& lua_path_extra = static_cast<std::string>(YLAConfig::GetInstance().GetRequirePath());
+    const std::string& lua_cpath_extra = static_cast<std::string>(YLAConfig::GetInstance().GetRequireCPath());
 
 #ifndef YLA_WINDOWS
     if (lua_folderpath[0] == '~')
@@ -276,7 +276,7 @@ void ALE::LoadScriptPaths()
     if (!lua_requirecpath.empty())
         lua_requirecpath.erase(lua_requirecpath.end() - 1);
 
-    YLA_LOG_DEBUG("[ALE]: Loaded {} scripts in {} ms", lua_scripts.size() + lua_extensions.size(), ALEUtil::GetTimeDiff(oldMSTime));
+    YLA_LOG_DEBUG("[ALE]: Loaded {} scripts in {} ms", lua_scripts.size() + lua_extensions.size(), YLAUtil::GetTimeDiff(oldMSTime));
 }
 
 void ALE::_ReloadALE()
@@ -290,10 +290,10 @@ void ALE::_ReloadALE()
         return;
     }
 
-    if (eConfigMgr->GetOption<bool>("ALE.PlayerAnnounceReload", false))
-        eWorldSessionMgr->SendServerMessage(SERVER_MSG_STRING, "Reloading ALE...");
+    if (eConfigMgr->GetOption<bool>("YLA.PlayerAnnounceReload", false))
+        eWorldSessionMgr->SendServerMessage(SERVER_MSG_STRING, "Reloading YLA...");
     else
-        ChatHandler(nullptr).SendGMText(SERVER_MSG_STRING, "Reloading ALE...");
+        ChatHandler(nullptr).SendGMText(SERVER_MSG_STRING, "Reloading YLA...");
 
     sALE->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
     sALE->httpManager.DropPending();
@@ -443,7 +443,7 @@ void ALE::CloseLua()
 
 void ALE::OpenLua()
 {
-    if (!ALEConfig::GetInstance().IsALEEnabled())
+    if (!YLAConfig::GetInstance().IsALEEnabled())
     {
         YLA_LOG_INFO("[ALE]: ALE is disabled in config");
         return;
@@ -727,7 +727,7 @@ int ALE::TryLoadFromGlobalCache(lua_State* L, const std::string& filepath)
 
 int ALE::LoadScriptWithCache(lua_State* L, const std::string& filepath, bool isMoonScript, uint32* compiledCount, uint32* cachedCount)
 {
-    bool cacheEnabled = ALEConfig::GetInstance().IsByteCodeCacheEnabled();
+    bool cacheEnabled = YLAConfig::GetInstance().IsByteCodeCacheEnabled();
     
     if (cacheEnabled)
     {
@@ -845,7 +845,7 @@ void ALE::GetScripts(std::string path, uint32 mapId)
             if (boost::filesystem::is_directory(dir_iter->status()))
             {
                 std::string folderName = dir_iter->path().filename().generic_string();
-                if (!ALEConfig::GetInstance().ShouldMapLoadALEByFolderName(folderName, mapId))
+                if (!YLAConfig::GetInstance().ShouldMapLoadALEByFolderName(folderName, mapId))
                     continue;
                 GetScripts(fullpath, mapId);
                 continue;
@@ -874,15 +874,15 @@ void ALE::RunScripts()
 
 void ALE::RunScriptsLocked()
 {
-    if (!ALEConfig::GetInstance().IsALEEnabled())
+    if (!YLAConfig::GetInstance().IsALEEnabled())
         return;
 
-    uint32 oldMSTime = ALEUtil::GetCurrTime();
+    uint32 oldMSTime = YLAUtil::GetCurrTime();
     uint32 count = 0;
     uint32 compiledCount = 0;
     uint32 cachedCount = 0;
     uint32 precompiledCount = 0;
-    bool cacheEnabled = eConfigMgr->GetOption<bool>("ALE.BytecodeCache", true);
+    bool cacheEnabled = eConfigMgr->GetOption<bool>("YLA.BytecodeCache", true);
     
     if (cacheEnabled)
         ClearTimestampCache();
@@ -904,7 +904,7 @@ void ALE::RunScriptsLocked()
     {
         // Filter by map-prefixed subdirectory (e.g. lua_scripts/0/, lua_scripts/1_...)
         std::string folderName = boost::filesystem::path(it->modulepath).filename().generic_string();
-        if (!ALEConfig::GetInstance().ShouldMapLoadALEByFolderName(folderName, stateMapId))
+        if (!YLAConfig::GetInstance().ShouldMapLoadALEByFolderName(folderName, stateMapId))
             continue;
 
         // Check that no duplicate names exist
@@ -999,7 +999,7 @@ void ALE::RunScriptsLocked()
     {
         details = fmt::format("({} compiled, {} cached, {} pre-compiled)", compiledCount, cachedCount, precompiledCount);
     }
-    YLA_LOG_INFO("[ALE]: Executed {} Lua scripts in {} ms {}", count, ALEUtil::GetTimeDiff(oldMSTime), details);
+    YLA_LOG_INFO("[ALE]: Executed {} Lua scripts in {} ms {}", count, YLAUtil::GetTimeDiff(oldMSTime), details);
 
     OnLuaStateOpen();
 }
@@ -1063,7 +1063,7 @@ bool ALE::ExecuteCall(int params, int res)
         ASSERT(false); // stack probably corrupt
     }
 
-    bool usetrace = ALEConfig::GetInstance().IsTraceBackEnabled();
+    bool usetrace = YLAConfig::GetInstance().IsTraceBackEnabled();
     if (usetrace)
     {
         lua_pushcfunction(L, &StackTrace);
@@ -1111,11 +1111,11 @@ void ALE::Push(lua_State* luastate)
 }
 void ALE::Push(lua_State* luastate, const long long l)
 {
-    ALETemplate<long long>::Push(luastate, new long long(l));
+    YLATemplate<long long>::Push(luastate, new long long(l));
 }
 void ALE::Push(lua_State* luastate, const unsigned long long l)
 {
-    ALETemplate<unsigned long long>::Push(luastate, new unsigned long long(l));
+    YLATemplate<unsigned long long>::Push(luastate, new unsigned long long(l));
 }
 void ALE::Push(lua_State* luastate, const long l)
 {
@@ -1177,7 +1177,7 @@ void ALE::Push(lua_State* luastate, Unit const* unit)
             Push(luastate, unit->ToPlayer());
             break;
         default:
-            ALETemplate<Unit>::Push(luastate, unit);
+            YLATemplate<Unit>::Push(luastate, unit);
     }
 }
 void ALE::Push(lua_State* luastate, WorldObject const* obj)
@@ -1202,7 +1202,7 @@ void ALE::Push(lua_State* luastate, WorldObject const* obj)
             Push(luastate, obj->ToCorpse());
             break;
         default:
-            ALETemplate<WorldObject>::Push(luastate, obj);
+            YLATemplate<WorldObject>::Push(luastate, obj);
     }
 }
 void ALE::Push(lua_State* luastate, Object const* obj)
@@ -1227,12 +1227,12 @@ void ALE::Push(lua_State* luastate, Object const* obj)
             Push(luastate, obj->ToCorpse());
             break;
         default:
-            ALETemplate<Object>::Push(luastate, obj);
+            YLATemplate<Object>::Push(luastate, obj);
     }
 }
 void ALE::Push(lua_State* luastate, ObjectGuid const guid)
 {
-    ALETemplate<unsigned long long>::Push(luastate, new unsigned long long(guid.GetRawValue()));
+    YLATemplate<unsigned long long>::Push(luastate, new unsigned long long(guid.GetRawValue()));
 }
 
 void ALE::Push(lua_State* luastate, GemPropertiesEntry const& gemProperties)
@@ -1404,7 +1404,7 @@ template<> Object* ALE::CHECKOBJ<Object>(lua_State* luastate, int narg, bool err
     if (!obj)
         obj = CHECKOBJ<Item>(luastate, narg, false);
     if (!obj)
-        obj = ALETemplate<Object>::Check(luastate, narg, error);
+        obj = YLATemplate<Object>::Check(luastate, narg, error);
     return obj;
 }
 template<> WorldObject* ALE::CHECKOBJ<WorldObject>(lua_State* luastate, int narg, bool error)
@@ -1415,7 +1415,7 @@ template<> WorldObject* ALE::CHECKOBJ<WorldObject>(lua_State* luastate, int narg
     if (!obj)
         obj = CHECKOBJ<Corpse>(luastate, narg, false);
     if (!obj)
-        obj = ALETemplate<WorldObject>::Check(luastate, narg, error);
+        obj = YLATemplate<WorldObject>::Check(luastate, narg, error);
     return obj;
 }
 template<> Unit* ALE::CHECKOBJ<Unit>(lua_State* luastate, int narg, bool error)
@@ -1424,7 +1424,7 @@ template<> Unit* ALE::CHECKOBJ<Unit>(lua_State* luastate, int narg, bool error)
     if (!obj)
         obj = CHECKOBJ<Creature>(luastate, narg, false);
     if (!obj)
-        obj = ALETemplate<Unit>::Check(luastate, narg, error);
+        obj = YLATemplate<Unit>::Check(luastate, narg, error);
     return obj;
 }
 
@@ -1803,7 +1803,7 @@ int ALE::CallOneFunction(int number_of_functions, int number_of_arguments, int n
 
 CreatureAI* ALE::GetAI(Creature* creature)
 {
-    if (!ALEConfig::GetInstance().IsALEEnabled())
+    if (!YLAConfig::GetInstance().IsALEEnabled())
         return NULL;
 
     for (int i = 1; i < Hooks::CREATURE_EVENT_COUNT; ++i)
@@ -1815,7 +1815,7 @@ CreatureAI* ALE::GetAI(Creature* creature)
 
         if (CreatureEventBindings->HasBindingsFor(entryKey) ||
             CreatureUniqueBindings->HasBindingsFor(uniqueKey))
-            return new ALECreatureAI(creature);
+            return new YLACreatureAI(creature);
     }
 
     return NULL;
@@ -1823,7 +1823,7 @@ CreatureAI* ALE::GetAI(Creature* creature)
 
 InstanceData* ALE::GetInstanceData(Map* map)
 {
-    if (!ALEConfig::GetInstance().IsALEEnabled())
+    if (!YLAConfig::GetInstance().IsALEEnabled())
         return NULL;
 
     for (int i = 1; i < Hooks::INSTANCE_EVENT_COUNT; ++i)
@@ -1834,7 +1834,7 @@ InstanceData* ALE::GetInstanceData(Map* map)
 
         if (MapEventBindings->HasBindingsFor(key) ||
             InstanceEventBindings->HasBindingsFor(key))
-            return new ALEInstanceAI(map);
+            return new YLAInstanceAI(map);
     }
 
     return NULL;
@@ -1891,7 +1891,7 @@ void ALE::FreeInstanceId(uint32 instanceId)
     // under this same state lock, so Clear/unref cannot race Lua use.
     Guard stateGuard(GetStateLock());
 
-    if (!ALEConfig::GetInstance().IsALEEnabled())
+    if (!YLAConfig::GetInstance().IsALEEnabled())
         return;
 
     for (int i = 1; i < Hooks::INSTANCE_EVENT_COUNT; ++i)
@@ -1912,7 +1912,7 @@ void ALE::FreeInstanceId(uint32 instanceId)
     }
 }
 
-void ALE::PushInstanceData(lua_State* L, ALEInstanceAI* ai, bool incrementCounter)
+void ALE::PushInstanceData(lua_State* L, YLAInstanceAI* ai, bool incrementCounter)
 {
     // Check if the instance data is missing (i.e. someone reloaded ALE).
     if (!HasInstanceData(ai->instance))

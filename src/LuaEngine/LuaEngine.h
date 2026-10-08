@@ -19,13 +19,13 @@
 #include "World.h"
 #include "Hooks.h"
 #include "LFG.h"
-#include "ALEUtility.h"
+#include "YLAUtility.h"
 #include "HttpManager.h"
 #include "EventEmitter.h"
 #include "TicketMgr.h"
 #include "LootMgr.h"
-#include "ALEFileWatcher.h"
-#include "ALEConfig.h"
+#include "YLAFileWatcher.h"
+#include "YLAConfig.h"
 #include <atomic>
 #include <mutex>
 #include <shared_mutex>
@@ -57,7 +57,7 @@ class Guild;
 class Group;
 class InstanceScript;
 typedef InstanceScript InstanceData;
-class ALEInstanceAI;
+class YLAInstanceAI;
 class Item;
 class Pet;
 class Player;
@@ -73,7 +73,7 @@ class Vehicle;
 struct lua_State;
 class EventMgr;
 class ALEObject;
-template<typename T> class ALETemplate;
+template<typename T> class YLATemplate;
 
 template<typename K> class BindingMap;
 template<typename T> struct EventKey;
@@ -105,11 +105,11 @@ struct LuaScript
 #define YLA_STATE_PTR "ALE State Ptr"
 #define LOCK_ALE ALE::Guard __guard(ALE::GetLock())
 #define LOCK_YLA_STATE \
-    ALE::Guard __ale_guard(ALEConfig::GetInstance().IsCompatibilityModeEnabled() ? ALE::GetLock() : ALE::GetNoopLock()); \
+    ALE::Guard __ale_guard(YLAConfig::GetInstance().IsCompatibilityModeEnabled() ? ALE::GetLock() : ALE::GetNoopLock()); \
     ALE::Guard __ale_state_guard(this->GetStateLock())
 #define YLA_GLOBAL_STATE (uint32)(-1)
 
-#include "ALEEventMgr.h"
+#include "YLAEventMgr.h"
 
 inline uint64 ALEMapStateKey(uint32 mapId, uint32 instanceId) { return (static_cast<uint64>(mapId) << 32) | instanceId; }
 
@@ -228,7 +228,7 @@ private:
     static std::atomic<bool> reload;
     static bool initialized;
     static LockType lock;
-    static std::unique_ptr<ALEFileWatcher> fileWatcher;
+    static std::unique_ptr<YLAFileWatcher> fileWatcher;
     static std::atomic<uint64> s_stateSeq;
 
     static ScriptList lua_scripts;
@@ -418,7 +418,7 @@ public:
     template<typename T>
     static void Push(lua_State* luastate, T const* ptr)
     {
-        ALETemplate<T>::Push(luastate, ptr);
+        YLATemplate<T>::Push(luastate, ptr);
     }
 
     static std::string FormatQuery(lua_State* L, const char* query);
@@ -427,7 +427,7 @@ public:
 
     bool HasInstanceData(Map const* map);
     void CreateInstanceData(Map const* map);
-    void PushInstanceData(lua_State* L, ALEInstanceAI* ai, bool incrementCounter = true);
+    void PushInstanceData(lua_State* L, YLAInstanceAI* ai, bool incrementCounter = true);
 
     void RunScripts();
     // Same as RunScripts but assumes the caller already holds LOCK_ALE
@@ -445,7 +445,7 @@ public:
     }
     template<typename T> static T* CHECKOBJ(lua_State* luastate, int narg, bool error = true)
     {
-        return ALETemplate<T>::Check(luastate, narg, error);
+        return YLATemplate<T>::Check(luastate, narg, error);
     }
     static ALEObject* CHECKTYPE(lua_State* luastate, int narg, const char *tname, bool error = true);
 
@@ -650,13 +650,13 @@ public:
     void OnRemove(GameObject* gameobject);
 
     /* Instance */
-    void OnInitialize(ALEInstanceAI* ai);
-    void OnLoad(ALEInstanceAI* ai);
-    void OnUpdateInstance(ALEInstanceAI* ai, uint32 diff);
-    void OnPlayerEnterInstance(ALEInstanceAI* ai, Player* player);
-    void OnCreatureCreate(ALEInstanceAI* ai, Creature* creature);
-    void OnGameObjectCreate(ALEInstanceAI* ai, GameObject* gameobject);
-    bool OnCheckEncounterInProgress(ALEInstanceAI* ai);
+    void OnInitialize(YLAInstanceAI* ai);
+    void OnLoad(YLAInstanceAI* ai);
+    void OnUpdateInstance(YLAInstanceAI* ai, uint32 diff);
+    void OnPlayerEnterInstance(YLAInstanceAI* ai, Player* player);
+    void OnCreatureCreate(YLAInstanceAI* ai, Creature* creature);
+    void OnGameObjectCreate(YLAInstanceAI* ai, GameObject* gameobject);
+    bool OnCheckEncounterInProgress(YLAInstanceAI* ai);
 
     /* World */
     void OnOpenStateChange(bool open);

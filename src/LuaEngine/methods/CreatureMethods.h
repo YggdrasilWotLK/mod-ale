@@ -497,7 +497,7 @@ namespace LuaCreature
      *
      * This is used by the core to apply C++ scripts to the Creature.
      *
-     * It is not used by ALE. ALE will override AI scripts.
+     * It is not used by YLA. ALE will override AI scripts.
      *
      * @return string scriptName
      */
@@ -683,7 +683,7 @@ namespace LuaCreature
             return 1;
 
         if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-            targetList.sort(ALEUtil::ObjectDistanceOrderPred(creature));
+            targetList.sort(YLAUtil::ObjectDistanceOrderPred(creature));
 
         switch (targetType)
         {

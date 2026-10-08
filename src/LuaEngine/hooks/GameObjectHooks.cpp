@@ -8,14 +8,14 @@
 #include "HookHelpers.h"
 #include "LuaEngine.h"
 #include "BindingMap.h"
-#include "ALEIncludes.h"
-#include "ALEEventMgr.h"
-#include "ALETemplate.h"
+#include "YLAIncludes.h"
+#include "YLAEventMgr.h"
+#include "YLATemplate.h"
 
 using namespace Hooks;
 
 #define START_HOOK(EVENT, ENTRY) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
     auto key = EntryKey<GameObjectEvents>(EVENT, ENTRY);\
     if (!GameObjectEventBindings->HasBindingsFor(key))\
@@ -23,7 +23,7 @@ using namespace Hooks;
     LOCK_YLA_STATE
 
 #define START_HOOK_WITH_RETVAL(EVENT, ENTRY, RETVAL) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return RETVAL;\
     auto key = EntryKey<GameObjectEvents>(EVENT, ENTRY);\
     if (!GameObjectEventBindings->HasBindingsFor(key))\
@@ -42,7 +42,7 @@ void ALE::OnDummyEffect(WorldObject* pCaster, uint32 spellId, SpellEffIndex effI
 
 void ALE::UpdateAI(GameObject* pGameObject, uint32 diff)
 {
-    pGameObject->ALEEvents->Update(diff);
+    pGameObject->YLAEvents->Update(diff);
     START_HOOK(GAMEOBJECT_EVENT_ON_AIUPDATE, pGameObject->GetEntry());
     Push(pGameObject);
     Push(diff);

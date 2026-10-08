@@ -15,11 +15,11 @@
 #include <boost/filesystem.hpp>
 #include "Common.h"
 
-class ALEFileWatcher
+class YLAFileWatcher
 {
 public:
-    ALEFileWatcher();
-    ~ALEFileWatcher();
+    YLAFileWatcher();
+    ~YLAFileWatcher();
 
     void StartWatching(const std::string& scriptPath, uint32 intervalSeconds = 1);
     void StopWatching();

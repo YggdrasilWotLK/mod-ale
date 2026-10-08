@@ -32,7 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cstdint>
-#include "ALECompat.h"
+#include "YLACompat.h"
 
 #if LUA_VERSION_NUM == 501 && !defined(luaL_setfuncs)
     #define luaL_setfuncs(L, l, n) luaL_register(L, NULL, l)

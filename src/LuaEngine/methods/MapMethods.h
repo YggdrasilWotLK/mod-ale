@@ -7,7 +7,7 @@
 #ifndef MAPMETHODS_H
 #define MAPMETHODS_H
 
-#include "ALEInstanceAI.h"
+#include "YLAInstanceAI.h"
 #include "ObjectAccessor.h"
 #include <shared_mutex>
 
@@ -278,9 +278,9 @@ namespace LuaMap
      */
     int GetInstanceData(lua_State* L, Map* map)
     {
-        ALEInstanceAI* iAI = NULL;
+        YLAInstanceAI* iAI = NULL;
         if (InstanceMap* inst = map->ToInstanceMap())
-            iAI = dynamic_cast<ALEInstanceAI*>(inst->GetInstanceScript());
+            iAI = dynamic_cast<YLAInstanceAI*>(inst->GetInstanceScript());
 
         if (iAI)
             ALE::GetALE(L)->PushInstanceData(L, iAI, false);
@@ -295,9 +295,9 @@ namespace LuaMap
      */
     int SaveInstanceData(lua_State* /*L*/, Map* map)
     {
-        ALEInstanceAI* iAI = NULL;
+        YLAInstanceAI* iAI = NULL;
         if (InstanceMap* inst = map->ToInstanceMap())
-            iAI = dynamic_cast<ALEInstanceAI*>(inst->GetInstanceScript());
+            iAI = dynamic_cast<YLAInstanceAI*>(inst->GetInstanceScript());
 
         if (iAI)
             iAI->SaveToDB();

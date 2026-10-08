@@ -25,10 +25,10 @@ enum class ALEConfigValues : uint32
     CONFIG_VALUE_COUNT
 };
 
-class ALEConfig final : public ConfigValueCache<ALEConfigValues>
+class YLAConfig final : public ConfigValueCache<ALEConfigValues>
 {
     public:
-        static ALEConfig& GetInstance();
+        static YLAConfig& GetInstance();
 
         void Initialize(bool reload = false);
 
@@ -51,10 +51,10 @@ class ALEConfig final : public ConfigValueCache<ALEConfigValues>
         void BuildConfigCache() override;
 
     private:
-        ALEConfig();
-        ~ALEConfig() = default;
-        ALEConfig(const ALEConfig&) = delete;
-        ALEConfig& operator=(const ALEConfig&) = delete;
+        YLAConfig();
+        ~YLAConfig() = default;
+        YLAConfig(const YLAConfig&) = delete;
+        YLAConfig& operator=(const YLAConfig&) = delete;
 
         void TokenizeAllowedMaps();
 

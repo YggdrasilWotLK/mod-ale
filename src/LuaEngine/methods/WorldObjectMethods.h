@@ -182,9 +182,9 @@ namespace LuaWorldObject
         uint32 dead = ALE::CHECKVAL<uint32>(L, 4, 1);
 
         Unit* target = NULL;
-        ALEUtil::WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_PLAYER, 0, hostile, dead);
+        YLAUtil::WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_PLAYER, 0, hostile, dead);
 
-        Acore::UnitLastSearcher<ALEUtil::WorldObjectInRangeCheck> searcher(obj, target, checker);
+        Acore::UnitLastSearcher<YLAUtil::WorldObjectInRangeCheck> searcher(obj, target, checker);
         Cell::VisitObjects(obj, searcher, range);
 
         ALE::Push(L, target);
@@ -207,9 +207,9 @@ namespace LuaWorldObject
         uint32 hostile = ALE::CHECKVAL<uint32>(L, 4, 0);
 
         GameObject* target = NULL;
-        ALEUtil::WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_GAMEOBJECT, entry, hostile);
+        YLAUtil::WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_GAMEOBJECT, entry, hostile);
 
-        Acore::GameObjectLastSearcher<ALEUtil::WorldObjectInRangeCheck> searcher(obj, target, checker);
+        Acore::GameObjectLastSearcher<YLAUtil::WorldObjectInRangeCheck> searcher(obj, target, checker);
         Cell::VisitObjects(obj, searcher, range);
 
         ALE::Push(L, target);
@@ -234,9 +234,9 @@ namespace LuaWorldObject
         uint32 dead = ALE::CHECKVAL<uint32>(L, 5, 1);
 
         Creature* target = NULL;
-        ALEUtil::WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_UNIT, entry, hostile, dead);
+        YLAUtil::WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_UNIT, entry, hostile, dead);
 
-        Acore::CreatureLastSearcher<ALEUtil::WorldObjectInRangeCheck> searcher(obj, target, checker);
+        Acore::CreatureLastSearcher<YLAUtil::WorldObjectInRangeCheck> searcher(obj, target, checker);
         Cell::VisitObjects(obj, searcher, range);
 
         ALE::Push(L, target);
@@ -259,9 +259,9 @@ namespace LuaWorldObject
         uint32 dead = ALE::CHECKVAL<uint32>(L, 4, 1);
 
         std::list<Player*> list;
-        ALEUtil::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_PLAYER, 0, hostile, dead);
+        YLAUtil::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_PLAYER, 0, hostile, dead);
 
-        Acore::PlayerListSearcher<ALEUtil::WorldObjectInRangeCheck> searcher(obj, list, checker);
+        Acore::PlayerListSearcher<YLAUtil::WorldObjectInRangeCheck> searcher(obj, list, checker);
         Cell::VisitObjects(obj, searcher, range);
 
         lua_createtable(L, list.size(), 0);
@@ -296,9 +296,9 @@ namespace LuaWorldObject
         uint32 dead = ALE::CHECKVAL<uint32>(L, 5, 1);
 
         std::list<Creature*> list;
-        ALEUtil::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_UNIT, entry, hostile, dead);
+        YLAUtil::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_UNIT, entry, hostile, dead);
 
-        Acore::CreatureListSearcher<ALEUtil::WorldObjectInRangeCheck> searcher(obj, list, checker);
+        Acore::CreatureListSearcher<YLAUtil::WorldObjectInRangeCheck> searcher(obj, list, checker);
         Cell::VisitObjects(obj, searcher, range);
 
         lua_createtable(L, list.size(), 0);
@@ -331,9 +331,9 @@ namespace LuaWorldObject
         uint32 hostile = ALE::CHECKVAL<uint32>(L, 4, 0);
 
         std::list<GameObject*> list;
-        ALEUtil::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_GAMEOBJECT, entry, hostile);
+        YLAUtil::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_GAMEOBJECT, entry, hostile);
 
-        Acore::GameObjectListSearcher<ALEUtil::WorldObjectInRangeCheck> searcher(obj, list, checker);
+        Acore::GameObjectListSearcher<YLAUtil::WorldObjectInRangeCheck> searcher(obj, list, checker);
         Cell::VisitObjects(obj, searcher, range);
 
         lua_createtable(L, list.size(), 0);
@@ -372,11 +372,11 @@ namespace LuaWorldObject
 
         float x, y, z;
         obj->GetPosition(x, y, z);
-        ALEUtil::WorldObjectInRangeCheck checker(true, obj, range, type, entry, hostile, dead);
+        YLAUtil::WorldObjectInRangeCheck checker(true, obj, range, type, entry, hostile, dead);
 
         WorldObject* target = NULL;
 
-        Acore::WorldObjectLastSearcher<ALEUtil::WorldObjectInRangeCheck> searcher(obj, target, checker);
+        Acore::WorldObjectLastSearcher<YLAUtil::WorldObjectInRangeCheck> searcher(obj, target, checker);
         Cell::VisitObjects(obj, searcher, range);
 
         ALE::Push(L, target);
@@ -405,11 +405,11 @@ namespace LuaWorldObject
 
         float x, y, z;
         obj->GetPosition(x, y, z);
-        ALEUtil::WorldObjectInRangeCheck checker(false, obj, range, type, entry, hostile, dead);
+        YLAUtil::WorldObjectInRangeCheck checker(false, obj, range, type, entry, hostile, dead);
 
         std::list<WorldObject*> list;
 
-        Acore::WorldObjectListSearcher<ALEUtil::WorldObjectInRangeCheck> searcher(obj, list, checker);
+        Acore::WorldObjectListSearcher<YLAUtil::WorldObjectInRangeCheck> searcher(obj, list, checker);
         Cell::VisitObjects(obj, searcher, range);
 
         lua_createtable(L, list.size(), 0);
@@ -770,7 +770,7 @@ namespace LuaWorldObject
         if (functionRef != LUA_REFNIL && functionRef != LUA_NOREF)
         {
             ALE* callingE = ALE::GetALE(L);
-            obj->ALEEvents->AddEvent(functionRef, min, max, repeats, callingE->GetSelfRef());
+            obj->YLAEvents->AddEvent(functionRef, min, max, repeats, callingE->GetSelfRef());
             ALE::Push(L, functionRef);
         }
         return 1;
@@ -784,7 +784,7 @@ namespace LuaWorldObject
     int RemoveEventById(lua_State* L, WorldObject* obj)
     {
         int eventId = ALE::CHECKVAL<int>(L, 2);
-        obj->ALEEvents->SetState(eventId, LUAEVENT_STATE_ABORT);
+        obj->YLAEvents->SetState(eventId, LUAEVENT_STATE_ABORT);
         return 0;
     }
 
@@ -794,7 +794,7 @@ namespace LuaWorldObject
      */
     int RemoveEvents(lua_State* /*L*/, WorldObject* obj)
     {
-        obj->ALEEvents->SetStates(LUAEVENT_STATE_ABORT);
+        obj->YLAEvents->SetStates(LUAEVENT_STATE_ABORT);
         return 0;
     }
 

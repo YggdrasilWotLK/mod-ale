@@ -22,7 +22,7 @@ Eluna Lua Engine &copy; 是嵌入到魔兽世界模拟器中的lua引擎。 Elun
 </a>
 
 # ![logo](https://raw.githubusercontent.com/azerothcore/azerothcore.github.io/master/images/logo-github.png) mod-yla for AzerothCore
-- azerothcore 的最新构建状态：[![Build Status](https://github.com/azerothcore/mod-yla/workflows/core-build/badge.svg?branch=master&event=push)](https://github.com/azerothcore/mod-yla)
+- azerothcore 的最新构建状态：[![Build Status](https://github.com/azerothcore/mod-ale/workflows/core-build/badge.svg?branch=master&event=push)](https://github.com/azerothcore/mod-ale)
 
 [english](README.md) | [中文说明](README_CN.md) | [Español](README_ES.md)
 
@@ -42,7 +42,7 @@ Eluna Lua Engine &copy; 是嵌入到魔兽世界模拟器中的lua引擎。 Elun
 2. 进入 **modules** 文件夹: `cd modules`
 3. 使用以下命令下载模块源代码。
 ```
-git clone https://github.com/azerothcore/mod-yla.git mod-yla
+git clone https://github.com/azerothcore/mod-ale.git mod-yla
 ```
 
 ### 2) 构建
@@ -82,11 +82,11 @@ AC版的Eluna API:
 - 添加聊天处理方法到玩家事件中。 https://github.com/azerothcore/Eluna/pull/23
 - 暴露方法 `ModifyThreatPct()`. https://github.com/azerothcore/Eluna/pull/25
 - 暴露方法 `Object:IsPlayer()`. https://github.com/azerothcore/Eluna/pull/42
-- 添加玩家注册事件44(当玩家学习技能时): `PLAYER_EVENT_ON_LEARN_SPELL`. https://github.com/azerothcore/mod-yla/pull/46
-- 添加玩家注册事件45(当玩家完成成就时): `PLAYER_ON_ACHIEVEMENT_COMPLETE`。 https://github.com/azerothcore/mod-yla/pull/47
-- 添加玩家注册事件51(当玩家获得任务奖励时) `PLAYER_EVENT_ON_QUEST_REWARD_ITEM`。https://github.com/azerothcore/mod-yla/pull/88
-- 添加玩家注册事件52(当玩家创建物品时) `PLAYER_EVENT_ON_CREATE_ITEM`。https://github.com/azerothcore/mod-yla/pull/88
-- 添加玩家注册事件53(当玩家创建物品实例时) `PLAYER_EVENT_ON_STORE_NEW_ITEM`。https://github.com/azerothcore/mod-yla/pull/88
-- 添加玩家注册事件54(当玩家完成任务时) `PLAYER_EVENT_ON_COMPLETE_QUEST`。https://github.com/azerothcore/mod-yla/pull/90
-- 新增参数*商人Id*到方法player:SendListInventory(object, vendorentry)中。 https://github.com/azerothcore/mod-yla/pull/48
-- 添加方法`gameobject:AddLoot()`, 可以在线给**空**的容器中添加战利品。 https://github.com/azerothcore/mod-yla/pull/52
+- 添加玩家注册事件44(当玩家学习技能时): `PLAYER_EVENT_ON_LEARN_SPELL`. https://github.com/azerothcore/mod-ale/pull/46
+- 添加玩家注册事件45(当玩家完成成就时): `PLAYER_ON_ACHIEVEMENT_COMPLETE`。 https://github.com/azerothcore/mod-ale/pull/47
+- 添加玩家注册事件51(当玩家获得任务奖励时) `PLAYER_EVENT_ON_QUEST_REWARD_ITEM`。https://github.com/azerothcore/mod-ale/pull/88
+- 添加玩家注册事件52(当玩家创建物品时) `PLAYER_EVENT_ON_CREATE_ITEM`。https://github.com/azerothcore/mod-ale/pull/88
+- 添加玩家注册事件53(当玩家创建物品实例时) `PLAYER_EVENT_ON_STORE_NEW_ITEM`。https://github.com/azerothcore/mod-ale/pull/88
+- 添加玩家注册事件54(当玩家完成任务时) `PLAYER_EVENT_ON_COMPLETE_QUEST`。https://github.com/azerothcore/mod-ale/pull/90
+- 新增参数*商人Id*到方法player:SendListInventory(object, vendorentry)中。 https://github.com/azerothcore/mod-ale/pull/48
+- 添加方法`gameobject:AddLoot()`, 可以在线给**空**的容器中添加战利品。 https://github.com/azerothcore/mod-ale/pull/52

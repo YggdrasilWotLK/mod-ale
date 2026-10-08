@@ -16,7 +16,7 @@ Read more about Yggdrasil WoW and see Yggdrasilcore in action [here](https://ygg
 
 YLA has diverged from mod-yla and from the original Eluna project. Its API, state handling and threading model differ from upstream, so scripts are not interchangeable in either direction. Always refer to YLA specific behavior when developing scripts, and do not expect upstream documentation to be accurate for it.
 
-If you need stock ALE or Eluna compatibility, use the upstream projects instead: [mod-yla](https://github.com/azerothcore/mod-yla) for AzerothCore's ALE or [ElunaTrinityWotlk](https://github.com/ElunaLuaEngine/ElunaTrinityWotlk) for the original Eluna API.
+If you need stock ALE or Eluna compatibility, use the upstream projects instead: [mod-yla](https://github.com/azerothcore/mod-ale) for AzerothCore's ALE or [ElunaTrinityWotlk](https://github.com/ElunaLuaEngine/ElunaTrinityWotlk) for the original Eluna API.
 
 ## Installation
 
@@ -68,7 +68,7 @@ YLA is a downstream fork and we do not provide public support for it. Upstream c
 
 ## Contributing
 
-YLA is a privately managed repository. We do not recommend emulation enthusiasts to follow it. Instead, we recommend that enthusiasts contribute to the upstream mod-yla project at [azerothcore/mod-yla](https://github.com/azerothcore/mod-yla). See their information on how to contribute [here](https://www.azerothcore.org/wiki/contribute).
+YLA is a privately managed repository. We do not recommend emulation enthusiasts to follow it. Instead, we recommend that enthusiasts contribute to the upstream mod-yla project at [azerothcore/mod-ale](https://github.com/azerothcore/mod-ale). See their information on how to contribute [here](https://www.azerothcore.org/wiki/contribute).
 
 ## Acknowledgements
 

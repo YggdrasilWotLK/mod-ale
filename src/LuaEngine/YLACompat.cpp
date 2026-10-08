@@ -4,7 +4,7 @@
  * Please see the included DOCS/LICENSE.md for more information
  */
 
-#include "ALECompat.h"
+#include "YLACompat.h"
 
 #if LUA_VERSION_NUM == 501
 const char* luaL_tolstring(lua_State* L, int idx, size_t* len) {

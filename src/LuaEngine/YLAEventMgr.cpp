@@ -4,7 +4,7 @@
 * Please see the included DOCS/LICENSE.md for more information
 */
 
-#include "ALEEventMgr.h"
+#include "YLAEventMgr.h"
 #include "LuaEngine.h"
 #include "YlaAlive.h"
 #include "Object.h"
@@ -17,7 +17,7 @@ extern "C"
 #include "lauxlib.h"
 };
 
-ALEEventProcessor::ALEEventProcessor(const YlaStateRef& _owner, std::shared_ptr<ALE> ownerLock, WorldObject* _obj) : m_time(0), obj(_obj), guidCaptured(false), owner(_owner)
+YLAEventProcessor::YLAEventProcessor(const YlaStateRef& _owner, std::shared_ptr<ALE> ownerLock, WorldObject* _obj) : m_time(0), obj(_obj), guidCaptured(false), owner(_owner)
 {
     // can be called from multiple threads
     if (obj && ownerLock && ownerLock->eventMgr)
@@ -27,7 +27,7 @@ ALEEventProcessor::ALEEventProcessor(const YlaStateRef& _owner, std::shared_ptr<
     }
 }
 
-ALEEventProcessor::~ALEEventProcessor()
+YLAEventProcessor::~YLAEventProcessor()
 {
     // can be called from multiple threads
     {
@@ -58,7 +58,7 @@ ALEEventProcessor::~ALEEventProcessor()
     }
 }
 
-void ALEEventProcessor::CaptureGuid()
+void YLAEventProcessor::CaptureGuid()
 {
     Guard guard(mutex);
     if (guidCaptured || !obj)
@@ -68,7 +68,7 @@ void ALEEventProcessor::CaptureGuid()
     guidCaptured = true;
 }
 
-void ALEEventProcessor::Update(uint32 diff)
+void YLAEventProcessor::Update(uint32 diff)
 {
     struct DueCall
     {
@@ -174,7 +174,7 @@ void ALEEventProcessor::Update(uint32 diff)
         // in compat, state-only in multistate).
         if (auto state = ALE::LockStateRef(call.owner))
         {
-            ALE::Guard globalGuard(ALEConfig::GetInstance().IsCompatibilityModeEnabled() ? ALE::GetLock() : ALE::GetNoopLock());
+            ALE::Guard globalGuard(YLAConfig::GetInstance().IsCompatibilityModeEnabled() ? ALE::GetLock() : ALE::GetNoopLock());
             ALE::Guard stateGuard(state->GetStateLock());
             if (state->HasLuaState())
                 state->OnTimedEvent(call.luaEvent->funcRef, call.delay, call.repeatsArg, call.liveObj);
@@ -199,7 +199,7 @@ void ALEEventProcessor::Update(uint32 diff)
         RemoveEvent(luaEvent);
 }
 
-void ALEEventProcessor::SetStates(LuaEventState state)
+void YLAEventProcessor::SetStates(LuaEventState state)
 {
     Guard guard(mutex);
     ++massSweep;
@@ -209,7 +209,7 @@ void ALEEventProcessor::SetStates(LuaEventState state)
         eventMap.clear();
 }
 
-void ALEEventProcessor::RemoveEvents_internal()
+void YLAEventProcessor::RemoveEvents_internal()
 {
     std::vector<LuaEvent*> doomed;
     {
@@ -225,7 +225,7 @@ void ALEEventProcessor::RemoveEvents_internal()
         RemoveEvent(luaEvent);
 }
 
-void ALEEventProcessor::SetState(int eventId, LuaEventState state)
+void YLAEventProcessor::SetState(int eventId, LuaEventState state)
 {
     Guard guard(mutex);
     if (eventMap.find(eventId) != eventMap.end())
@@ -236,7 +236,7 @@ void ALEEventProcessor::SetState(int eventId, LuaEventState state)
         eventMap.erase(eventId);
 }
 
-void ALEEventProcessor::AddEvent(LuaEvent* luaEvent)
+void YLAEventProcessor::AddEvent(LuaEvent* luaEvent)
 {
     Guard guard(mutex);
     luaEvent->GenerateDelay();
@@ -244,12 +244,12 @@ void ALEEventProcessor::AddEvent(LuaEvent* luaEvent)
     eventMap[luaEvent->funcRef] = luaEvent;
 }
 
-void ALEEventProcessor::AddEvent(int funcRef, uint32 min, uint32 max, uint32 repeats, const YlaStateRef& owner)
+void YLAEventProcessor::AddEvent(int funcRef, uint32 min, uint32 max, uint32 repeats, const YlaStateRef& owner)
 {
     AddEvent(new LuaEvent(funcRef, min, max, repeats, owner));
 }
 
-void ALEEventProcessor::RemoveEvent(LuaEvent* luaEvent)
+void YLAEventProcessor::RemoveEvent(LuaEvent* luaEvent)
 {
     // Decide here; the unref runs without the processor lock so we never
     // hold proc -> state (Lua entry paths take state -> proc). Caller must
@@ -274,7 +274,7 @@ void ALEEventProcessor::RemoveEvent(LuaEvent* luaEvent)
             // Unreference using the event's own state, mirroring
             // LOCK_YLA_STATE (global -> state in compat, state-only in
             // multistate) so the unref cannot race Lua execution on L.
-            ALE::Guard globalGuard(ALEConfig::GetInstance().IsCompatibilityModeEnabled() ? ALE::GetLock() : ALE::GetNoopLock());
+            ALE::Guard globalGuard(YLAConfig::GetInstance().IsCompatibilityModeEnabled() ? ALE::GetLock() : ALE::GetNoopLock());
             ALE::Guard stateGuard(state->GetStateLock());
             if (state->HasLuaState())
                 luaL_unref(state->L, LUA_REGISTRYINDEX, funcRef);
@@ -282,7 +282,7 @@ void ALEEventProcessor::RemoveEvent(LuaEvent* luaEvent)
     }
 }
 
-EventMgr::EventMgr(const YlaStateRef& _owner) : globalProcessor(new ALEEventProcessor(_owner, nullptr, NULL)), owner(_owner)
+EventMgr::EventMgr(const YlaStateRef& _owner) : globalProcessor(new YLAEventProcessor(_owner, nullptr, NULL)), owner(_owner)
 {
 }
 

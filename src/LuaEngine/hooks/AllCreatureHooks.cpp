@@ -8,13 +8,13 @@
 #include "HookHelpers.h"
 #include "LuaEngine.h"
 #include "BindingMap.h"
-#include "ALEIncludes.h"
-#include "ALETemplate.h"
+#include "YLAIncludes.h"
+#include "YLATemplate.h"
 
 using namespace Hooks;
 
 #define START_HOOK(EVENT) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
     auto key = EventKey<AllCreatureEvents>(EVENT);\
     if (!AllCreatureEventBindings->HasBindingsFor(key))\
@@ -22,7 +22,7 @@ using namespace Hooks;
     LOCK_YLA_STATE
 
 #define START_HOOK_WITH_RETVAL(EVENT, RETVAL) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return RETVAL;\
     auto key = EventKey<AllCreatureEvents>(EVENT);\
     if (!AllCreatureEventBindings->HasBindingsFor(key))\

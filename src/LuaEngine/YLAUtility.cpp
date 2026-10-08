@@ -4,41 +4,41 @@
 * Please see the included DOCS/LICENSE.md for more information
 */
 
-#include "ALEUtility.h"
+#include "YLAUtility.h"
 #include "World.h"
 #include "Object.h"
 #include "Unit.h"
 #include "GameObject.h"
 #include "DBCStores.h"
 
-uint32 ALEUtil::GetCurrTime()
+uint32 YLAUtil::GetCurrTime()
 {
     return getMSTime();
 }
 
-uint32 ALEUtil::GetTimeDiff(uint32 oldMSTime)
+uint32 YLAUtil::GetTimeDiff(uint32 oldMSTime)
 {
     return GetMSTimeDiffToNow(oldMSTime);
 }
 
-ALEUtil::ObjectGUIDCheck::ObjectGUIDCheck(ObjectGuid guid) : _guid(guid)
+YLAUtil::ObjectGUIDCheck::ObjectGUIDCheck(ObjectGuid guid) : _guid(guid)
 {
 }
 
-bool ALEUtil::ObjectGUIDCheck::operator()(WorldObject* object)
+bool YLAUtil::ObjectGUIDCheck::operator()(WorldObject* object)
 {
     return object->GET_GUID() == _guid;
 }
 
-ALEUtil::ObjectDistanceOrderPred::ObjectDistanceOrderPred(WorldObject const* pRefObj, bool ascending) : m_refObj(pRefObj), m_ascending(ascending)
+YLAUtil::ObjectDistanceOrderPred::ObjectDistanceOrderPred(WorldObject const* pRefObj, bool ascending) : m_refObj(pRefObj), m_ascending(ascending)
 {
 }
-bool ALEUtil::ObjectDistanceOrderPred::operator()(WorldObject const* pLeft, WorldObject const* pRight) const
+bool YLAUtil::ObjectDistanceOrderPred::operator()(WorldObject const* pLeft, WorldObject const* pRight) const
 {
     return m_ascending ? m_refObj->GetDistanceOrder(pLeft, pRight) : !m_refObj->GetDistanceOrder(pLeft, pRight);
 }
 
-ALEUtil::WorldObjectInRangeCheck::WorldObjectInRangeCheck(bool nearest, WorldObject const* obj, float range,
+YLAUtil::WorldObjectInRangeCheck::WorldObjectInRangeCheck(bool nearest, WorldObject const* obj, float range,
     uint16 typeMask, uint32 entry, uint32 hostile, uint32 dead) :
     i_obj(obj), i_obj_unit(nullptr), i_obj_fact(nullptr), i_hostile(hostile), i_entry(entry), i_range(range), i_typeMask(typeMask), i_dead(dead), i_nearest(nearest)
 {
@@ -49,11 +49,11 @@ ALEUtil::WorldObjectInRangeCheck::WorldObjectInRangeCheck(bool nearest, WorldObj
     if (!i_obj_unit)
         i_obj_fact = sFactionTemplateStore.LookupEntry(14);
 }
-WorldObject const& ALEUtil::WorldObjectInRangeCheck::GetFocusObject() const
+WorldObject const& YLAUtil::WorldObjectInRangeCheck::GetFocusObject() const
 {
     return *i_obj;
 }
-bool ALEUtil::WorldObjectInRangeCheck::operator()(WorldObject* u)
+bool YLAUtil::WorldObjectInRangeCheck::operator()(WorldObject* u)
 {
     if (i_typeMask && !u->isType(TypeMask(i_typeMask)))
         return false;
@@ -110,7 +110,7 @@ static void build_decoding_table()
         decoding_table[(unsigned char)encoding_table[i]] = i;
 }
 
-void ALEUtil::EncodeData(const unsigned char* data, size_t input_length, std::string& output)
+void YLAUtil::EncodeData(const unsigned char* data, size_t input_length, std::string& output)
 {
     size_t output_length = 4 * ((input_length + 2) / 3);
     char* buffer = new char[output_length];
@@ -136,7 +136,7 @@ void ALEUtil::EncodeData(const unsigned char* data, size_t input_length, std::st
     delete[] buffer;
 }
 
-unsigned char* ALEUtil::DecodeData(const char *data, size_t *output_length)
+unsigned char* YLAUtil::DecodeData(const char *data, size_t *output_length)
 {
     if (decoding_table[(unsigned char)'B'] == 0)
         build_decoding_table();

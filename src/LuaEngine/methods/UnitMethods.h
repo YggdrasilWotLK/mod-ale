@@ -1118,7 +1118,7 @@ namespace LuaUnit
         Acore::UnitListSearcher<Acore::AnyFriendlyUnitInObjectRangeCheck> searcher(unit, list, checker);
         Cell::VisitObjects(unit, searcher, range);
 
-        ALEUtil::ObjectGUIDCheck guidCheck(unit->GET_GUID());
+        YLAUtil::ObjectGUIDCheck guidCheck(unit->GET_GUID());
         list.remove_if(guidCheck);
 
         lua_createtable(L, list.size(), 0);
@@ -1149,7 +1149,7 @@ namespace LuaUnit
         Acore::AnyUnfriendlyUnitInObjectRangeCheck checker(unit, unit, range);
         Acore::UnitListSearcher<Acore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(unit, list, checker);
         Cell::VisitObjects(unit, searcher, range);
-        ALEUtil::ObjectGUIDCheck guidCheck(unit->GET_GUID());
+        YLAUtil::ObjectGUIDCheck guidCheck(unit->GET_GUID());
         list.remove_if(guidCheck);
 
         lua_createtable(L, list.size(), 0);
