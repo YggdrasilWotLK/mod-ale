@@ -23,3 +23,9 @@ void Addmod_ylaScripts()
 {
     AddSC_ALE();
 }
+
+// Compat: folder still checked out as modules/mod-ale until repo rename
+void Addmod_aleScripts()
+{
+    Addmod_ylaScripts();
+}
