@@ -454,7 +454,9 @@ public:
     void FreeInstanceId(uint32 instanceId);
 
     /* Custom */
-    void OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj);
+    // Returns false when the call was skipped due to nested Lua execution
+    // (caller must re-arm instead of dropping); true when executed.
+    bool OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj);
     bool OnCommand(ChatHandler& handler, const char* text);
     void OnWorldUpdate(uint32 diff);
     void OnLootItem(Player* pPlayer, Item* pItem, uint32 count, ObjectGuid guid);
