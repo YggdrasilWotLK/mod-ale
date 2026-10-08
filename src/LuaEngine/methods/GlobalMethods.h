@@ -3848,15 +3848,20 @@ namespace LuaGlobalFunctions
     {
         const char* key = ALE::CHECKVAL<const char*>(L, 1);
 
-        std::lock_guard lock(ALE::worldDataMutex);
-        auto it = ALE::worldDataCache.find(key);
-        if (it == ALE::worldDataCache.end())
+        // Copy out under lock, decode after: blob size is unbounded.
+        std::string blob;
         {
-            lua_pushnil(L);
-            return 1;
+            std::shared_lock lock(ALE::worldDataMutex);
+            auto it = ALE::worldDataCache.find(key);
+            if (it == ALE::worldDataCache.end())
+            {
+                lua_pushnil(L);
+                return 1;
+            }
+            blob = it->second;
         }
 
-        ALE::DeserializeValue(L, it->second);
+        ALE::DeserializeValue(L, blob);
         if (!lua_istable(L, -1))
             return 1;
 
@@ -3890,17 +3895,103 @@ namespace LuaGlobalFunctions
     int SetWorldData(lua_State* L)
     {
         const char* key = ALE::CHECKVAL<const char*>(L, 1);
+        // Marshal before locking: value size is unbounded, lock covers the insert only.
+        bool erase = lua_isnoneornil(L, 2);
+        std::string serialized;
+        if (!erase)
+        {
+            serialized = ALE::SerializeValue(L, 2);
+            if (serialized.empty())
+                return 0;
+        }
 
         std::lock_guard lock(ALE::worldDataMutex);
-        if (lua_isnoneornil(L, 2))
+        if (erase)
             ALE::worldDataCache.erase(key);
         else
-        {
-            std::string serialized = ALE::SerializeValue(L, 2);
-            if (!serialized.empty())
-                ALE::worldDataCache[key] = serialized;
-        }
+            ALE::worldDataCache[key] = std::move(serialized);
         return 0;
+    }
+
+    /** SetMapData(key, value): owning map state only (owner pinned from caller); nil erases. Fire-and-forget, readers see last value. */
+    int SetMapData(lua_State* L)
+    {
+        ALE* E = ALE::GetALE(L);
+        const char* key = ALE::CHECKVAL<const char*>(L, 1);
+        uint64 box = ALEMapStateKey(E->GetStateMapId(), E->GetStateInstanceId());
+        // Marshal before locking: value size is unbounded, lock covers the insert only.
+        bool erase = lua_isnoneornil(L, 2);
+        std::string serialized;
+        if (!erase)
+        {
+            serialized = ALE::SerializeValue(L, 2);
+            if (serialized.empty())
+                return 0;
+        }
+
+        std::lock_guard lock(ALE::mapBoxMutex);
+        if (erase)
+        {
+            auto boxIt = ALE::mapBoxCache.find(box);
+            if (boxIt != ALE::mapBoxCache.end())
+            {
+                boxIt->second.erase(key);
+                if (boxIt->second.empty())
+                    ALE::mapBoxCache.erase(boxIt);
+            }
+        }
+        else
+            ALE::mapBoxCache[box][key] = std::move(serialized);
+        return 0;
+    }
+
+    /** GetMapData(mapId, instanceId, key): readable everywhere; nil = unset / map gone. Tables need AsTable(). */
+    int GetMapData(lua_State* L)
+    {
+        uint32 mapId = ALE::CHECKVAL<uint32>(L, 1);
+        uint32 instanceId = ALE::CHECKVAL<uint32>(L, 2);
+        const char* key = ALE::CHECKVAL<const char*>(L, 3);
+        uint64 box = ALEMapStateKey(mapId, instanceId);
+
+        // Copy out under lock, decode after: blob size is unbounded.
+        std::string blob;
+        {
+            std::shared_lock lock(ALE::mapBoxMutex);
+            auto boxIt = ALE::mapBoxCache.find(box);
+            if (boxIt == ALE::mapBoxCache.end())
+            {
+                lua_pushnil(L);
+                return 1;
+            }
+            auto valIt = boxIt->second.find(key);
+            if (valIt == boxIt->second.end())
+            {
+                lua_pushnil(L);
+                return 1;
+            }
+            blob = valIt->second;
+        }
+
+        ALE::DeserializeValue(L, blob);
+        if (!lua_istable(L, -1))
+            return 1;
+
+        lua_newtable(L);
+        int proxy = lua_gettop(L);
+
+        lua_pushstring(L, "__inner");
+        lua_pushvalue(L, -3);
+        lua_rawset(L, proxy);
+
+        lua_pushstring(L, "AsTable");
+        lua_pushcclosure(L, [](lua_State* L) -> int {
+            lua_getfield(L, 1, "__inner");
+            return 1;
+        }, 0);
+        lua_rawset(L, proxy);
+
+        lua_remove(L, -2);
+        return 1;
     }
 }
 #endif

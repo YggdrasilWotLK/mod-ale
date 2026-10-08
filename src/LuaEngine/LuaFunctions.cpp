@@ -106,6 +106,8 @@ ALEGlobalRegister GlobalMethods[] =
     { "GetStateInstanceId", &LuaGlobalFunctions::GetStateInstanceId, METHOD_REG_ALL },
     { "GetWorldData", &LuaGlobalFunctions::GetWorldData },
     { "SetWorldData", &LuaGlobalFunctions::SetWorldData, METHOD_REG_WORLD },
+    { "GetMapData", &LuaGlobalFunctions::GetMapData },
+    { "SetMapData", &LuaGlobalFunctions::SetMapData, METHOD_REG_MAP },
     { "GetQuest", &LuaGlobalFunctions::GetQuest },
     { "GetPlayerByGUID", &LuaGlobalFunctions::GetPlayerByGUID, METHOD_REG_WORLD },
     { "GetPlayerByName", &LuaGlobalFunctions::GetPlayerByName, METHOD_REG_WORLD },

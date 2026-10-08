@@ -61,11 +61,13 @@ std::shared_mutex ALE::g_states_mutex;
 
 // Runtime-persistent object and map data caches
 std::unordered_map<ObjectGuid, std::unordered_map<std::string, std::string>> ALE::objectDataCache;
-std::mutex ALE::objectDataMutex;
+std::shared_mutex ALE::objectDataMutex;
 std::unordered_map<uint32, std::unordered_map<std::string, std::string>> ALE::mapDataCache;
-std::mutex ALE::mapDataMutex;
+std::shared_mutex ALE::mapDataMutex;
+std::unordered_map<uint64, std::unordered_map<std::string, std::string>> ALE::mapBoxCache;
+std::shared_mutex ALE::mapBoxMutex;
 std::unordered_map<std::string, std::string> ALE::worldDataCache;
-std::mutex ALE::worldDataMutex;
+std::shared_mutex ALE::worldDataMutex;
 
 // Global bytecode cache that survives ALE reloads
 static std::unordered_map<std::string, GlobalCacheEntry> globalBytecodeCache;

@@ -171,17 +171,21 @@ public:
     
     // Runtime-persistent object data cache, keyed by ObjectGuid
     static std::unordered_map<ObjectGuid, std::unordered_map<std::string, std::string>> objectDataCache;
-    static std::mutex objectDataMutex;
+    static std::shared_mutex objectDataMutex;
 
     // Runtime-persistent map data cache, keyed by map ID
     static std::unordered_map<uint32, std::unordered_map<std::string, std::string>> mapDataCache;
-    static std::mutex mapDataMutex;
+    static std::shared_mutex mapDataMutex;
 
     // Runtime-persistent world data cache, keyed by string. Written by the
     // world state only (SetWorldData is world-registered), readable from
     // every state (GetWorldData is registered everywhere).
     static std::unordered_map<std::string, std::string> worldDataCache;
-    static std::mutex worldDataMutex;
+    static std::shared_mutex worldDataMutex;
+
+    // Per-instance map boxes (ALEMapStateKey): owning map state writes, everyone reads last-value; box dies with its instance.
+    static std::unordered_map<uint64, std::unordered_map<std::string, std::string>> mapBoxCache;
+    static std::shared_mutex mapBoxMutex;
 
     static void ClearObjectData(ObjectGuid guid)
     {
@@ -193,6 +197,12 @@ public:
     {
         std::lock_guard lock(mapDataMutex);
         mapDataCache.erase(mapId);
+    }
+
+    static void ClearMapBox(uint32 mapId, uint32 instanceId)
+    {
+        std::lock_guard lock(mapBoxMutex);
+        mapBoxCache.erase(ALEMapStateKey(mapId, instanceId));
     }
 
     static std::string SerializeValue(lua_State* L, int idx);

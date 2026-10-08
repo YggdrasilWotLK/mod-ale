@@ -287,6 +287,7 @@ public:
     {
         ALE::GetMapStateOrGlobal(map->GetId(), map->GetInstanceId())->OnDestroy(map);
         ALE::ClearMapData(map->GetId());
+        ALE::ClearMapBox(map->GetId(), map->GetInstanceId());
         if (!ALEConfig::GetInstance().IsCompatibilityModeEnabled())
             ALE::DestroyMapState(map->GetId(), map->GetInstanceId());
     }

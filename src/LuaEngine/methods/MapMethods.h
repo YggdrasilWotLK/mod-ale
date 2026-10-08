@@ -465,17 +465,23 @@ namespace LuaMap
         lua_pushcclosure(L, [](lua_State* L) -> int {
             uint32 mapId = (uint32)lua_tonumber(L, lua_upvalueindex(1));
             const char* key = luaL_checkstring(L, 2);
+            // Marshal before locking: value size is unbounded, lock covers the insert only.
+            bool erase = lua_isnoneornil(L, 3);
+            std::string serialized;
+            if (!erase)
+            {
+                serialized = ALE::SerializeValue(L, 3);
+                if (serialized.empty())
+                {
+                    lua_pushvalue(L, 1);
+                    return 1;
+                }
+            }
             std::lock_guard lock(ALE::mapDataMutex);
-            if (lua_isnoneornil(L, 3))
-            {
+            if (erase)
                 ALE::mapDataCache[mapId].erase(key);
-            }
             else
-            {
-                std::string serialized = ALE::SerializeValue(L, 3);
-                if (!serialized.empty())
-                    ALE::mapDataCache[mapId][key] = serialized;
-            }
+                ALE::mapDataCache[mapId][key] = std::move(serialized);
             lua_pushvalue(L, 1);
             return 1;
         }, 1);
@@ -488,8 +494,11 @@ namespace LuaMap
             uint32 mapId = (uint32)lua_tonumber(L, lua_upvalueindex(1));
             const char* key = luaL_checkstring(L, 2);
 
-            std::lock_guard lock(ALE::mapDataMutex);
-            auto mapIt = ALE::mapDataCache.find(mapId);
+            // Copy out under lock, decode after: blob size is unbounded.
+            std::string blob;
+            {
+                std::shared_lock lock(ALE::mapDataMutex);
+                auto mapIt = ALE::mapDataCache.find(mapId);
             if (mapIt == ALE::mapDataCache.end())
             {
                 lua_pushnil(L);
@@ -501,8 +510,10 @@ namespace LuaMap
                 lua_pushnil(L);
                 return 1;
             }
+            blob = valIt->second;
+            }
 
-            ALE::DeserializeValue(L, valIt->second);
+            ALE::DeserializeValue(L, blob);
 
             if (!lua_istable(L, -1))
                 return 1;
@@ -533,11 +544,17 @@ namespace LuaMap
             uint32 mapId = (uint32)lua_tonumber(L, lua_upvalueindex(1));
             lua_newtable(L);
             int result = lua_gettop(L);
-            std::lock_guard lock(ALE::mapDataMutex);
-            auto mapIt = ALE::mapDataCache.find(mapId);
-            if (mapIt == ALE::mapDataCache.end())
-                return 1;
-            for (auto& [key, val] : mapIt->second)
+            // Snapshot under lock, decode after: blobs are unbounded.
+            std::vector<std::pair<std::string, std::string>> entries;
+            {
+                std::shared_lock lock(ALE::mapDataMutex);
+                auto mapIt = ALE::mapDataCache.find(mapId);
+                if (mapIt == ALE::mapDataCache.end())
+                    return 1;
+                for (auto& [key, val] : mapIt->second)
+                    entries.emplace_back(key, val);
+            }
+            for (auto& [key, val] : entries)
             {
                 lua_pushstring(L, key.c_str());
                 ALE::DeserializeValue(L, val);
