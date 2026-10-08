@@ -85,7 +85,15 @@ bool ALE::OnAddonMessage(Player* sender, uint32 type, std::string& msg, Player* 
 void ALE::OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj)
 {
     LOCK_ALE_STATE;
-    ASSERT(!event_level);
+    // A timed event can fire while this state is already inside a Lua call
+    // (map worker thread re-entered through nested updates). Nested Lua
+    // execution here corrupts the stack and used to be a hard crash; drop
+    // this tick instead. Repeating timers retry on their next tick.
+    if (event_level)
+    {
+        ALE_LOG_ERROR("[ALE]: Skipped nested timed event (funcRef {}, delay {}, calls {}) during active Lua execution", funcRef, delay, calls);
+        return;
+    }
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, funcRef);
 
