@@ -33,7 +33,7 @@ jobs:
           repository: 'YggdrasilWotLK/mod-shadows'
           ref: 'master'
           submodules: 'recursive'
-          path: 'modules/mod-shadows'
+          path: 'modules/mod-playerbots'
           fetch-depth: 0
 
       - name: Cache compilation artifacts 💾
