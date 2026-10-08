@@ -21,7 +21,7 @@ using namespace Hooks;
     if (!CreatureEventBindings->HasBindingsFor(entry_key))\
         if (!CreatureUniqueBindings->HasBindingsFor(unique_key))\
             return;\
-    LOCK_ALE
+    LOCK_ALE_STATE
 
 #define START_HOOK_WITH_RETVAL(EVENT, CREATURE, RETVAL) \
     if (!ALEConfig::GetInstance().IsALEEnabled())\
@@ -31,7 +31,7 @@ using namespace Hooks;
     if (!CreatureEventBindings->HasBindingsFor(entry_key))\
         if (!CreatureUniqueBindings->HasBindingsFor(unique_key))\
             return RETVAL;\
-    LOCK_ALE
+    LOCK_ALE_STATE
 
 void ALE::OnDummyEffect(WorldObject* pCaster, uint32 spellId, SpellEffIndex effIndex, Creature* pTarget)
 {
@@ -100,8 +100,6 @@ bool ALE::UpdateAI(Creature* me, const uint32 diff)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-//Called for reaction at enter to combat if not in combat yet (enemy can be NULL)
-//Called at creature aggro either by MoveInLOS or Attack Start
 bool ALE::EnterCombat(Creature* me, Unit* target)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_ENTER_COMBAT, me, false);
@@ -110,7 +108,6 @@ bool ALE::EnterCombat(Creature* me, Unit* target)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// Called at any Damage from any attacker (before damage apply)
 bool ALE::DamageTaken(Creature* me, Unit* attacker, uint32& damage)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_DAMAGE_TAKEN, me, false);
@@ -131,7 +128,6 @@ bool ALE::DamageTaken(Creature* me, Unit* attacker, uint32& damage)
         if (lua_isnumber(L, r + 1))
         {
             damage = ALE::CHECKVAL<uint32>(L, r + 1);
-            // Update the stack for subsequent calls.
             ReplaceArgument(damage, damageIndex);
         }
 
@@ -142,7 +138,6 @@ bool ALE::DamageTaken(Creature* me, Unit* attacker, uint32& damage)
     return result;
 }
 
-//Called at creature death
 bool ALE::JustDied(Creature* me, Unit* killer)
 {
     On_Reset(me);
@@ -152,7 +147,6 @@ bool ALE::JustDied(Creature* me, Unit* killer)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-//Called at creature killing another unit
 bool ALE::KilledUnit(Creature* me, Unit* victim)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_TARGET_DIED, me, false);
@@ -161,7 +155,6 @@ bool ALE::KilledUnit(Creature* me, Unit* victim)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// Called when the creature summon successfully other creature
 bool ALE::JustSummoned(Creature* me, Creature* summon)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_JUST_SUMMONED_CREATURE, me, false);
@@ -170,7 +163,6 @@ bool ALE::JustSummoned(Creature* me, Creature* summon)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// Called when a summoned creature is despawned
 bool ALE::SummonedCreatureDespawn(Creature* me, Creature* summon)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_SUMMONED_CREATURE_DESPAWN, me, false);
@@ -179,7 +171,6 @@ bool ALE::SummonedCreatureDespawn(Creature* me, Creature* summon)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-//Called at waypoint reached or PointMovement end
 bool ALE::MovementInform(Creature* me, uint32 type, uint32 id)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_REACH_WP, me, false);
@@ -189,7 +180,6 @@ bool ALE::MovementInform(Creature* me, uint32 type, uint32 id)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// Called before EnterCombat even before the creature is in combat.
 bool ALE::AttackStart(Creature* me, Unit* target)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_PRE_COMBAT, me, false);
@@ -198,7 +188,6 @@ bool ALE::AttackStart(Creature* me, Unit* target)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// Called for reaction at stopping attack at no attackers or targets
 bool ALE::EnterEvadeMode(Creature* me)
 {
     On_Reset(me);
@@ -207,7 +196,6 @@ bool ALE::EnterEvadeMode(Creature* me)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// Called when creature is spawned or respawned (for reseting variables)
 bool ALE::JustRespawned(Creature* me)
 {
     On_Reset(me);
@@ -216,7 +204,6 @@ bool ALE::JustRespawned(Creature* me)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// Called at reaching home after evade
 bool ALE::JustReachedHome(Creature* me)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_REACH_HOME, me, false);
@@ -224,7 +211,6 @@ bool ALE::JustReachedHome(Creature* me)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// Called at text emote receive from player
 bool ALE::ReceiveEmote(Creature* me, Player* player, uint32 emoteId)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_RECEIVE_EMOTE, me, false);
@@ -234,7 +220,6 @@ bool ALE::ReceiveEmote(Creature* me, Player* player, uint32 emoteId)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// called when the corpse of this creature gets removed
 bool ALE::CorpseRemoved(Creature* me, uint32& respawnDelay)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_CORPSE_REMOVED, me, false);
@@ -254,7 +239,6 @@ bool ALE::CorpseRemoved(Creature* me, uint32& respawnDelay)
         if (lua_isnumber(L, r + 1))
         {
             respawnDelay = ALE::CHECKVAL<uint32>(L, r + 1);
-            // Update the stack for subsequent calls.
             ReplaceArgument(respawnDelay, respawnDelayIndex);
         }
 
@@ -273,31 +257,28 @@ bool ALE::MoveInLineOfSight(Creature* me, Unit* who)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// Called on creature initial spawn, respawn, death, evade (leave combat)
-void ALE::On_Reset(Creature* me) // Not an override, custom
+void ALE::On_Reset(Creature* me)
 {
     START_HOOK(CREATURE_EVENT_ON_RESET, me);
     Push(me);
     CallAllFunctions(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// Called when hit by a spell
 bool ALE::SpellHit(Creature* me, WorldObject* caster, SpellInfo const* spell)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_HIT_BY_SPELL, me, false);
     Push(me);
     Push(caster);
-    Push(spell->Id); // Pass spell object?
+    Push(spell->Id);
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// Called when spell hits a target
 bool ALE::SpellHitTarget(Creature* me, WorldObject* target, SpellInfo const* spell)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_SPELL_HIT_TARGET, me, false);
     Push(me);
     Push(target);
-    Push(spell->Id); // Pass spell object?
+    Push(spell->Id);
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
@@ -310,7 +291,6 @@ bool ALE::SummonedCreatureDies(Creature* me, Creature* summon, Unit* killer)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// Called when owner takes damage
 bool ALE::OwnerAttackedBy(Creature* me, Unit* attacker)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_OWNER_ATTACKED_AT, me, false);
@@ -319,7 +299,6 @@ bool ALE::OwnerAttackedBy(Creature* me, Unit* attacker)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// Called when owner attacks something
 bool ALE::OwnerAttacked(Creature* me, Unit* target)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_OWNER_ATTACKED, me, false);
@@ -351,10 +330,8 @@ void ALE::OnCreatureHeal(Creature* me, Unit* target, uint32& gain)
         if (lua_isnumber(L, r))
         {
             gain = CHECKVAL<uint32>(L, r);
-            // Update the stack for subsequent calls.
             ReplaceArgument(gain, gainIndex);
         }
-
         lua_pop(L, 1);
     }
 
@@ -376,10 +353,8 @@ void ALE::OnCreatureDamage(Creature* me, Unit* target, uint32& damage)
         if (lua_isnumber(L, r))
         {
             damage = CHECKVAL<uint32>(L, r);
-            // Update the stack for subsequent calls.
             ReplaceArgument(damage, damageIndex);
         }
-
         lua_pop(L, 1);
     }
 

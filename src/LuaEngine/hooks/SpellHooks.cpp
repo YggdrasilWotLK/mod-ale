@@ -19,7 +19,7 @@ using namespace Hooks;
     auto key = EntryKey<SpellEvents>(EVENT, ENTRY);\
     if (!SpellEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE
+    LOCK_ALE_STATE
 
 #define START_HOOK_WITH_RETVAL(EVENT, ENTRY, RETVAL) \
     if (!ALEConfig::GetInstance().IsALEEnabled())\
@@ -27,7 +27,7 @@ using namespace Hooks;
     auto key = EntryKey<SpellEvents>(EVENT, ENTRY);\
     if (!SpellEventBindings->HasBindingsFor(key))\
         return RETVAL;\
-    LOCK_ALE
+    LOCK_ALE_STATE
 
 void ALE::OnSpellCastCancel(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bool bySelf)
 {
@@ -35,7 +35,6 @@ void ALE::OnSpellCastCancel(Unit* caster, Spell* spell, SpellInfo const* spellIn
     Push(caster);
     Push(spell);
     Push(bySelf);
-
     CallAllFunctions(SpellEventBindings, key);
 }
 
@@ -45,7 +44,6 @@ void ALE::OnSpellCast(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bo
     Push(caster);
     Push(spell);
     Push(skipCheck);
-
     CallAllFunctions(SpellEventBindings, key);
 }
 
@@ -54,7 +52,5 @@ void ALE::OnSpellPrepare(Unit* caster, Spell* spell, SpellInfo const* spellInfo)
     START_HOOK(SPELL_EVENT_ON_PREPARE, spellInfo->Id);
     Push(caster);
     Push(spell);
-
     CallAllFunctions(SpellEventBindings, key);
 }
-

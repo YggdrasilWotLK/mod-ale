@@ -26,7 +26,10 @@
 #include "LootMgr.h"
 #include "ALEFileWatcher.h"
 #include "ALEConfig.h"
+#include <atomic>
 #include <mutex>
+#include <shared_mutex>
+#include <map>
 #include <memory>
 #include <vector>
 #include <ctime>
@@ -62,7 +65,6 @@ class Quest;
 class Spell;
 class SpellCastTargets;
 class TempSummon;
-// class Transport;
 class Unit;
 class Weather;
 class WorldPacket;
@@ -78,16 +80,14 @@ template<typename T> struct EventKey;
 template<typename T> struct EntryKey;
 template<typename T> struct UniqueObjectKey;
 
-// Type definition for bytecode buffer
 typedef std::vector<uint8> BytecodeBuffer;
 
-// Global bytecode cache entry
 struct GlobalCacheEntry
 {
     BytecodeBuffer bytecode;
     std::time_t last_modified;
     std::string filepath;
-    
+
     GlobalCacheEntry() : last_modified(0) {}
     GlobalCacheEntry(const BytecodeBuffer& code, std::time_t modTime, const std::string& path)
         : bytecode(code), last_modified(modTime), filepath(path) {}
@@ -104,6 +104,14 @@ struct LuaScript
 
 #define ALE_STATE_PTR "ALE State Ptr"
 #define LOCK_ALE ALE::Guard __guard(ALE::GetLock())
+#define LOCK_ALE_STATE \
+    ALE::Guard __ale_guard(ALEConfig::GetInstance().IsCompatibilityModeEnabled() ? ALE::GetLock() : ALE::GetNoopLock()); \
+    ALE::Guard __ale_state_guard(this->GetStateLock())
+#define ALE_GLOBAL_STATE (uint32)(-1)
+
+#include "ALEEventMgr.h"
+
+inline uint64 ALEMapStateKey(uint32 mapId, uint32 instanceId) { return (static_cast<uint64>(mapId) << 32) | instanceId; }
 
 #define ALE_GAME_API AC_GAME_API
 
@@ -111,9 +119,9 @@ class ALE_GAME_API ALE
 {
 public:
     void IncrementCallbacks() { pendingCallbacks++; }
-    void DecrementCallbacks() 
-    { 
-        pendingCallbacks--; 
+    void DecrementCallbacks()
+    {
+        pendingCallbacks--;
         if (pendingCallbacks == 0 && reloadScheduled)
         {
             LOCK_ALE;
@@ -129,46 +137,125 @@ public:
     const std::string& GetRequirePath() const { return lua_requirepath; }
     const std::string& GetRequireCPath() const { return lua_requirecpath; }
 
+    LockType& GetStateLock() { return stateLock; }
+    static LockType& GetNoopLock() { thread_local LockType noop; return noop; }
+    uint32 GetStateMapId() const { return stateMapId; }
+    uint32 GetStateInstanceId() const { return stateInstanceId; }
+    const AleStateRef& GetSelfRef() const { return selfRef; }
+    uint64 GetStateSeq() const { return stateSeq; }
+    uint64 GetCallstackId() const { return callstackid; }
+
+    // Resolves a state ref into an owning reference (null when the state
+    // is gone or was recreated). Global refs resolve via the GALE holder.
+    static std::shared_ptr<ALE> LockStateRef(const AleStateRef& ref);
+    // Owning reference for a raw state pointer (scan under g_states shared).
+    // Null when the pointer is not a live state.
+    static std::shared_ptr<ALE> OwningRef(ALE* raw);
+
+    static void RunScriptsOnAllMapStates()
+    {
+        LOCK_ALE;
+        std::vector<std::shared_ptr<ALE>> states;
+        {
+            std::shared_lock lock(g_states_mutex);
+            for (auto& [key, state] : g_states)
+                if (state)
+                    states.push_back(state);
+        }
+        for (auto& state : states)
+        {
+            Guard stateGuard(state->GetStateLock());
+            state->RunScriptsLocked();
+        }
+    }
+    
+    // Runtime-persistent object data cache, keyed by ObjectGuid
+    static std::unordered_map<ObjectGuid, std::unordered_map<std::string, std::string>> objectDataCache;
+    static std::shared_mutex objectDataMutex;
+
+    // Runtime-persistent map data cache, keyed by map ID
+    static std::unordered_map<uint32, std::unordered_map<std::string, std::string>> mapDataCache;
+    static std::shared_mutex mapDataMutex;
+
+    // Runtime-persistent world data cache, keyed by string. Written by the
+    // world state only (SetWorldData is world-registered), readable from
+    // every state (GetWorldData is registered everywhere).
+    static std::unordered_map<std::string, std::string> worldDataCache;
+    static std::shared_mutex worldDataMutex;
+
+    // Per-instance map boxes (ALEMapStateKey): owning map state writes, everyone reads last-value; box dies with its instance.
+    static std::unordered_map<uint64, std::unordered_map<std::string, std::string>> mapBoxCache;
+    static std::shared_mutex mapBoxMutex;
+
+    static void ClearObjectData(ObjectGuid guid)
+    {
+        std::lock_guard lock(objectDataMutex);
+        objectDataCache.erase(guid);
+    }
+
+    static void ClearMapData(uint32 mapId)
+    {
+        std::lock_guard lock(mapDataMutex);
+        mapDataCache.erase(mapId);
+    }
+
+    static void ClearMapBox(uint32 mapId, uint32 instanceId)
+    {
+        std::lock_guard lock(mapBoxMutex);
+        mapBoxCache.erase(ALEMapStateKey(mapId, instanceId));
+    }
+
+    static std::string SerializeValue(lua_State* L, int idx);
+    static bool DeserializeValue(lua_State* L, const std::string& data);
+
+public:
+    // Registry generation: bumped in CloseLua so DB/HTTP callbacks bound
+    // to a previous lua_State incarnation are dropped, never run or
+    // unref'd on the new state.
+    std::atomic<uint64> luaGen{0};
+    // Recursive: callbacks run under this lock and may issue nested async queries.
+    mutable std::recursive_mutex queryMutex;
+
 private:
-    std::atomic<int> pendingCallbacks{0};  // Thread-safe counter
+    LockType stateLock;
+    uint32 stateMapId;
+    uint32 stateInstanceId;
+    AleStateRef selfRef;
+    uint64 stateSeq = 0;
+
+    std::atomic<int> pendingCallbacks{0};
     std::atomic<bool> reloadScheduled{false};
-    static bool reload;
+    static std::atomic<bool> reload;
     static bool initialized;
     static LockType lock;
     static std::unique_ptr<ALEFileWatcher> fileWatcher;
+    static std::atomic<uint64> s_stateSeq;
 
-    // Lua script locations
     static ScriptList lua_scripts;
     static ScriptList lua_extensions;
-
-    // Lua script folder path
     static std::string lua_folderpath;
-    // lua path variable for require() function
     static std::string lua_requirepath;
     static std::string lua_requirecpath;
 
-    // A counter for lua event stacks that occur (see event_level).
-    // This is used to determine whether an object belongs to the current call stack or not.
-    // 0 is reserved for always belonging to the call stack
-    // 1 is reserved for a non valid callstackid
+    // Per-map+instance states, shared-owned so timer/DB/HTTP holders and
+    // script-side users keep a state alive across concurrent destroy.
+    static std::map<uint64, std::shared_ptr<ALE>> g_states;
+    static std::shared_mutex g_states_mutex;
+    // Shared ownership of the global state (GALE mirrors it raw).
+    static std::shared_ptr<ALE> GALE_HOLDER;
+
     uint64 callstackid = 2;
-    // A counter for the amount of nested events. When the event_level
-    // reaches 0 we are about to return back to C++. At this point the
-    // objects used during the event stack are invalidated.
     uint32 event_level;
-    // When a hook pushes arguments to be passed to event handlers,
-    //  this is used to keep track of how many arguments were pushed.
     uint8 push_counter;
 
-    // Map from instance ID -> Lua table ref
     std::unordered_map<uint32, int> instanceDataRefs;
-    // Map from map ID -> Lua table ref
     std::unordered_map<uint32, int> continentDataRefs;
 
-    ALE();
+public:
+    ALE(const AleStateRef& self, uint32 mapId = ALE_GLOBAL_STATE, uint32 instanceId = 0);
     ~ALE();
 
-    // Prevent copy
+private:
     ALE(ALE const&) = delete;
     ALE& operator=(const ALE&) = delete;
 
@@ -178,17 +265,14 @@ private:
     void CreateBindStores();
     void InvalidateObjects();
 
-    // Use ReloadALE() to make ALE reload
-    // This is called on world update to reload ALE
     static void _ReloadALE();
     static void LoadScriptPaths();
-    static void GetScripts(std::string path);
+    static void GetScripts(std::string path, uint32 mapId = 0);
     static void AddScriptPath(std::string filename, const std::string& fullpath);
     static int LoadCompiledScript(lua_State* L, const std::string& filepath);
     static std::time_t GetFileModTime(const std::string& filepath);
     static std::time_t GetFileModTimeWithCache(const std::string& filepath);
-    
-    // Global cache management
+
     static bool CompileScriptToGlobalCache(const std::string& filepath);
     static bool CompileMoonScriptToGlobalCache(const std::string& filepath);
     static int TryLoadFromGlobalCache(lua_State* L, const std::string& filepath);
@@ -199,9 +283,7 @@ private:
 
     static int StackTrace(lua_State *_L);
     static void Report(lua_State* _L);
-
-    // Some helpers for hooks to call event handlers.
-    // The bodies of the templates are in HookHelpers.h, so if you want to use them you need to #include "HookHelpers.h".
+    
     template<typename K1, typename K2> int SetupStack(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const K1& key1, const K2& key2, int number_of_arguments);
                                        int CallOneFunction(int number_of_functions, int number_of_arguments, int number_of_results);
                                        void CleanUpStack(int number_of_arguments);
@@ -209,8 +291,6 @@ private:
     template<typename K1, typename K2> void CallAllFunctions(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const K1& key1, const K2& key2);
     template<typename K1, typename K2> bool CallAllFunctionsBool(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const K1& key1, const K2& key2, bool default_value = false);
 
-    // Same as above but for only one binding instead of two.
-    // `key` is passed twice because there's no NULL for references, but it's not actually used if `bindings2` is NULL.
     template<typename K> int SetupStack(BindingMap<K>* bindings, const K& key, int number_of_arguments)
     {
         return SetupStack<K, K>(bindings, NULL, key, key, number_of_arguments);
@@ -224,8 +304,6 @@ private:
         return CallAllFunctionsBool<K, K>(bindings, NULL, key, key, default_value);
     }
 
-    // Non-static pushes, to be used in hooks.
-    // These just call the correct static version with the main thread's Lua state.
     void Push()                                 { Push(L); ++push_counter; }
     void Push(const long long value)            { Push(L, value); ++push_counter; }
     void Push(const unsigned long long value)   { Push(L, value); ++push_counter; }
@@ -277,11 +355,34 @@ public:
 
     static void Initialize();
     static void Uninitialize();
-    // This function is used to make ALE reload
-    static void ReloadALE() { LOCK_ALE; reload = true; }
-    static LockType& GetLock() { return lock; };
+    // Lock-free set; the flag is consumed under LOCK_ALE in OnWorldUpdate.
+    // Must not take locks: callable from Lua callbacks holding state locks
+    // (lock order everywhere else is global -> state, never the reverse).
+    static void ReloadALE() { reload = true; }
+    static LockType& GetLock() { return lock; }
     static bool IsInitialized() { return initialized; }
-    // Never returns nullptr
+
+    // Owning lookups: the returned shared_ptr keeps the state alive for
+    // the whole hook call, closing the lookup-vs-destroy TOCTOU.
+    static std::shared_ptr<ALE> GetMapState(uint32 mapId, uint32 instanceId = 0)
+    {
+        std::shared_lock lock(g_states_mutex);
+        auto it = g_states.find(ALEMapStateKey(mapId, instanceId));
+        return it != g_states.end() ? it->second : nullptr;
+    }
+
+    static std::shared_ptr<ALE> GetMapStateOrGlobal(uint32 mapId, uint32 instanceId = 0)
+    {
+        std::shared_lock lock(g_states_mutex);
+        auto it = g_states.find(ALEMapStateKey(mapId, instanceId));
+        if (it != g_states.end() && it->second)
+            return it->second;
+        return GALE_HOLDER;
+    }
+
+    static std::shared_ptr<ALE> CreateMapState(uint32 mapId, uint32 instanceId = 0);
+    static void DestroyMapState(uint32 mapId, uint32 instanceId = 0);
+
     static ALE* GetALE(lua_State* L)
     {
         lua_pushstring(L, ALE_STATE_PTR);
@@ -293,8 +394,7 @@ public:
         return E;
     }
 
-    // Static pushes, can be used by anything, including methods.
-    static void Push(lua_State* luastate); // nil
+    static void Push(lua_State* luastate);
     static void Push(lua_State* luastate, const long long);
     static void Push(lua_State* luastate, const unsigned long long);
     static void Push(lua_State* luastate, const long);
@@ -325,37 +425,19 @@ public:
 
     bool ExecuteCall(int params, int res);
 
-    /*
-     * Returns `true` if ALE has instance data for `map`.
-     */
     bool HasInstanceData(Map const* map);
-
-    /*
-     * Use the top element of the stack as the instance data table for `map`,
-     *   then pops it off the stack.
-     */
     void CreateInstanceData(Map const* map);
-
-    /*
-     * Retrieve the instance data for the `Map` scripted by `ai` and push it
-     *   onto the stack.
-     *
-     * An `ALEInstanceAI` is needed because the instance data might
-     *   not exist (i.e. ALE has been reloaded).
-     *
-     * In that case, the AI is "reloaded" (new instance data table is created
-     *   and loaded with the last known save state, and `Load`/`Initialize`
-     *   hooks are called).
-     */
     void PushInstanceData(lua_State* L, ALEInstanceAI* ai, bool incrementCounter = true);
 
     void RunScripts();
+    // Same as RunScripts but assumes the caller already holds LOCK_ALE
+    // (and this state's lock where applicable). Never takes global itself,
+    // so it preserves the global -> state lock order.
+    void RunScriptsLocked();
     bool ShouldReload() const { return reload; }
     bool HasLuaState() const { return L != NULL; }
-    uint64 GetCallstackId() const { return callstackid; }
     int Register(lua_State* L, uint8 reg, uint32 entry, ObjectGuid guid, uint32 instanceId, uint32 event_id, int functionRef, uint32 shots);
 
-    // Checks
     template<typename T> static T CHECKVAL(lua_State* luastate, int narg);
     template<typename T> static T CHECKVAL(lua_State* luastate, int narg, T def)
     {
@@ -597,7 +679,7 @@ public:
     void OnTicketClose(GmTicket* ticket);
     void OnTicketUpdateLastChange(GmTicket* ticket);
     void OnTicketResolve(GmTicket* ticket);
-  
+
     /* Spell */
     void OnSpellPrepare(Unit* caster, Spell* spell, SpellInfo const* spellInfo);
     void OnSpellCast(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bool skipCheck);
@@ -609,10 +691,12 @@ public:
     void OnAllCreatureSelectLevel(const CreatureTemplate* cinfo, Creature* creature);
     void OnAllCreatureBeforeSelectLevel(const CreatureTemplate* cinfo, Creature* creature, uint8& level);
 };
+
 template<> Unit* ALE::CHECKOBJ<Unit>(lua_State* L, int narg, bool error);
 template<> Object* ALE::CHECKOBJ<Object>(lua_State* L, int narg, bool error);
 template<> WorldObject* ALE::CHECKOBJ<WorldObject>(lua_State* L, int narg, bool error);
 template<> ALEObject* ALE::CHECKOBJ<ALEObject>(lua_State* L, int narg, bool error);
 
 #define sALE ALE::GALE
+#define gALE ALE::GALE
 #endif

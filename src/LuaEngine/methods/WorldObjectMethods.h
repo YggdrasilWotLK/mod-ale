@@ -762,14 +762,15 @@ namespace LuaWorldObject
             min = max = ALE::CHECKVAL<uint32>(L, 3);
         uint32 repeats = ALE::CHECKVAL<uint32>(L, 4, 1);
 
-		if (min > max)
-			return luaL_argerror(L, 3, "min is bigger than max delay");
+        if (min > max)
+            return luaL_argerror(L, 3, "min is bigger than max delay");
 
         lua_pushvalue(L, 2);
         int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
         if (functionRef != LUA_REFNIL && functionRef != LUA_NOREF)
         {
-            obj->ALEEvents->AddEvent(functionRef, min, max, repeats);
+            ALE* callingE = ALE::GetALE(L);
+            obj->ALEEvents->AddEvent(functionRef, min, max, repeats, callingE->GetSelfRef());
             ALE::Push(L, functionRef);
         }
         return 1;
@@ -1095,6 +1096,128 @@ namespace LuaWorldObject
         return 0;
     }
     
+    /**
+     * Returns a runtime-persistent data cache tied to the [WorldObject].
+     * This data survives Lua state reloads and is accessible across all map states.
+     * Data is cleared when the object is destroyed or the server restarts.
+     *
+     * @return table data
+     */
+    int Data(lua_State* L, WorldObject* obj)
+    {
+        uint64 rawGuid = obj->GetGUID().GetRawValue();
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+
+        // Set method
+        lua_pushstring(L, "Set");
+        lua_pushnumber(L, (lua_Number)rawGuid);
+        lua_pushcclosure(L, [](lua_State* L) -> int {
+            ObjectGuid guid(uint64(lua_tonumber(L, lua_upvalueindex(1))));
+            const char* key = luaL_checkstring(L, 2);
+            // Marshal before locking: value size is unbounded, lock covers the insert only.
+            bool erase = lua_isnoneornil(L, 3);
+            std::string serialized;
+            if (!erase)
+            {
+                serialized = ALE::SerializeValue(L, 3);
+                if (serialized.empty())
+                {
+                    lua_pushvalue(L, 1);
+                    return 1;
+                }
+            }
+            std::lock_guard lock(ALE::objectDataMutex);
+            if (erase)
+                ALE::objectDataCache[guid].erase(key);
+            else
+                ALE::objectDataCache[guid][key] = std::move(serialized);
+            lua_pushvalue(L, 1);
+            return 1;
+        }, 1);
+        lua_rawset(L, tbl);
+
+        // Get method
+        lua_pushstring(L, "Get");
+        lua_pushnumber(L, (lua_Number)rawGuid);
+        lua_pushcclosure(L, [](lua_State* L) -> int {
+            ObjectGuid guid(uint64(lua_tonumber(L, lua_upvalueindex(1))));
+            const char* key = luaL_checkstring(L, 2);
+
+            // Copy out under lock, decode after: blob size is unbounded.
+            std::string blob;
+            {
+                std::shared_lock lock(ALE::objectDataMutex);
+                auto objIt = ALE::objectDataCache.find(guid);
+            if (objIt == ALE::objectDataCache.end())
+            {
+                lua_pushnil(L);
+                return 1;
+            }
+            auto valIt = objIt->second.find(key);
+            if (valIt == objIt->second.end())
+            {
+                lua_pushnil(L);
+                return 1;
+            }
+            blob = valIt->second;
+            }
+
+            ALE::DeserializeValue(L, blob);
+
+            if (!lua_istable(L, -1))
+                return 1;
+
+            lua_newtable(L);
+            int proxy = lua_gettop(L);
+
+            lua_pushstring(L, "__inner");
+            lua_pushvalue(L, -3);
+            lua_rawset(L, proxy);
+
+            lua_pushstring(L, "AsTable");
+            lua_pushcclosure(L, [](lua_State* L) -> int {
+                lua_getfield(L, 1, "__inner");
+                return 1;
+            }, 0);
+            lua_rawset(L, proxy);
+
+            lua_remove(L, -2);
+            return 1;
+        }, 1);
+        lua_rawset(L, tbl);
+
+        // AsTable method
+        lua_pushstring(L, "AsTable");
+        lua_pushnumber(L, (lua_Number)rawGuid);
+        lua_pushcclosure(L, [](lua_State* L) -> int {
+            ObjectGuid guid(uint64(lua_tonumber(L, lua_upvalueindex(1))));
+            lua_newtable(L);
+            int result = lua_gettop(L);
+            // Snapshot under lock, decode after: blobs are unbounded.
+            std::vector<std::pair<std::string, std::string>> entries;
+            {
+                std::shared_lock lock(ALE::objectDataMutex);
+                auto objIt = ALE::objectDataCache.find(guid);
+                if (objIt == ALE::objectDataCache.end())
+                    return 1;
+                for (auto& [key, val] : objIt->second)
+                    entries.emplace_back(key, val);
+            }
+            for (auto& [key, val] : entries)
+            {
+                lua_pushstring(L, key.c_str());
+                ALE::DeserializeValue(L, val);
+                lua_rawset(L, result);
+            }
+            return 1;
+        }, 1);
+        lua_rawset(L, tbl);
+
+        return 1;
+    }
+
     /**
      * Returns true if the [WorldObject] is outdoors
      *

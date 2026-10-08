@@ -19,7 +19,7 @@ using namespace Hooks;
     auto key = EntryKey<GossipEvents>(EVENT, ENTRY);\
     if (!BINDINGS->HasBindingsFor(key))\
         return;\
-    LOCK_ALE
+    LOCK_ALE_STATE
 
 #define START_HOOK_WITH_RETVAL(BINDINGS, EVENT, ENTRY, RETVAL) \
     if (!ALEConfig::GetInstance().IsALEEnabled())\
@@ -27,7 +27,7 @@ using namespace Hooks;
     auto key = EntryKey<GossipEvents>(EVENT, ENTRY);\
     if (!BINDINGS->HasBindingsFor(key))\
         return RETVAL;\
-    LOCK_ALE
+    LOCK_ALE_STATE
 
 bool ALE::OnGossipHello(Player* pPlayer, GameObject* pGameObject)
 {
@@ -66,8 +66,8 @@ void ALE::HandleGossipSelectOption(Player* pPlayer, uint32 menuId, uint32 sender
     START_HOOK(PlayerGossipBindings, GOSSIP_EVENT_ON_SELECT, menuId);
     pPlayer->PlayerTalkClass->ClearMenus();
 
-    Push(pPlayer); // receiver
-    Push(pPlayer); // sender, just not to mess up the amount of args.
+    Push(pPlayer);
+    Push(pPlayer);
     Push(sender);
     Push(action);
     if (code.empty())
@@ -123,9 +123,8 @@ bool ALE::OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 sender, ui
     Push(sender);
     Push(action);
     auto preventDefault = CallAllFunctionsBool(CreatureGossipBindings, key, true);
-    if (!preventDefault) {
+    if (!preventDefault)
         *pPlayer->PlayerTalkClass = originalMenu;
-    }
     return preventDefault;
 }
 
@@ -140,8 +139,7 @@ bool ALE::OnGossipSelectCode(Player* pPlayer, Creature* pCreature, uint32 sender
     Push(action);
     Push(code);
     auto preventDefault = CallAllFunctionsBool(CreatureGossipBindings, key, true);
-    if (!preventDefault) {
+    if (!preventDefault)
         *pPlayer->PlayerTalkClass = originalMenu;
-    }
     return preventDefault;
 }

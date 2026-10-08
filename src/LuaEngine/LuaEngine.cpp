@@ -15,6 +15,7 @@
 #include "ALEUtility.h"
 #include "ALECreatureAI.h"
 #include "ALEInstanceAI.h"
+#include "lmarshal.h"
 
 #if AC_PLATFORM == AC_PLATFORM_WINDOWS
 #define ALE_WINDOWS
@@ -47,10 +48,26 @@ std::string ALE::lua_folderpath;
 std::string ALE::lua_requirepath;
 std::string ALE::lua_requirecpath;
 ALE* ALE::GALE = NULL;
-bool ALE::reload = false;
+std::shared_ptr<ALE> ALE::GALE_HOLDER;
+std::atomic<bool> ALE::reload{false};
 bool ALE::initialized = false;
 ALE::LockType ALE::lock;
 std::unique_ptr<ALEFileWatcher> ALE::fileWatcher;
+std::atomic<uint64> ALE::s_stateSeq{0};
+
+// Multistate handling
+std::map<uint64, std::shared_ptr<ALE>> ALE::g_states;
+std::shared_mutex ALE::g_states_mutex;
+
+// Runtime-persistent object and map data caches
+std::unordered_map<ObjectGuid, std::unordered_map<std::string, std::string>> ALE::objectDataCache;
+std::shared_mutex ALE::objectDataMutex;
+std::unordered_map<uint32, std::unordered_map<std::string, std::string>> ALE::mapDataCache;
+std::shared_mutex ALE::mapDataMutex;
+std::unordered_map<uint64, std::unordered_map<std::string, std::string>> ALE::mapBoxCache;
+std::shared_mutex ALE::mapBoxMutex;
+std::unordered_map<std::string, std::string> ALE::worldDataCache;
+std::shared_mutex ALE::worldDataMutex;
 
 // Global bytecode cache that survives ALE reloads
 static std::unordered_map<std::string, GlobalCacheEntry> globalBytecodeCache;
@@ -74,8 +91,12 @@ void ALE::Initialize()
     // This is checked on ALE creation
     initialized = true;
 
-    // Create global ALE
-    GALE = new ALE();
+    // Create global ALE (shared-owned; GALE mirrors it raw)
+    {
+        AleStateRef globalRef;
+        GALE_HOLDER = std::shared_ptr<ALE>(new ALE(globalRef, ALE_GLOBAL_STATE));
+        GALE = GALE_HOLDER.get();
+    }
 
     // Start file watcher if enabled
     if (ALEConfig::GetInstance().IsAutoReloadEnabled())
@@ -91,23 +112,130 @@ void ALE::Uninitialize()
     LOCK_ALE;
     ASSERT(IsInitialized());
 
-    // Stop file watcher
     if (fileWatcher)
     {
         fileWatcher->StopWatching();
         fileWatcher.reset();
     }
 
-    delete GALE;
+    {
+        // Timer/DB/HTTP holders resolve via LockStateRef and keep their own
+        // shared copies; clearing the map makes every stale ref resolve to
+        // null (skip path), and per-state locks below drain in-flight Lua.
+        // lua_close reclaims each registry, so skipped unrefs lose nothing.
+        std::vector<std::shared_ptr<ALE>> states;
+        {
+            std::unique_lock lock(g_states_mutex);
+            for (auto& [key, state] : g_states)
+                if (state)
+                    states.push_back(state);
+            g_states.clear();
+        }
+        for (auto& state : states)
+        {
+            Guard stateGuard(state->GetStateLock());
+            state->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
+        }
+        // Shared copies drop here: ~ALE runs CloseLua exactly once per
+        // state. Stale timer/DB/HTTP refs resolve to null and skip.
+        states.clear();
+    }
+
+    {
+        Guard galeGuard(GALE->GetStateLock());
+        GALE->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
+    }
+    GALE_HOLDER.reset();
     GALE = NULL;
 
     lua_scripts.clear();
     lua_extensions.clear();
 
-    // Clear global cache on shutdown
     ClearGlobalCache();
 
     initialized = false;
+}
+
+std::shared_ptr<ALE> ALE::LockStateRef(const AleStateRef& ref)
+{
+    if (ref.global)
+        return GALE_HOLDER;
+    std::shared_lock lock(g_states_mutex);
+    auto it = g_states.find(ALEMapStateKey(ref.mapId, ref.instanceId));
+    if (it == g_states.end() || !it->second || it->second->GetStateSeq() != ref.seq)
+        return nullptr;
+    return it->second;
+}
+
+std::shared_ptr<ALE> ALE::OwningRef(ALE* raw)
+{
+    if (!raw)
+        return nullptr;
+    if (raw == GALE)
+        return GALE_HOLDER;
+    std::shared_lock lock(g_states_mutex);
+    for (auto& [key, state] : g_states)
+        if (state && state.get() == raw)
+            return state;
+    return nullptr;
+}
+
+std::shared_ptr<ALE> ALE::CreateMapState(uint32 mapId, uint32 instanceId)
+{
+    if (!ALEConfig::GetInstance().ShouldMapLoadALE(mapId))
+        return nullptr;
+
+    // Strict global -> g_states -> state nesting, matching Uninitialize
+    // and _ReloadALE, so no path ever takes global while holding a state.
+    LOCK_ALE;
+    uint64 key = ALEMapStateKey(mapId, instanceId);
+    uint64 seq = ++s_stateSeq;
+    AleStateRef ref{ false, mapId, instanceId, seq };
+    std::shared_ptr<ALE> state;
+    {
+        std::unique_lock lock(g_states_mutex);
+        ASSERT(g_states.find(key) == g_states.end());
+        state = std::shared_ptr<ALE>(new ALE(ref, mapId, instanceId));
+        g_states[key] = state;
+    }
+
+    {
+        Guard stateGuard(state->GetStateLock());
+        state->RunScriptsLocked();
+    }
+    return state;
+}
+
+void ALE::DestroyMapState(uint32 mapId, uint32 instanceId)
+{
+    uint64 key = ALEMapStateKey(mapId, instanceId);
+    std::shared_ptr<ALE> dying;
+    {
+        std::unique_lock lock(g_states_mutex);
+        auto it = g_states.find(key);
+        if (it == g_states.end())
+            return;
+        dying = it->second;
+        if (!dying)
+        {
+            g_states.erase(it);
+            return;
+        }
+    }
+    {
+        // Drain in-flight Lua on the shared-owned state. Timer/DB/HTTP
+        // holders keep their own copies and resolve-then-skip; nothing
+        // dangles because no raw slot addresses exist anymore.
+        // Core premise: its map runs no more updates past OnDestroyMap.
+        Guard stateGuard(dying->GetStateLock());
+    }
+    {
+        std::unique_lock lock(g_states_mutex);
+        auto it = g_states.find(key);
+        // Leave alone a state recreated concurrently (new seq).
+        if (it != g_states.end() && it->second == dying)
+            g_states.erase(it);
+    }
 }
 
 void ALE::LoadScriptPaths()
@@ -132,7 +260,7 @@ void ALE::LoadScriptPaths()
     lua_requirepath.clear();
     lua_requirecpath.clear();
 
-    GetScripts(lua_folderpath);
+    GetScripts(lua_folderpath, 0);
 
     // append our custom require paths and cpaths if the config variables are not empty
     if (!lua_path_extra.empty())
@@ -161,32 +289,90 @@ void ALE::_ReloadALE()
         sALE->reloadScheduled = true;
         return;
     }
-    
+
     if (eConfigMgr->GetOption<bool>("ALE.PlayerAnnounceReload", false))
         eWorldSessionMgr->SendServerMessage(SERVER_MSG_STRING, "Reloading ALE...");
     else
         ChatHandler(nullptr).SendGMText(SERVER_MSG_STRING, "Reloading ALE...");
 
-    // Remove all timed events
     sALE->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
-
-    // Close lua
+    sALE->httpManager.DropPending();
     sALE->CloseLua();
 
-    // Reload script paths
     LoadScriptPaths();
 
-    // Open new lua and libaraies
     sALE->OpenLua();
+    sALE->RunScriptsLocked();
 
-    // Run scripts from laoded paths
-    sALE->RunScripts();
+    {
+        std::shared_lock lock(g_states_mutex);
+        for (auto& [key, state] : g_states)
+        {
+            if (!state)
+                continue;
+            // Map threads run Lua on their state under this same lock;
+            // closing it out from under them would free lua_State mid-call.
+            // CloseLua bumps luaGen so DB/HTTP callbacks bound to the old
+            // registry are dropped, never run on the new one.
+            Guard stateGuard(state->GetStateLock());
+            state->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
+            state->httpManager.DropPending();
+            state->CloseLua();
+            state->OpenLua();
+            state->RunScriptsLocked();
+        }
+    }
 
-	sALE->reloadScheduled = false;
+    sALE->reloadScheduled = false;
     reload = false;
 }
 
-ALE::ALE() :
+std::string ALE::SerializeValue(lua_State* L, int idx)
+{
+    lua_pushcfunction(L, mar_encode);
+    lua_pushvalue(L, idx < 0 ? idx - 1 : idx);
+
+    if (lua_pcall(L, 1, 1, 0) != 0)
+    {
+        ALE_LOG_ERROR("[ALE]: SerializeValue failed: {}", lua_tostring(L, -1));
+        lua_pop(L, 1);
+        return "";
+    }
+
+    size_t len;
+    const char* data = lua_tolstring(L, -1, &len);
+    std::string result(data, len);
+    lua_pop(L, 1);
+    return result;
+}
+
+bool ALE::DeserializeValue(lua_State* L, const std::string& data)
+{
+    if (data.empty())
+    {
+        lua_pushnil(L);
+        return true;
+    }
+
+    lua_pushcfunction(L, mar_decode);
+    lua_pushlstring(L, data.data(), data.size());
+
+    if (lua_pcall(L, 1, 1, 0) != 0)
+    {
+        ALE_LOG_ERROR("[ALE]: DeserializeValue failed: {}", lua_tostring(L, -1));
+        lua_pop(L, 1);
+        lua_pushnil(L);
+        return false;
+    }
+
+    return true;
+}
+
+ALE::ALE(const AleStateRef& self, uint32 mapId, uint32 instanceId) :
+stateMapId(mapId),
+stateInstanceId(instanceId),
+selfRef(self),
+stateSeq(self.seq),
 event_level(0),
 push_counter(0),
 
@@ -222,12 +408,9 @@ CreatureUniqueBindings(NULL)
 
     OpenLua();
 
-    // Replace this with map insert if making multithread version
-
-    // Set event manager. Must be after setting sALE
-    // on multithread have a map of state pointers and here insert this pointer to the map and then save a pointer of that pointer to the EventMgr
-    eventMgr = new EventMgr(&ALE::GALE);
+    eventMgr = new EventMgr(selfRef);
 }
+
 
 ALE::~ALE()
 {
@@ -241,6 +424,10 @@ ALE::~ALE()
 
 void ALE::CloseLua()
 {
+    // Invalidate every pending DB/HTTP callback bound to this registry
+    // before it is reclaimed. Callers hold this state's lock.
+    ++luaGen;
+
     OnLuaStateClose();
 
     DestroyBindStores();
@@ -621,7 +808,7 @@ int ALE::LoadCompiledScript(lua_State* L, const std::string& filepath)
 }
 
 // Finds lua script files from given path (including subdirectories) and pushes them to scripts
-void ALE::GetScripts(std::string path)
+void ALE::GetScripts(std::string path, uint32 mapId)
 {
     ALE_LOG_DEBUG("[ALE]: GetScripts from path `{}`", path);
 
@@ -657,7 +844,10 @@ void ALE::GetScripts(std::string path)
             // load subfolder
             if (boost::filesystem::is_directory(dir_iter->status()))
             {
-                GetScripts(fullpath);
+                std::string folderName = dir_iter->path().filename().generic_string();
+                if (!ALEConfig::GetInstance().ShouldMapLoadALEByFolderName(folderName, mapId))
+                    continue;
+                GetScripts(fullpath, mapId);
                 continue;
             }
 
@@ -679,6 +869,11 @@ static bool ScriptPathComparator(const LuaScript& first, const LuaScript& second
 void ALE::RunScripts()
 {
     LOCK_ALE;
+    RunScriptsLocked();
+}
+
+void ALE::RunScriptsLocked()
+{
     if (!ALEConfig::GetInstance().IsALEEnabled())
         return;
 
@@ -707,6 +902,11 @@ void ALE::RunScripts()
     int modules = lua_gettop(L);
     for (ScriptList::iterator it = scripts.begin(); it != scripts.end(); ++it)
     {
+        // Filter by map-prefixed subdirectory (e.g. lua_scripts/0/, lua_scripts/1_...)
+        std::string folderName = boost::filesystem::path(it->modulepath).filename().generic_string();
+        if (!ALEConfig::GetInstance().ShouldMapLoadALEByFolderName(folderName, stateMapId))
+            continue;
+
         // Check that no duplicate names exist
         if (loaded.find(it->filename) != loaded.end())
         {
@@ -1687,7 +1887,9 @@ void ALE::CreateInstanceData(Map const* map)
  */
 void ALE::FreeInstanceId(uint32 instanceId)
 {
-    LOCK_ALE;
+    // This state's lock (never global): every other binding access runs
+    // under this same state lock, so Clear/unref cannot race Lua use.
+    Guard stateGuard(GetStateLock());
 
     if (!ALEConfig::GetInstance().IsALEEnabled())
         return;

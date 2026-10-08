@@ -50,7 +50,7 @@ extern "C"
 #include "GemPropertiesEntryMethods.h"
 #include "SpellEntryMethods.h"
 
-luaL_Reg GlobalMethods[] =
+ALEGlobalRegister GlobalMethods[] =
 {
     // Hooks
     { "RegisterPacketEvent", &LuaGlobalFunctions::RegisterPacketEvent },
@@ -101,14 +101,18 @@ luaL_Reg GlobalMethods[] =
     { "GetRealmID", &LuaGlobalFunctions::GetRealmID },
     { "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion },
     { "GetCoreExpansion", &LuaGlobalFunctions::GetCoreExpansion },
-    { "GetStateMap", &LuaGlobalFunctions::GetStateMap },
-    { "GetStateMapId", &LuaGlobalFunctions::GetStateMapId },
-    { "GetStateInstanceId", &LuaGlobalFunctions::GetStateInstanceId },
+    { "GetStateMap", &LuaGlobalFunctions::GetStateMap, METHOD_REG_MAP },
+    { "GetStateMapId", &LuaGlobalFunctions::GetStateMapId, METHOD_REG_ALL },
+    { "GetStateInstanceId", &LuaGlobalFunctions::GetStateInstanceId, METHOD_REG_ALL },
+    { "GetWorldData", &LuaGlobalFunctions::GetWorldData },
+    { "SetWorldData", &LuaGlobalFunctions::SetWorldData, METHOD_REG_WORLD },
+    { "GetMapData", &LuaGlobalFunctions::GetMapData },
+    { "SetMapData", &LuaGlobalFunctions::SetMapData, METHOD_REG_MAP },
     { "GetQuest", &LuaGlobalFunctions::GetQuest },
-    { "GetPlayerByGUID", &LuaGlobalFunctions::GetPlayerByGUID },
-    { "GetPlayerByName", &LuaGlobalFunctions::GetPlayerByName },
+    { "GetPlayerByGUID", &LuaGlobalFunctions::GetPlayerByGUID, METHOD_REG_WORLD },
+    { "GetPlayerByName", &LuaGlobalFunctions::GetPlayerByName, METHOD_REG_WORLD },
     { "GetGameTime", &LuaGlobalFunctions::GetGameTime },
-    { "GetPlayersInWorld", &LuaGlobalFunctions::GetPlayersInWorld },
+    { "GetPlayersInWorld", &LuaGlobalFunctions::GetPlayersInWorld, METHOD_REG_WORLD },
     { "GetGuildByName", &LuaGlobalFunctions::GetGuildByName },
     { "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID },
     { "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount },
@@ -130,13 +134,13 @@ luaL_Reg GlobalMethods[] =
     { "bit_or", &LuaGlobalFunctions::bit_or },
     { "bit_and", &LuaGlobalFunctions::bit_and },
     { "GetItemLink", &LuaGlobalFunctions::GetItemLink },
-    { "GetMapById", &LuaGlobalFunctions::GetMapById },
+    { "GetMapById", &LuaGlobalFunctions::GetMapById, METHOD_REG_WORLD },
     { "GetCurrTime", &LuaGlobalFunctions::GetCurrTime },
     { "GetTimeDiff", &LuaGlobalFunctions::GetTimeDiff },
     { "PrintInfo", &LuaGlobalFunctions::PrintInfo },
     { "PrintError", &LuaGlobalFunctions::PrintError },
     { "PrintDebug", &LuaGlobalFunctions::PrintDebug },
-    { "GetActiveGameEvents", &LuaGlobalFunctions::GetActiveGameEvents },
+    { "GetActiveGameEvents", &LuaGlobalFunctions::GetActiveGameEvents, METHOD_REG_WORLD },
     { "GetGossipMenuOptionLocale", &LuaGlobalFunctions::GetGossipMenuOptionLocale },
     { "GetMapEntrance", &LuaGlobalFunctions::GetMapEntrance },
     { "GetSpellInfo", &LuaGlobalFunctions::GetSpellInfo },
@@ -156,7 +160,7 @@ luaL_Reg GlobalMethods[] =
     { "IsEquipmentPos", &LuaGlobalFunctions::IsEquipmentPos },
     { "IsBankPos", &LuaGlobalFunctions::IsBankPos },
     { "IsBagPos", &LuaGlobalFunctions::IsBagPos },
-    { "IsGameEventActive", &LuaGlobalFunctions::IsGameEventActive },
+    { "IsGameEventActive", &LuaGlobalFunctions::IsGameEventActive, METHOD_REG_WORLD },
     { "IsWintergraspWarTime", &LuaGlobalFunctions::IsWintergraspWarTime },
     { "IsWintergraspEnabled", &LuaGlobalFunctions::IsWintergraspEnabled },
     { "CanInteractWithWintergraspRelic", &LuaGlobalFunctions::CanInteractWithWintergraspRelic },
@@ -165,7 +169,7 @@ luaL_Reg GlobalMethods[] =
     // Other
     { "ReloadALE", &LuaGlobalFunctions::ReloadALE },
     { "RunCommand", &LuaGlobalFunctions::RunCommand },
-    { "SendWorldMessage", &LuaGlobalFunctions::SendWorldMessage },
+    { "SendWorldMessage", &LuaGlobalFunctions::SendWorldMessage, METHOD_REG_WORLD },
     { "WorldDBQuery", &LuaGlobalFunctions::WorldDBQuery },
     { "WorldDBQueryAsync", &LuaGlobalFunctions::WorldDBQueryAsync },
     { "WorldDBExecute", &LuaGlobalFunctions::WorldDBExecute },
@@ -180,25 +184,25 @@ luaL_Reg GlobalMethods[] =
     { "RemoveEvents", &LuaGlobalFunctions::RemoveEvents },
     { "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn },
     { "CreatePacket", &LuaGlobalFunctions::CreatePacket },
-    { "AddVendorItem", &LuaGlobalFunctions::AddVendorItem },
-    { "VendorRemoveItem", &LuaGlobalFunctions::VendorRemoveItem },
-    { "VendorRemoveAllItems", &LuaGlobalFunctions::VendorRemoveAllItems },
+    { "AddVendorItem", &LuaGlobalFunctions::AddVendorItem, METHOD_REG_WORLD },
+    { "VendorRemoveItem", &LuaGlobalFunctions::VendorRemoveItem, METHOD_REG_WORLD },
+    { "VendorRemoveAllItems", &LuaGlobalFunctions::VendorRemoveAllItems, METHOD_REG_WORLD },
     { "Kick", &LuaGlobalFunctions::Kick },
     { "Ban", &LuaGlobalFunctions::Ban },
     { "SaveAllPlayers", &LuaGlobalFunctions::SaveAllPlayers },
-    { "SendMail", &LuaGlobalFunctions::SendMail },
+    { "SendMail", &LuaGlobalFunctions::SendMail, METHOD_REG_WORLD },
     { "AddTaxiPath", &LuaGlobalFunctions::AddTaxiPath },
     { "CreateInt64", &LuaGlobalFunctions::CreateLongLong },
     { "CreateUint64", &LuaGlobalFunctions::CreateULongLong },
-    { "StartGameEvent", &LuaGlobalFunctions::StartGameEvent },
-    { "StopGameEvent", &LuaGlobalFunctions::StopGameEvent },
+    { "StartGameEvent", &LuaGlobalFunctions::StartGameEvent, METHOD_REG_WORLD },
+    { "StopGameEvent", &LuaGlobalFunctions::StopGameEvent, METHOD_REG_WORLD },
     { "HttpRequest", &LuaGlobalFunctions::HttpRequest },
-    { "SetOwnerHalaa", &LuaGlobalFunctions::SetOwnerHalaa },
+    { "SetOwnerHalaa", &LuaGlobalFunctions::SetOwnerHalaa, METHOD_REG_WORLD },
     { "LookupEntry", &LuaGlobalFunctions::LookupEntry },
-    { "SetWintergraspDefenderTeam", &LuaGlobalFunctions::SetWintergraspDefenderTeam },
-    { "SetWintergraspTimer", &LuaGlobalFunctions::SetWintergraspTimer },
-    { "StartWintergraspBattle", &LuaGlobalFunctions::StartWintergraspBattle },
-    { "EndWintergraspBattle", &LuaGlobalFunctions::EndWintergraspBattle },
+    { "SetWintergraspDefenderTeam", &LuaGlobalFunctions::SetWintergraspDefenderTeam, METHOD_REG_WORLD },
+    { "SetWintergraspTimer", &LuaGlobalFunctions::SetWintergraspTimer, METHOD_REG_WORLD },
+    { "StartWintergraspBattle", &LuaGlobalFunctions::StartWintergraspBattle, METHOD_REG_WORLD },
+    { "EndWintergraspBattle", &LuaGlobalFunctions::EndWintergraspBattle, METHOD_REG_WORLD },
 
     { NULL, NULL }
 };
@@ -300,6 +304,7 @@ ALERegister<WorldObject> WorldObjectMethods[] =
     { "PlayMusic", &LuaWorldObject::PlayMusic },
     { "PlayDirectSound", &LuaWorldObject::PlayDirectSound },
     { "PlayDistanceSound", &LuaWorldObject::PlayDistanceSound },
+    { "Data", &LuaWorldObject::Data },
     
     //Custom
     { "IsOutdoors", &LuaWorldObject::IsOutdoors },
@@ -809,8 +814,8 @@ ALERegister<Player> PlayerMethods[] =
     { "ModifyArenaPoints", &LuaPlayer::ModifyArenaPoints },
     { "LeaveBattleground", &LuaPlayer::LeaveBattleground },
     // {"BindToInstance", &LuaPlayer::BindToInstance},                                      // :BindToInstance() - UNDOCUMENTED - Binds the player to the current instance
-    { "UnbindInstance", &LuaPlayer::UnbindInstance },
-    { "UnbindAllInstances", &LuaPlayer::UnbindAllInstances },
+    { "UnbindInstance", &LuaPlayer::UnbindInstance, METHOD_REG_WORLD },
+    { "UnbindAllInstances", &LuaPlayer::UnbindAllInstances, METHOD_REG_WORLD },
     { "RemoveFromBattlegroundRaid", &LuaPlayer::RemoveFromBattlegroundRaid },
     { "ResetAchievements", &LuaPlayer::ResetAchievements },
     { "KickPlayer", &LuaPlayer::KickPlayer },
@@ -835,8 +840,8 @@ ALERegister<Player> PlayerMethods[] =
     { "Mute", &LuaPlayer::Mute },
     { "SummonPlayer", &LuaPlayer::SummonPlayer },
     { "SaveToDB", &LuaPlayer::SaveToDB },
-    { "GroupInvite", &LuaPlayer::GroupInvite },
-    { "GroupCreate", &LuaPlayer::GroupCreate },
+    { "GroupInvite", &LuaPlayer::GroupInvite, METHOD_REG_WORLD },
+    { "GroupCreate", &LuaPlayer::GroupCreate, METHOD_REG_WORLD },
     { "SendCinematicStart", &LuaPlayer::SendCinematicStart },
     { "SendMovieStart", &LuaPlayer::SendMovieStart },
     { "UpdatePlayerSetting", &LuaPlayer::UpdatePlayerSetting },
@@ -1169,7 +1174,7 @@ ALERegister<Quest> QuestMethods[] =
 ALERegister<Group> GroupMethods[] =
 {
     // Getters
-    { "GetMembers", &LuaGroup::GetMembers },
+    { "GetMembers", &LuaGroup::GetMembers, METHOD_REG_WORLD },
     { "GetLeaderGUID", &LuaGroup::GetLeaderGUID },
     { "GetGUID", &LuaGroup::GetGUID },
     { "GetMemberGroup", &LuaGroup::GetMemberGroup },
@@ -1178,16 +1183,16 @@ ALERegister<Group> GroupMethods[] =
     { "GetGroupType", &LuaGroup::GetGroupType },
 
     // Setters
-    { "SetLeader", &LuaGroup::SetLeader },
-    { "SetMembersGroup", &LuaGroup::SetMembersGroup },
-    { "SetTargetIcon", &LuaGroup::SetTargetIcon },
-    { "SetMemberFlag", &LuaGroup::SetMemberFlag },
+    { "SetLeader", &LuaGroup::SetLeader, METHOD_REG_WORLD },
+    { "SetMembersGroup", &LuaGroup::SetMembersGroup, METHOD_REG_WORLD },
+    { "SetTargetIcon", &LuaGroup::SetTargetIcon, METHOD_REG_WORLD },
+    { "SetMemberFlag", &LuaGroup::SetMemberFlag, METHOD_REG_WORLD },
 
     // Boolean
     { "IsLeader", &LuaGroup::IsLeader },
-    { "AddMember", &LuaGroup::AddMember },
-    { "RemoveMember", &LuaGroup::RemoveMember },
-    { "Disband", &LuaGroup::Disband },
+    { "AddMember", &LuaGroup::AddMember, METHOD_REG_WORLD },
+    { "RemoveMember", &LuaGroup::RemoveMember, METHOD_REG_WORLD },
+    { "Disband", &LuaGroup::Disband, METHOD_REG_WORLD },
     { "IsFull", &LuaGroup::IsFull },
     { "IsLFGGroup", &LuaGroup::IsLFGGroup },
     { "IsRaidGroup", &LuaGroup::IsRaidGroup },
@@ -1201,7 +1206,7 @@ ALERegister<Group> GroupMethods[] =
     // Other
     { "SendPacket", &LuaGroup::SendPacket },
     // {"ConvertToLFG", &LuaGroup::ConvertToLFG},                 // :ConvertToLFG() - UNDOCUMENTED - Converts the group to an LFG group
-    { "ConvertToRaid", &LuaGroup::ConvertToRaid },
+    { "ConvertToRaid", &LuaGroup::ConvertToRaid, METHOD_REG_WORLD },
 
     { NULL, NULL }
 };
@@ -1209,8 +1214,8 @@ ALERegister<Group> GroupMethods[] =
 ALERegister<Guild> GuildMethods[] =
 {
     // Getters
-    { "GetMembers", &LuaGuild::GetMembers },
-    { "GetLeader", &LuaGuild::GetLeader },
+    { "GetMembers", &LuaGuild::GetMembers, METHOD_REG_WORLD },
+    { "GetLeader", &LuaGuild::GetLeader, METHOD_REG_WORLD },
     { "GetLeaderGUID", &LuaGuild::GetLeaderGUID },
     { "GetId", &LuaGuild::GetId },
     { "GetName", &LuaGuild::GetName },
@@ -1221,24 +1226,24 @@ ALERegister<Guild> GuildMethods[] =
     { "GetTotalBankMoney", &LuaGuild::GetTotalBankMoney },
 
     // Setters
-    { "SetBankTabText", &LuaGuild::SetBankTabText },
-    { "SetMemberRank", &LuaGuild::SetMemberRank },
-    { "SetLeader", &LuaGuild::SetLeader },
-    { "SetName", &LuaGuild::SetName },
+    { "SetBankTabText", &LuaGuild::SetBankTabText, METHOD_REG_WORLD },
+    { "SetMemberRank", &LuaGuild::SetMemberRank, METHOD_REG_WORLD },
+    { "SetLeader", &LuaGuild::SetLeader, METHOD_REG_WORLD },
+    { "SetName", &LuaGuild::SetName, METHOD_REG_WORLD },
 
     // Other
     { "SendPacket", &LuaGuild::SendPacket },
     { "SendPacketToRanked", &LuaGuild::SendPacketToRanked },
-    { "Disband", &LuaGuild::Disband },
-    { "AddMember", &LuaGuild::AddMember },
-    { "DeleteMember", &LuaGuild::DeleteMember },
+    { "Disband", &LuaGuild::Disband, METHOD_REG_WORLD },
+    { "AddMember", &LuaGuild::AddMember, METHOD_REG_WORLD },
+    { "DeleteMember", &LuaGuild::DeleteMember, METHOD_REG_WORLD },
     { "SendMessage", &LuaGuild::SendMessage },
-    { "UpdateMemberData", &LuaGuild::UpdateMemberData },
-    { "MassInviteToEvent", &LuaGuild::MassInviteToEvent },
-    { "SwapItems", &LuaGuild::SwapItems },
-    { "SwapItemsWithInventory", &LuaGuild::SwapItemsWithInventory },
-    { "ResetTimes", &LuaGuild::ResetTimes },
-    { "ModifyBankMoney", &LuaGuild::ModifyBankMoney },
+    { "UpdateMemberData", &LuaGuild::UpdateMemberData, METHOD_REG_WORLD },
+    { "MassInviteToEvent", &LuaGuild::MassInviteToEvent, METHOD_REG_WORLD },
+    { "SwapItems", &LuaGuild::SwapItems, METHOD_REG_WORLD },
+    { "SwapItemsWithInventory", &LuaGuild::SwapItemsWithInventory, METHOD_REG_WORLD },
+    { "ResetTimes", &LuaGuild::ResetTimes, METHOD_REG_WORLD },
+    { "ModifyBankMoney", &LuaGuild::ModifyBankMoney, METHOD_REG_WORLD },
 
     { NULL, NULL }
 };
@@ -1354,6 +1359,7 @@ ALERegister<Map> MapMethods[] =
 
     // Other
     { "SaveInstanceData", &LuaMap::SaveInstanceData },
+    { "Data", &LuaMap::Data },
 
     { NULL, NULL }
 };
@@ -1844,6 +1850,25 @@ template<> int ALETemplate<Vehicle>::CollectGarbage(lua_State* L)
     ASSERT(!manageMemory);
 
     // Get object pointer (and check type, no error)
+    ALEObject* obj = ALE::CHECKOBJ<ALEObject>(L, 1, false);
+    delete obj;
+    return 0;
+}
+
+// Group/Guild are manager-owned zombies; Lua must never destroy them.
+template<> int ALETemplate<Group>::CollectGarbage(lua_State* L)
+{
+    ASSERT(!manageMemory);
+
+    ALEObject* obj = ALE::CHECKOBJ<ALEObject>(L, 1, false);
+    delete obj;
+    return 0;
+}
+
+template<> int ALETemplate<Guild>::CollectGarbage(lua_State* L)
+{
+    ASSERT(!manageMemory);
+
     ALEObject* obj = ALE::CHECKOBJ<ALEObject>(L, 1, false);
     delete obj;
     return 0;

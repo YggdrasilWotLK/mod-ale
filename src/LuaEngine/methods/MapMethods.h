@@ -8,6 +8,8 @@
 #define MAPMETHODS_H
 
 #include "ALEInstanceAI.h"
+#include "ObjectAccessor.h"
+#include <shared_mutex>
 
 /***
  * A game map, e.g. Azeroth, Eastern Kingdoms, the Molten Core, etc.
@@ -16,6 +18,15 @@
  */
 namespace LuaMap
 {
+    // Map-state Lua may only walk the stores of its own map+instance: any
+    // other map is owned by another worker (or the world). Global-state
+    // callers run with maps idle and keep existing behavior either way.
+    static bool IsOwnMap(lua_State* L, Map* map)
+    {
+        ALE* callingE = ALE::GetALE(L);
+        return callingE->GetStateMapId() == ALE_GLOBAL_STATE ||
+            (map->GetId() == callingE->GetStateMapId() && map->GetInstanceId() == callingE->GetStateInstanceId());
+    }
 
     /**
      * Returns `true` if the [Map] is an arena [BattleGround], `false` otherwise.
@@ -190,6 +201,12 @@ namespace LuaMap
     {
         ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
 
+        if (!IsOwnMap(L, map))
+        {
+            ALE::Push(L);
+            return 1;
+        }
+
         switch (guid.GetHigh())
         {
             case HIGHGUID_PLAYER:
@@ -241,6 +258,9 @@ namespace LuaMap
         uint32 zoneId = ALE::CHECKVAL<uint32>(L, 2);
         uint32 weatherType = ALE::CHECKVAL<uint32>(L, 3);
         float grade = ALE::CHECKVAL<float>(L, 4);
+
+        if (!IsOwnMap(L, map))
+            return 0;
 
         Weather* weather = map->GetOrGenerateZoneDefaultWeather(zoneId);
         if (weather)
@@ -306,16 +326,24 @@ namespace LuaMap
         int tbl = lua_gettop(L);
         uint32 i = 0;
 
-        Map::PlayerList const& players = map->GetPlayers();
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        // Iterates the global player store under its lock instead of the
+        // map's local list, so this is safe from any thread at any thread
+        // count. Pointers are validated again on use via liveness check.
         {
-            Player* player = itr->GetSource();
-            if (!player)
-                continue;
-            if (player->GetSession() && (team >= TEAM_NEUTRAL || player->GetTeamId() == team))
+            std::shared_lock<std::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
+            HashMapHolder<Player>::MapType const& players = eObjectAccessor()GetPlayers();
+            for (auto const& pair : players)
             {
-                ALE::Push(L, player);
-                lua_rawseti(L, tbl, ++i);
+                Player* player = pair.second;
+                if (!player)
+                    continue;
+                if (player->FindMap() != map)
+                    continue;
+                if (player->GetSession() && (team >= TEAM_NEUTRAL || player->GetTeamId() == team))
+                {
+                    ALE::Push(L, player);
+                    lua_rawseti(L, tbl, ++i);
+                }
             }
         }
 
@@ -330,6 +358,12 @@ namespace LuaMap
      */
     int GetCreatures(lua_State* L, Map* map)
     {
+        if (!IsOwnMap(L, map))
+        {
+            lua_newtable(L);
+            return 1;
+        }
+
         const auto& creatures = map->GetCreatureBySpawnIdStore();
 
         lua_createtable(L, creatures.size(), 0);
@@ -356,6 +390,13 @@ namespace LuaMap
     int GetCreaturesByAreaId(lua_State* L, Map* map)
     {
         int32 areaId = ALE::CHECKVAL<int32>(L, 2, -1);
+
+        if (!IsOwnMap(L, map))
+        {
+            lua_newtable(L);
+            return 1;
+        }
+
         std::vector<Creature*> filteredCreatures;
 
         for (const auto& pair : map->GetCreatureBySpawnIdStore())
@@ -387,6 +428,12 @@ namespace LuaMap
      */
     int GetTransports(lua_State* L, Map* map)
     {
+        if (!IsOwnMap(L, map))
+        {
+            lua_newtable(L);
+            return 1;
+        }
+
         TransportsContainer const& transports = map->GetAllTransports();
         lua_newtable(L);
         int i = 1;
@@ -395,6 +442,128 @@ namespace LuaMap
             ALE::Push(L, transport);
             lua_rawseti(L, -2, i++);
         }
+        return 1;
+    }
+    
+    /**
+     * Returns a runtime-persistent data cache tied to the [Map].
+     * This data survives Lua state reloads and is accessible across all map states.
+     * Data is cleared when the map is destroyed or the server restarts.
+     *
+     * @return table data
+     */
+    int Data(lua_State* L, Map* map)
+    {
+        uint32 mapId = map->GetId();
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+
+        // Set method
+        lua_pushstring(L, "Set");
+        lua_pushnumber(L, (lua_Number)mapId);
+        lua_pushcclosure(L, [](lua_State* L) -> int {
+            uint32 mapId = (uint32)lua_tonumber(L, lua_upvalueindex(1));
+            const char* key = luaL_checkstring(L, 2);
+            // Marshal before locking: value size is unbounded, lock covers the insert only.
+            bool erase = lua_isnoneornil(L, 3);
+            std::string serialized;
+            if (!erase)
+            {
+                serialized = ALE::SerializeValue(L, 3);
+                if (serialized.empty())
+                {
+                    lua_pushvalue(L, 1);
+                    return 1;
+                }
+            }
+            std::lock_guard lock(ALE::mapDataMutex);
+            if (erase)
+                ALE::mapDataCache[mapId].erase(key);
+            else
+                ALE::mapDataCache[mapId][key] = std::move(serialized);
+            lua_pushvalue(L, 1);
+            return 1;
+        }, 1);
+        lua_rawset(L, tbl);
+
+        // Get method
+        lua_pushstring(L, "Get");
+        lua_pushnumber(L, (lua_Number)mapId);
+        lua_pushcclosure(L, [](lua_State* L) -> int {
+            uint32 mapId = (uint32)lua_tonumber(L, lua_upvalueindex(1));
+            const char* key = luaL_checkstring(L, 2);
+
+            // Copy out under lock, decode after: blob size is unbounded.
+            std::string blob;
+            {
+                std::shared_lock lock(ALE::mapDataMutex);
+                auto mapIt = ALE::mapDataCache.find(mapId);
+            if (mapIt == ALE::mapDataCache.end())
+            {
+                lua_pushnil(L);
+                return 1;
+            }
+            auto valIt = mapIt->second.find(key);
+            if (valIt == mapIt->second.end())
+            {
+                lua_pushnil(L);
+                return 1;
+            }
+            blob = valIt->second;
+            }
+
+            ALE::DeserializeValue(L, blob);
+
+            if (!lua_istable(L, -1))
+                return 1;
+
+            lua_newtable(L);
+            int proxy = lua_gettop(L);
+
+            lua_pushstring(L, "__inner");
+            lua_pushvalue(L, -3);
+            lua_rawset(L, proxy);
+
+            lua_pushstring(L, "AsTable");
+            lua_pushcclosure(L, [](lua_State* L) -> int {
+                lua_getfield(L, 1, "__inner");
+                return 1;
+            }, 0);
+            lua_rawset(L, proxy);
+
+            lua_remove(L, -2);
+            return 1;
+        }, 1);
+        lua_rawset(L, tbl);
+
+        // AsTable method
+        lua_pushstring(L, "AsTable");
+        lua_pushnumber(L, (lua_Number)mapId);
+        lua_pushcclosure(L, [](lua_State* L) -> int {
+            uint32 mapId = (uint32)lua_tonumber(L, lua_upvalueindex(1));
+            lua_newtable(L);
+            int result = lua_gettop(L);
+            // Snapshot under lock, decode after: blobs are unbounded.
+            std::vector<std::pair<std::string, std::string>> entries;
+            {
+                std::shared_lock lock(ALE::mapDataMutex);
+                auto mapIt = ALE::mapDataCache.find(mapId);
+                if (mapIt == ALE::mapDataCache.end())
+                    return 1;
+                for (auto& [key, val] : mapIt->second)
+                    entries.emplace_back(key, val);
+            }
+            for (auto& [key, val] : entries)
+            {
+                lua_pushstring(L, key.c_str());
+                ALE::DeserializeValue(L, val);
+                lua_rawset(L, result);
+            }
+            return 1;
+        }, 1);
+        lua_rawset(L, tbl);
+
         return 1;
     }
 };

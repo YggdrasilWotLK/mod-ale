@@ -6,8 +6,10 @@
 
 #include "ALEEventMgr.h"
 #include "LuaEngine.h"
+#include "AleAlive.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
+#include <vector>
 
 extern "C"
 {
@@ -15,13 +17,13 @@ extern "C"
 #include "lauxlib.h"
 };
 
-ALEEventProcessor::ALEEventProcessor(ALE** _E, WorldObject* _obj) : m_time(0), obj(_obj), guidCaptured(false), E(_E)
+ALEEventProcessor::ALEEventProcessor(const AleStateRef& _owner, std::shared_ptr<ALE> ownerLock, WorldObject* _obj) : m_time(0), obj(_obj), guidCaptured(false), owner(_owner)
 {
     // can be called from multiple threads
-    if (obj)
+    if (obj && ownerLock && ownerLock->eventMgr)
     {
-        EventMgr::Guard guard((*E)->eventMgr->GetLock());
-        (*E)->eventMgr->processors.insert(this);
+        EventMgr::Guard guard(ownerLock->eventMgr->GetLock());
+        ownerLock->eventMgr->processors.insert(this);
     }
 }
 
@@ -29,19 +31,36 @@ ALEEventProcessor::~ALEEventProcessor()
 {
     // can be called from multiple threads
     {
-        LOCK_ALE;
+        Guard guard(mutex);
+        dead = true;
+    }
+    // can be called from multiple threads
+    if (auto state = ALE::LockStateRef(owner))
+    {
+        ALE::Guard guard(state->GetStateLock());
+        RemoveEvents_internal();
+    }
+    else
+    {
         RemoveEvents_internal();
     }
 
     if (obj && ALE::IsInitialized())
     {
-        EventMgr::Guard guard((*E)->eventMgr->GetLock());
-        (*E)->eventMgr->processors.erase(this);
+        if (auto state = ALE::LockStateRef(owner))
+        {
+            if (state->eventMgr)
+            {
+                EventMgr::Guard guard(state->eventMgr->GetLock());
+                state->eventMgr->processors.erase(this);
+            }
+        }
     }
 }
 
 void ALEEventProcessor::CaptureGuid()
 {
+    Guard guard(mutex);
     if (guidCaptured || !obj)
         return;
 
@@ -51,54 +70,139 @@ void ALEEventProcessor::CaptureGuid()
 
 void ALEEventProcessor::Update(uint32 diff)
 {
-    isUpdating = true;
-
-    m_time += diff;
-    while (!eventList.empty() && eventList.begin()->first <= m_time)
+    struct DueCall
     {
-        auto it = eventList.begin();
-        LuaEvent* luaEvent = it->second;
-        eventList.erase(it);
+        LuaEvent* luaEvent;
+        uint32 delay;
+        uint32 repeatsArg;
+        bool remove;
+        WorldObject* liveObj;
+        bool deadTarget;
+        AleStateRef owner;
+        uint64 sweep;
+    };
 
-        if (luaEvent->state != LUAEVENT_STATE_ERASE)
-            eventMap.erase(luaEvent->funcRef);
-
-        if (luaEvent->state == LUAEVENT_STATE_RUN)
+    // Due events leave the containers here and are sole-owned by the
+    // locals until fired/deleted below, so the lock is never held across
+    // Lua. Repeating events are re-added only after firing, when still
+    // RUN and the processor is not being destroyed: destroy can therefore
+    // never observe (and double-free) an event the firing loop owns.
+    std::vector<DueCall> due;
+    std::vector<LuaEvent*> dropped;
+    {
+        Guard guard(mutex);
+        m_time += diff;
+        while (!eventList.empty() && eventList.begin()->first <= m_time)
         {
+            EventList::iterator it = eventList.begin();
+            LuaEvent* luaEvent = it->second;
+            eventList.erase(it);
+
+            if (luaEvent->state != LUAEVENT_STATE_ERASE)
+                eventMap.erase(luaEvent->funcRef);
+
+            if (luaEvent->state != LUAEVENT_STATE_RUN)
+            {
+                dropped.push_back(luaEvent);
+                continue;
+            }
+
             uint32 delay = luaEvent->delay;
             bool remove = luaEvent->repeats == 1;
-            if (!remove)
-                AddEvent(luaEvent); // Reschedule before calling incase RemoveEvents used
+            uint32 repeatsArg = luaEvent->repeats;
+            if (!remove && luaEvent->repeats)
+                luaEvent->repeats--;
 
+            // GUID-checked liveness; destroyed/relogged players resolve to
+            // nullptr instead of a dangling pointer (and the call is
+            // skipped below). Pre-capture players pass through (normal
+            // during login hooks).
             WorldObject* liveObj = nullptr;
             if (guidCaptured && !objGuid.IsEmpty())
-                liveObj = ObjectAccessor::FindPlayer(objGuid);
+            {
+                Player* found = ObjectAccessor::FindPlayer(objGuid);
+                if (found)
+                {
+                    AleAlive::Guard aliveGuard{ AleAlive::Mutex() };
+                    WorldObject* wo = static_cast<WorldObject*>(found);
+                    if (AleAlive::MatchesLocked(objGuid, wo) && wo->IsInWorld() &&
+                        !found->IsDuringRemoveFromWorld())
+                        liveObj = wo;
+                }
+                else
+                {
+                    AleAlive::Guard aliveGuard{ AleAlive::Mutex() };
+                    if (AleAlive::MatchesLocked(objGuid, obj))
+                        liveObj = obj;
+                }
+            }
             else if (!guidCaptured)
                 liveObj = obj;
 
-            // Call the timed event
-            (*E)->OnTimedEvent(luaEvent->funcRef, delay, luaEvent->repeats ? luaEvent->repeats-- : luaEvent->repeats, liveObj);
-
-            if (!remove)
-                continue;
+            due.push_back(DueCall{ luaEvent, delay, repeatsArg, remove, liveObj, guidCaptured && !objGuid.IsEmpty() && !liveObj, luaEvent->owner, massSweep.load(std::memory_order_acquire) });
         }
-
-        // Event should be deleted (executed last time or set to be aborted)
-        RemoveEvent(luaEvent);
     }
 
-    isUpdating = false;
-    ProcessDeferredOps();
+    for (DueCall& call : due)
+    {
+        bool fire = true;
+        {
+            Guard guard(mutex);
+            // Another thread may have aborted it after it became due, or
+            // the processor may have started destruction. Dead targets
+            // stay skipped; unrepeatable leftovers are deleted below.
+            if (dead || call.luaEvent->state != LUAEVENT_STATE_RUN || call.deadTarget)
+            {
+                fire = false;
+                dropped.push_back(call.luaEvent);
+            }
+        }
+        if (!fire)
+            continue;
+
+        // Publish the in-flight event so targeted SetState from Lua
+        // (self-removal) reaches it: it was popped from the containers.
+        {
+            Guard guard(mutex);
+            firing = call.luaEvent;
+        }
+
+        // Resolve the owning state into a shared reference that keeps it
+        // alive for the whole call. Destroyed/recreated states resolve to
+        // null and are skipped: no raw slot is ever dereferenced. Locking
+        // mirrors LOCK_ALE_STATE for the resolved state (global -> state
+        // in compat, state-only in multistate).
+        if (auto state = ALE::LockStateRef(call.owner))
+        {
+            ALE::Guard globalGuard(ALEConfig::GetInstance().IsCompatibilityModeEnabled() ? ALE::GetLock() : ALE::GetNoopLock());
+            ALE::Guard stateGuard(state->GetStateLock());
+            if (state->HasLuaState())
+                state->OnTimedEvent(call.luaEvent->funcRef, call.delay, call.repeatsArg, call.liveObj);
+        }
+
+        {
+            Guard guard(mutex);
+            // Re-add only when still scheduled to run, nobody tore the
+            // processor down meanwhile, and no mass removal swept during
+            // the call (sole ownership returns to the containers exactly
+            // once). Anything else is deleted below.
+            firing = nullptr;
+            if (!call.remove && !dead && call.luaEvent->state == LUAEVENT_STATE_RUN &&
+                massSweep.load(std::memory_order_acquire) == call.sweep)
+                AddEvent(call.luaEvent);
+            else
+                dropped.push_back(call.luaEvent);
+        }
+    }
+
+    for (LuaEvent* luaEvent : dropped)
+        RemoveEvent(luaEvent);
 }
 
 void ALEEventProcessor::SetStates(LuaEventState state)
 {
-    if (isUpdating)
-    {
-        QueueDeferredOp(DeferredOpType::SetStates, nullptr, 0, state);
-        return;
-    }
-
+    Guard guard(mutex);
+    ++massSweep;
     for (EventList::iterator it = eventList.begin(); it != eventList.end(); ++it)
         it->second->SetState(state);
     if (state == LUAEVENT_STATE_ERASE)
@@ -107,112 +211,78 @@ void ALEEventProcessor::SetStates(LuaEventState state)
 
 void ALEEventProcessor::RemoveEvents_internal()
 {
-    if (isUpdating)
+    std::vector<LuaEvent*> doomed;
     {
-        QueueDeferredOp(DeferredOpType::ClearAll);
-        return;
+        Guard guard(mutex);
+        ++massSweep;
+        for (EventList::iterator it = eventList.begin(); it != eventList.end(); ++it)
+            doomed.push_back(it->second);
+
+        eventList.clear();
+        eventMap.clear();
     }
-
-    //if (!final)
-    //{
-    //    for (EventList::iterator it = eventList.begin(); it != eventList.end(); ++it)
-    //        it->second->to_Abort = true;
-    //    return;
-    //}
-
-    for (EventList::iterator it = eventList.begin(); it != eventList.end(); ++it)
-        RemoveEvent(it->second);
-
-    deferredOps.clear();
-    eventList.clear();
-    eventMap.clear();
+    for (LuaEvent* luaEvent : doomed)
+        RemoveEvent(luaEvent);
 }
 
 void ALEEventProcessor::SetState(int eventId, LuaEventState state)
 {
-    if (isUpdating)
-    {
-        QueueDeferredOp(DeferredOpType::SetState, nullptr, eventId, state);
-        return;
-    }
-
+    Guard guard(mutex);
     if (eventMap.find(eventId) != eventMap.end())
         eventMap[eventId]->SetState(state);
+    else if (firing && firing->funcRef == eventId)
+        firing->SetState(state);
     if (state == LUAEVENT_STATE_ERASE)
         eventMap.erase(eventId);
 }
 
 void ALEEventProcessor::AddEvent(LuaEvent* luaEvent)
 {
-    if (isUpdating)
-    {
-        QueueDeferredOp(DeferredOpType::AddEvent, luaEvent);
-        return;
-    }
-
+    Guard guard(mutex);
     luaEvent->GenerateDelay();
     eventList.insert(std::pair<uint64, LuaEvent*>(m_time + luaEvent->delay, luaEvent));
     eventMap[luaEvent->funcRef] = luaEvent;
 }
 
-void ALEEventProcessor::AddEvent(int funcRef, uint32 min, uint32 max, uint32 repeats)
+void ALEEventProcessor::AddEvent(int funcRef, uint32 min, uint32 max, uint32 repeats, const AleStateRef& owner)
 {
-    AddEvent(new LuaEvent(funcRef, min, max, repeats));
+    AddEvent(new LuaEvent(funcRef, min, max, repeats, owner));
 }
 
 void ALEEventProcessor::RemoveEvent(LuaEvent* luaEvent)
 {
-    // Unreference if should and if ALE was not yet uninitialized and if the lua state still exists
-    if (luaEvent->state != LUAEVENT_STATE_ERASE && ALE::IsInitialized() && (*E)->HasLuaState())
+    // Decide here; the unref runs without the processor lock so we never
+    // hold proc -> state (Lua entry paths take state -> proc). Caller must
+    // have removed the event from the containers already. The owner is
+    // resolved into a shared reference: dead/recreated states (or a dead
+    // registry after CloseLua, whose refs lua_close reclaimed) skip the
+    // unref instead of touching freed memory.
+    AleStateRef owner;
+    int funcRef = 0;
+    bool erase = false;
     {
-        // Free lua function ref
-        luaL_unref((*E)->L, LUA_REGISTRYINDEX, luaEvent->funcRef);
+        Guard guard(mutex);
+        owner = luaEvent->owner;
+        funcRef = luaEvent->funcRef;
+        erase = (luaEvent->state == LUAEVENT_STATE_ERASE);
     }
     delete luaEvent;
-}
-
-void ALEEventProcessor::QueueDeferredOp(DeferredOpType type, LuaEvent* event, int eventId, LuaEventState state)
-{
-    DeferredOp op;
-    op.type = type;
-    op.event = event;
-    op.eventId = eventId;
-    op.state = state;
-    deferredOps.push_back(op);
-}
-
-void ALEEventProcessor::ProcessDeferredOps()
-{
-    if (deferredOps.empty())
-        return;
-
-    std::vector<DeferredOp> ops;
-    ops.swap(deferredOps);
-
-    for (DeferredOp& op : ops)
+    if (!erase && ALE::IsInitialized())
     {
-        switch (op.type)
+        if (auto state = ALE::LockStateRef(owner))
         {
-        case DeferredOpType::AddEvent:
-            AddEvent(op.event);
-            break;
-
-        case DeferredOpType::SetState:
-            SetState(op.eventId, op.state);
-            break;
-
-        case DeferredOpType::SetStates:
-            SetStates(op.state);
-            break;
-
-        case DeferredOpType::ClearAll:
-            RemoveEvents_internal();
-            break;
+            // Unreference using the event's own state, mirroring
+            // LOCK_ALE_STATE (global -> state in compat, state-only in
+            // multistate) so the unref cannot race Lua execution on L.
+            ALE::Guard globalGuard(ALEConfig::GetInstance().IsCompatibilityModeEnabled() ? ALE::GetLock() : ALE::GetNoopLock());
+            ALE::Guard stateGuard(state->GetStateLock());
+            if (state->HasLuaState())
+                luaL_unref(state->L, LUA_REGISTRYINDEX, funcRef);
         }
     }
 }
 
-EventMgr::EventMgr(ALE** _E) : globalProcessor(new ALEEventProcessor(_E, NULL)), E(_E)
+EventMgr::EventMgr(const AleStateRef& _owner) : globalProcessor(new ALEEventProcessor(_owner, nullptr, NULL)), owner(_owner)
 {
 }
 
@@ -221,7 +291,7 @@ EventMgr::~EventMgr()
     {
         Guard guard(GetLock());
         if (!processors.empty())
-            for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it) // loop processors
+            for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it)
                 (*it)->RemoveEvents_internal();
         globalProcessor->RemoveEvents_internal();
     }
@@ -233,7 +303,7 @@ void EventMgr::SetStates(LuaEventState state)
 {
     Guard guard(GetLock());
     if (!processors.empty())
-        for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it) // loop processors
+        for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it)
             (*it)->SetStates(state);
     globalProcessor->SetStates(state);
 }
@@ -242,7 +312,7 @@ void EventMgr::SetState(int eventId, LuaEventState state)
 {
     Guard guard(GetLock());
     if (!processors.empty())
-        for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it) // loop processors
+        for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it)
             (*it)->SetState(eventId, state);
     globalProcessor->SetState(eventId, state);
 }

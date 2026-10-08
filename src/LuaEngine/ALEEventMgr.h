@@ -10,8 +10,10 @@
 #include "ALEUtility.h"
 #include "Common.h"
 #include "Util.h"
+#include <atomic>
 #include <map>
-#include <vector>
+#include <memory>
+#include <mutex>
 
 #include "Define.h"
 #include "ObjectGuid.h"
@@ -20,6 +22,19 @@ class ALE;
 class EventMgr;
 class ALEEventProcessor;
 class WorldObject;
+
+// Value-type identity of a Lua state for timer/HTTP/DB ownership.
+// Never a raw pointer: resolved via ALE::LockStateRef into a shared_ptr
+// that keeps the state alive for the duration of use. Recreating a map
+// state yields a new seq, so stale refs resolve to null instead of a new
+// state. (Global states resolve via the GALE holder.)
+struct AleStateRef
+{
+    bool global = true;
+    uint32 mapId = (uint32)(-1);
+    uint32 instanceId = 0;
+    uint64 seq = 0;
+};
 
 enum LuaEventState
 {
@@ -30,8 +45,8 @@ enum LuaEventState
 
 struct LuaEvent
 {
-    LuaEvent(int _funcRef, uint32 _min, uint32 _max, uint32 _repeats) :
-        min(_min), max(_max), delay(0), repeats(_repeats), funcRef(_funcRef), state(LUAEVENT_STATE_RUN)
+    LuaEvent(int _funcRef, uint32 _min, uint32 _max, uint32 _repeats, const AleStateRef& _owner) :
+        min(_min), max(_max), delay(0), repeats(_repeats), funcRef(_funcRef), state(LUAEVENT_STATE_RUN), owner(_owner)
     {
     }
 
@@ -46,12 +61,16 @@ struct LuaEvent
         delay = urand(min, max);
     }
 
-    uint32 min;   // Minimum delay between event calls
-    uint32 max;   // Maximum delay between event calls
-    uint32 delay; // The currently used waiting time
-    uint32 repeats; // Amount of repeats to make, 0 for infinite
-    int funcRef;    // Lua function reference ID, also used as event ID
-    LuaEventState state;    // State for next call
+    uint32 min;
+    uint32 max;
+    uint32 delay;
+    uint32 repeats;
+    int funcRef;
+    LuaEventState state;
+    // Owning-state identity (never a raw slot): resolved via
+    // ALE::LockStateRef at fire/unref time, so destroy/reload can never
+    // leave a dangling reference behind, including for due-local events.
+    AleStateRef owner;
 };
 
 class ALEEventProcessor
@@ -62,7 +81,9 @@ public:
     typedef std::multimap<uint64, LuaEvent*> EventList;
     typedef std::unordered_map<int, LuaEvent*> EventMap;
 
-    ALEEventProcessor(ALE** _E, WorldObject* _obj);
+    // ownerLock keeps the owning state alive for registry insert/erase;
+    // owner is the long-term identity used to resolve at fire/unref time.
+    ALEEventProcessor(const AleStateRef& owner, std::shared_ptr<ALE> ownerLock, WorldObject* _obj);
     ~ALEEventProcessor();
 
     void CaptureGuid();
@@ -71,42 +92,41 @@ public:
     void SetStates(LuaEventState state);
     // set the event to be removed when executing
     void SetState(int eventId, LuaEventState state);
-    void AddEvent(int funcRef, uint32 min, uint32 max, uint32 repeats);
+    void AddEvent(int funcRef, uint32 min, uint32 max, uint32 repeats, const AleStateRef& owner);
     EventMap eventMap;
 
 private:
-    enum class DeferredOpType
-    {
-        AddEvent,
-        SetState,
-        SetStates,
-        ClearAll
-    };
-
-    struct DeferredOp
-    {
-        DeferredOpType type;
-        LuaEvent* event = nullptr;
-        int eventId = 0;
-        LuaEventState state = LUAEVENT_STATE_RUN;
-    };
+    using Guard = std::lock_guard<std::recursive_mutex>;
+    // Serializes container access across map/world threads. Leaf-only:
+    // never held across OnTimedEvent or registry unref (those take state
+    // locks, and Lua entry paths take state -> proc). Lock order is
+    // state/eventMgr -> proc, never the reverse.
+    // Due events are sole-owned by the firing loop (never dual-owned in
+    // the containers), and re-added only after firing when still RUN and
+    // the processor is not being destroyed, so destroy can never
+    // double-free a repeating event.
+    std::recursive_mutex mutex;
 
     void RemoveEvents_internal();
     void AddEvent(LuaEvent* luaEvent);
     void RemoveEvent(LuaEvent* luaEvent);
-
-    void QueueDeferredOp(DeferredOpType type, LuaEvent* event = nullptr, int eventId = 0, LuaEventState state = LUAEVENT_STATE_RUN);
-    void ProcessDeferredOps();
-
-    bool isUpdating = false;
-    std::vector<DeferredOp> deferredOps;
-
     EventList eventList;
     uint64 m_time;
     WorldObject* obj;
     ObjectGuid objGuid;
     bool guidCaptured;
-    ALE** E;
+    AleStateRef owner;
+    // Set under proc lock at destruction start; Update consults it before
+    // re-adding a repeating event instead of resurrecting it.
+    std::atomic<bool> dead{false};
+    // Bumped by mass removals (SetStates/RemoveEvents_internal). A
+    // repeating event snapshotted before firing that observes a bump
+    // afterwards was mass-removed by its own Lua callback mid-fire (the
+    // containers no longer hold it, so the sweep could not mark it) and
+    // must not be re-added. Targeted SetState bumps nothing.
+    std::atomic<uint64> massSweep{0};
+    // Event currently firing (sole-owned by the firing loop, not in containers).
+    LuaEvent* firing = nullptr;
 };
 
 class EventMgr : public ALEUtil::Lockable
@@ -115,9 +135,9 @@ public:
     typedef std::unordered_set<ALEEventProcessor*> ProcessorSet;
     ProcessorSet processors;
     ALEEventProcessor* globalProcessor;
-    ALE** E;
+    AleStateRef owner;
 
-    EventMgr(ALE** _E);
+    EventMgr(const AleStateRef& owner);
     ~EventMgr();
 
     // Set the state of all timed events
@@ -130,4 +150,3 @@ public:
 };
 
 #endif
-

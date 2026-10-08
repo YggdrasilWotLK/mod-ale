@@ -76,7 +76,7 @@ void ALE::OnMemberWitdrawMoney(Guild* guild, Player* player, uint32& amount, boo
     Push(guild);
     Push(player);
     Push(amount);
-    Push(isRepair); // isRepair not a part of Mangos, implement?
+    Push(isRepair);
     int amountIndex = lua_gettop(L) - 1;
     int n = SetupStack(GuildEventBindings, key, 4);
 
@@ -87,7 +87,6 @@ void ALE::OnMemberWitdrawMoney(Guild* guild, Player* player, uint32& amount, boo
         if (lua_isnumber(L, r))
         {
             amount = CHECKVAL<uint32>(L, r);
-            // Update the stack for subsequent calls.
             ReplaceArgument(amount, amountIndex);
         }
 
@@ -113,7 +112,6 @@ void ALE::OnMemberDepositMoney(Guild* guild, Player* player, uint32& amount)
         if (lua_isnumber(L, r))
         {
             amount = CHECKVAL<uint32>(L, r);
-            // Update the stack for subsequent calls.
             ReplaceArgument(amount, amountIndex);
         }
 
