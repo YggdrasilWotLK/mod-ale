@@ -1,146 +1,83 @@
-<div align="center">
+# <img alt="image" src="https://github.com/user-attachments/assets/6f96adf9-1867-4ca6-b627-1bd0ab7ee494" />
 
-# ALE - AzerothCore Lua Engine
+## Introduction
 
-*Unleash the power of Lua scripting in your AzerothCore server*
+YLA (Yggdrasil LuA) is a Lua scripting engine for [Yggdrasilcore](https://github.com/YggdrasilWotLK/yggdrasilcore), based on AzerothCore's fork of ElunaLuaEngine (mod-ale). It lets server administrators and developers create custom gameplay features, events and mechanics without modifying the core server code.
 
-[![Discord](https://img.shields.io/badge/Discord-Join%20Us-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/ZKSVREE7)
 [![Lua](https://img.shields.io/badge/Lua-5.2-2C2D72?style=for-the-badge&logo=lua&logoColor=white)](http://www.lua.org/manual/5.2/)
-[![AzerothCore](https://img.shields.io/badge/AzerothCore-Integrated-darkgreen?style=for-the-badge)](http://www.azerothcore.org/)
+[![Lua](https://img.shields.io/badge/Lua-jit-2C2D72?style=for-the-badge&logo=lua&logoColor=white)](http://www.lua.org/manual/jit/)
 
----
-</div>
+Read more about Yggdrasil WoW and see Yggdrasilcore in action [here](https://yggdrasilwow.com/).
+
+## Compatibility
 
 > [!IMPORTANT]
-> **ALE** is an independent Lua scripting engine specifically designed for AzerothCore. This project has **diverged from the original Eluna project** and is no longer compatible with standard Eluna scripts. Scripts written for ALE will not work with the original Eluna engine and vice versa.
+> Yggdrasil LuA is NOT compatible with AzerothCore, ALE or Eluna. It includes significant performance improvements, including multistate support and thread safety alignments with the Yggdrasilcore core, that are incompatible with stock AzerothCore scripts. Scripts written for stock ALE or Eluna will not work with YLA, and scripts written for YLA will not work with them.
 
-## 🚀 Overview
+YLA has diverged from mod-ale and from the original Eluna project. Its API, state handling and threading model differ from upstream, so scripts are not interchangeable in either direction. Always refer to YLA specific behavior when developing scripts, and do not expect upstream documentation to be accurate for it.
 
-ALE is a powerful, AzerothCore-specific implementation of a Lua scripting engine that enables server administrators and developers to create custom gameplay features, events, and mechanics without modifying the core server code.
+If you need stock ALE or Eluna compatibility, use the upstream projects instead: [mod-ale](https://github.com/azerothcore/mod-ale) for AzerothCore's ALE or [ElunaTrinityWotlk](https://github.com/ElunaLuaEngine/ElunaTrinityWotlk) for the original Eluna API.
 
-### Key Features
-- **Native AzerothCore Integration**: Built specifically for AzerothCore's architecture
-- **Enhanced API**: Extended functionality for AzerothCore, beyond the original Eluna specification.
-- **Community-Driven Development**: Actively maintained with community contributions
-
-## ⚠️ Compatibility Notice
-
-### ALE vs Original Eluna
-
-**ALE is NOT compatible with the original Eluna project.** This fork has evolved independently with AzerothCore-specific enhancements and API changes that make scripts non-interchangeable.
-
-### For Original Eluna Compatibility
-
-If you need to use standard Eluna scripts or maintain compatibility with the original Eluna project, please use the dedicated AzerothCore port available at:
-
-**🔗 [ElunaAzerothCore](https://github.com/Eluna-Ports/ElunaAzerothCore)**
-
-This repository maintains compatibility with the original Eluna API and supports standard Eluna scripts.
-
-## 📋 Table of Contents
-
-- [Installation](#-installation)
-- [Documentation](#-documentation)
-- [API Reference](#api-reference)
-- [Support](#-support)
-- [Contributing](#-contributing)
-- [Acknowledgements](#-acknowledgements)
-
-## ⚡ Installation
+## Installation
 
 ### Prerequisites
-- AzerothCore server installation
-- Git version control system
-- CMake build system
+- [Yggdrasilcore](https://github.com/YggdrasilWotLK/yggdrasilcore) server installation
+- Git
+- CMake
 
 ### Installation Steps
 
 ```bash
-# Navigate to your AzerothCore modules directory
-cd <azerothcore-path>/modules
+# Navigate to your Yggdrasilcore modules directory
+cd <yggdrasilcore-path>/modules
 
 # Clone the mod-ale repository
-git clone https://github.com/azerothcore/mod-ale.git
+git clone https://github.com/YggdrasilWotLK/mod-ale.git
 
 # Configure build with your preferred Lua version
-cd <azerothcore-build-directory>
+cd <yggdrasilcore-build-directory>
 cmake ../ -DLUA_VERSION=luajit  # Options: luajit, lua52, lua53, lua54
 
 # Default: If no version is specified, Lua 5.2 will be used
 
-# Rebuild your AzerothCore server
+# Rebuild your Yggdrasilcore server
 make -j$(nproc)
 ```
 
 ### Supported Lua Versions
-- **LuaJIT** (Recommended for performance)
-- **Lua 5.2** (Default)
-- **Lua 5.3**
-- **Lua 5.4**
+- LuaJIT (recommended for performance)
+- Lua 5.2 (default)
+- Lua 5.3
+- Lua 5.4
 
-## 📚 Documentation
+## Documentation
 
-### Getting Started
-- [Installation Guide](https://github.com/azerothcore/mod-ale/tree/master/docs/USAGE.md)
-- [Implementation Details](https://github.com/azerothcore/mod-ale/tree/master/docs/IMPL_DETAILS.md)
+- [Installation Guide](https://github.com/YggdrasilWotLK/mod-ale/tree/master/docs/USAGE.md)
+- [Implementation Details](https://github.com/YggdrasilWotLK/mod-ale/tree/master/docs/IMPL_DETAILS.md)
+- [Hooks Documentation](https://github.com/YggdrasilWotLK/mod-ale/blob/master/src/LuaEngine/Hooks.h)
+- [Lua 5.2 Reference](http://www.lua.org/manual/5.2/)
 
-### API Reference
-- **[mod-ale API Documentation](https://www.azerothcore.org/eluna/)** - Complete API reference for mod-ale
-- **[Hooks Documentation](https://github.com/azerothcore/mod-ale/blob/master/src/LuaEngine/Hooks.h)** - Available event hooks
-- **[Lua 5.2 Reference](http://www.lua.org/manual/5.2/)** - Official Lua language documentation
+The upstream [mod-ale API Documentation](https://www.azerothcore.org/eluna/) is a reference for the shared base only and may not match YLA.
 
-> [!WARNING]
-> **API Differences**: ALE functions may not be available in the original Eluna project and vice versa. Always refer to the ALE specific documentation when developing scripts.
+## Support
 
-## 💬 Support
+YLA is a downstream fork and we do not provide public support for it. Upstream channels do not support YLA specific behavior. However, if you do decide to use YLA in your server and find any issues, feel free to report bugs and/or open PRs here. You may also find help in the AzerothCore Discord community's mod-ale channel due to the similar nature of these code bases.
 
-### Getting Help
-- **GitHub Issues**: [Report bugs or request features](https://github.com/azerothcore/mod-ale/issues)
-- **Discord Community**: [Join our Discord server](https://discord.com/invite/bx3y5Qmy)
-- **AzerothCore Discord**: [Official AzerothCore support](http://www.azerothcore.org/)
+- [YLA GitHub Issues](https://github.com/YggdrasilWotLK/mod-ale/issues)
+- [Discord Community](https://discord.com/invite/bx3y5Qmy)
 
-### Resources
-- [Lua Programming Guide](http://www.lua.org/)
-- [AzerothCore Documentation](http://www.azerothcore.org/)
+## Contributing
 
-## 🤝 Contributing
+YLA is a privately managed repository. We do not recommend emulation enthusiasts to follow it. Instead, we recommend that enthusiasts contribute to the upstream mod-ale project at [azerothcore/mod-ale](https://github.com/azerothcore/mod-ale). See their information on how to contribute [here](https://www.azerothcore.org/wiki/contribute).
 
-We welcome contributions from the community! Here's how you can help:
+## Acknowledgements
 
-### Development Workflow
-![](.github/images/workflow.svg "workflow example")
+YLA is built upon mod-ale, which in turn is built upon the original [Eluna](https://github.com/ElunaLuaEngine/Eluna) project. We thank the original Eluna team for their pioneering work in Lua scripting for World of Warcraft server emulators.
 
-### Contribution Guidelines
-1. **Fork** the repository
-2. **Create** a feature branch from `master`
-3. **Implement** your changes with proper testing
-4. **Follow** the existing code style and conventions
-5. **Submit** a pull request with a clear description
+- [Original Eluna Repository](https://github.com/ElunaLuaEngine/Eluna)
+- [Eluna Discord Community](https://discord.gg/bjkCVWqqfX)
 
-## 🌟 Acknowledgements
+## License
 
-### Original Project
-mod-ale is built upon the foundation of the original [Eluna](https://github.com/ElunaLuaEngine/Eluna) project. We acknowledge and thank the original Eluna team for their pioneering work in Lua scripting for World of Warcraft server emulators.
-
-### Related Projects
-- **[Original Eluna Repository](https://github.com/ElunaLuaEngine/Eluna)** - The original Eluna project
-- **[Eluna Discord Community](https://discord.gg/bjkCVWqqfX)** - Original Eluna community support
-- **[ElunaAzerothCore](https://github.com/Eluna-Ports/ElunaAzerothCore)** - AzerothCore with original Eluna compatibility
-
-### Supported Emulators
-- **[AzerothCore](http://www.azerothcore.org/)** - Primary target (this project)
-- **[TrinityCore](https://www.trinitycore.org/)** - Original Eluna support
-- **[MaNGOS](https://www.getmangos.eu/)**
-- **[cMaNGOS](https://cmangos.net/)**
-
-## 📄 License
-
-This project is licensed under the GNU General Public License v3.0. See [LICENSE](https://github.com/azerothcore/mod-ale/blob/master/LICENSE) for details.
-
----
-
-<div align="center">
-<sub>Developed with ❤️ by the AzerothCore and ALE community</sub>
-
-[⬆ Back to Top](#-overview)
-</div>
+- Source: Contrary to some of the source documentation and previous information distributed by AzerothCore, all Yggdrasilcore source components are licensed under GNU GPL v2.
+- Intellectual property: YLA is not related to Blizzard Entertainment. Yggdrasil WoW and its derivative projects lay no claim to Blizzard Entertainment's copyrights and intellectual property, and operate this project solely as an avenue for exploring the functionality of the abandonware WotLK 3.3.5a client in an educational capacity.
