@@ -3,6 +3,8 @@ name: Build mod-eluna with LuaJIT 🌙
 on:
   push:
     branches:
+      - 'master-shadows'
+      - 'multistate-shoehorn'
       - 'master'
       - 'main'
   pull_request:
