@@ -3725,7 +3725,7 @@ namespace LuaPlayer
             group = new Group;
             success = group->AddLeaderInvite(player) && group->AddInvite(invited);
             if (!success)
-                delete group;
+                sGroupMgr->DestroyGroup(group);
         }
 
         if (success)
@@ -3765,7 +3765,7 @@ namespace LuaPlayer
         Group* group = new Group;
         if (!group->AddLeaderInvite(player))
         {
-            delete group;
+            sGroupMgr->DestroyGroup(group);
             return 0;
         }
 
