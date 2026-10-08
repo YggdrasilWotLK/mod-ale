@@ -42,41 +42,41 @@ extern "C"
 // Additional lua libraries
 };
 
-ALE::ScriptList ALE::lua_scripts;
-ALE::ScriptList ALE::lua_extensions;
-std::string ALE::lua_folderpath;
-std::string ALE::lua_requirepath;
-std::string ALE::lua_requirecpath;
-ALE* ALE::GALE = NULL;
-std::shared_ptr<ALE> ALE::GALE_HOLDER;
-std::atomic<bool> ALE::reload{false};
-bool ALE::initialized = false;
-ALE::LockType ALE::lock;
-std::unique_ptr<YLAFileWatcher> ALE::fileWatcher;
-std::atomic<uint64> ALE::s_stateSeq{0};
+YLA::ScriptList YLA::lua_scripts;
+YLA::ScriptList YLA::lua_extensions;
+std::string YLA::lua_folderpath;
+std::string YLA::lua_requirepath;
+std::string YLA::lua_requirecpath;
+YLA* YLA::GALE = NULL;
+std::shared_ptr<YLA> YLA::GALE_HOLDER;
+std::atomic<bool> YLA::reload{false};
+bool YLA::initialized = false;
+YLA::LockType YLA::lock;
+std::unique_ptr<YLAFileWatcher> YLA::fileWatcher;
+std::atomic<uint64> YLA::s_stateSeq{0};
 
 // Multistate handling
-std::map<uint64, std::shared_ptr<ALE>> ALE::g_states;
-std::shared_mutex ALE::g_states_mutex;
+std::map<uint64, std::shared_ptr<YLA>> YLA::g_states;
+std::shared_mutex YLA::g_states_mutex;
 
 // Runtime-persistent object and map data caches
-std::unordered_map<ObjectGuid, std::unordered_map<std::string, std::string>> ALE::objectDataCache;
-std::shared_mutex ALE::objectDataMutex;
-std::unordered_map<uint32, std::unordered_map<std::string, std::string>> ALE::mapDataCache;
-std::shared_mutex ALE::mapDataMutex;
-std::unordered_map<uint64, std::unordered_map<std::string, std::string>> ALE::mapBoxCache;
-std::shared_mutex ALE::mapBoxMutex;
-std::unordered_map<std::string, std::string> ALE::worldDataCache;
-std::shared_mutex ALE::worldDataMutex;
+std::unordered_map<ObjectGuid, std::unordered_map<std::string, std::string>> YLA::objectDataCache;
+std::shared_mutex YLA::objectDataMutex;
+std::unordered_map<uint32, std::unordered_map<std::string, std::string>> YLA::mapDataCache;
+std::shared_mutex YLA::mapDataMutex;
+std::unordered_map<uint64, std::unordered_map<std::string, std::string>> YLA::mapBoxCache;
+std::shared_mutex YLA::mapBoxMutex;
+std::unordered_map<std::string, std::string> YLA::worldDataCache;
+std::shared_mutex YLA::worldDataMutex;
 
-// Global bytecode cache that survives ALE reloads
+// Global bytecode cache that survives YLA reloads
 static std::unordered_map<std::string, GlobalCacheEntry> globalBytecodeCache;
 static std::unordered_map<std::string, std::time_t> timestampCache;
 static std::mutex globalCacheMutex;
 
-extern void RegisterFunctions(ALE* E);
+extern void RegisterFunctions(YLA* E);
 
-void ALE::Initialize()
+void YLA::Initialize()
 {
     LOCK_ALE;
     ASSERT(!IsInitialized());
@@ -88,13 +88,13 @@ void ALE::Initialize()
     LoadScriptPaths();
 
     // Must be before creating GALE
-    // This is checked on ALE creation
+    // This is checked on YLA creation
     initialized = true;
 
-    // Create global ALE (shared-owned; GALE mirrors it raw)
+    // Create global YLA (shared-owned; GALE mirrors it raw)
     {
         YlaStateRef globalRef;
-        GALE_HOLDER = std::shared_ptr<ALE>(new ALE(globalRef, YLA_GLOBAL_STATE));
+        GALE_HOLDER = std::shared_ptr<YLA>(new YLA(globalRef, YLA_GLOBAL_STATE));
         GALE = GALE_HOLDER.get();
     }
 
@@ -107,7 +107,7 @@ void ALE::Initialize()
     }
 }
 
-void ALE::Uninitialize()
+void YLA::Uninitialize()
 {
     LOCK_ALE;
     ASSERT(IsInitialized());
@@ -123,7 +123,7 @@ void ALE::Uninitialize()
         // shared copies; clearing the map makes every stale ref resolve to
         // null (skip path), and per-state locks below drain in-flight Lua.
         // lua_close reclaims each registry, so skipped unrefs lose nothing.
-        std::vector<std::shared_ptr<ALE>> states;
+        std::vector<std::shared_ptr<YLA>> states;
         {
             std::unique_lock lock(g_states_mutex);
             for (auto& [key, state] : g_states)
@@ -136,7 +136,7 @@ void ALE::Uninitialize()
             Guard stateGuard(state->GetStateLock());
             state->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
         }
-        // Shared copies drop here: ~ALE runs CloseLua exactly once per
+        // Shared copies drop here: ~YLA runs CloseLua exactly once per
         // state. Stale timer/DB/HTTP refs resolve to null and skip.
         states.clear();
     }
@@ -156,7 +156,7 @@ void ALE::Uninitialize()
     initialized = false;
 }
 
-std::shared_ptr<ALE> ALE::LockStateRef(const YlaStateRef& ref)
+std::shared_ptr<YLA> YLA::LockStateRef(const YlaStateRef& ref)
 {
     if (ref.global)
         return GALE_HOLDER;
@@ -167,7 +167,7 @@ std::shared_ptr<ALE> ALE::LockStateRef(const YlaStateRef& ref)
     return it->second;
 }
 
-std::shared_ptr<ALE> ALE::OwningRef(ALE* raw)
+std::shared_ptr<YLA> YLA::OwningRef(YLA* raw)
 {
     if (!raw)
         return nullptr;
@@ -180,7 +180,7 @@ std::shared_ptr<ALE> ALE::OwningRef(ALE* raw)
     return nullptr;
 }
 
-std::shared_ptr<ALE> ALE::CreateMapState(uint32 mapId, uint32 instanceId)
+std::shared_ptr<YLA> YLA::CreateMapState(uint32 mapId, uint32 instanceId)
 {
     if (!YLAConfig::GetInstance().ShouldMapLoadALE(mapId))
         return nullptr;
@@ -191,11 +191,11 @@ std::shared_ptr<ALE> ALE::CreateMapState(uint32 mapId, uint32 instanceId)
     uint64 key = ALEMapStateKey(mapId, instanceId);
     uint64 seq = ++s_stateSeq;
     YlaStateRef ref{ false, mapId, instanceId, seq };
-    std::shared_ptr<ALE> state;
+    std::shared_ptr<YLA> state;
     {
         std::unique_lock lock(g_states_mutex);
         ASSERT(g_states.find(key) == g_states.end());
-        state = std::shared_ptr<ALE>(new ALE(ref, mapId, instanceId));
+        state = std::shared_ptr<YLA>(new YLA(ref, mapId, instanceId));
         g_states[key] = state;
     }
 
@@ -206,10 +206,10 @@ std::shared_ptr<ALE> ALE::CreateMapState(uint32 mapId, uint32 instanceId)
     return state;
 }
 
-void ALE::DestroyMapState(uint32 mapId, uint32 instanceId)
+void YLA::DestroyMapState(uint32 mapId, uint32 instanceId)
 {
     uint64 key = ALEMapStateKey(mapId, instanceId);
-    std::shared_ptr<ALE> dying;
+    std::shared_ptr<YLA> dying;
     {
         std::unique_lock lock(g_states_mutex);
         auto it = g_states.find(key);
@@ -238,7 +238,7 @@ void ALE::DestroyMapState(uint32 mapId, uint32 instanceId)
     }
 }
 
-void ALE::LoadScriptPaths()
+void YLA::LoadScriptPaths()
 {
     uint32 oldMSTime = YLAUtil::GetCurrTime();
 
@@ -254,7 +254,7 @@ void ALE::LoadScriptPaths()
         if (const char* home = getenv("HOME"))
             lua_folderpath.replace(0, 1, home);
 #endif
-    YLA_LOG_INFO("[ALE]: Searching scripts from `{}`", lua_folderpath);
+    YLA_LOG_INFO("[YLA]: Searching scripts from `{}`", lua_folderpath);
 
     // clear all cache variables
     lua_requirepath.clear();
@@ -276,10 +276,10 @@ void ALE::LoadScriptPaths()
     if (!lua_requirecpath.empty())
         lua_requirecpath.erase(lua_requirecpath.end() - 1);
 
-    YLA_LOG_DEBUG("[ALE]: Loaded {} scripts in {} ms", lua_scripts.size() + lua_extensions.size(), YLAUtil::GetTimeDiff(oldMSTime));
+    YLA_LOG_DEBUG("[YLA]: Loaded {} scripts in {} ms", lua_scripts.size() + lua_extensions.size(), YLAUtil::GetTimeDiff(oldMSTime));
 }
 
-void ALE::_ReloadALE()
+void YLA::_ReloadALE()
 {
     LOCK_ALE;
     ASSERT(IsInitialized());
@@ -327,14 +327,14 @@ void ALE::_ReloadALE()
     reload = false;
 }
 
-std::string ALE::SerializeValue(lua_State* L, int idx)
+std::string YLA::SerializeValue(lua_State* L, int idx)
 {
     lua_pushcfunction(L, mar_encode);
     lua_pushvalue(L, idx < 0 ? idx - 1 : idx);
 
     if (lua_pcall(L, 1, 1, 0) != 0)
     {
-        YLA_LOG_ERROR("[ALE]: SerializeValue failed: {}", lua_tostring(L, -1));
+        YLA_LOG_ERROR("[YLA]: SerializeValue failed: {}", lua_tostring(L, -1));
         lua_pop(L, 1);
         return "";
     }
@@ -346,7 +346,7 @@ std::string ALE::SerializeValue(lua_State* L, int idx)
     return result;
 }
 
-bool ALE::DeserializeValue(lua_State* L, const std::string& data)
+bool YLA::DeserializeValue(lua_State* L, const std::string& data)
 {
     if (data.empty())
     {
@@ -359,7 +359,7 @@ bool ALE::DeserializeValue(lua_State* L, const std::string& data)
 
     if (lua_pcall(L, 1, 1, 0) != 0)
     {
-        YLA_LOG_ERROR("[ALE]: DeserializeValue failed: {}", lua_tostring(L, -1));
+        YLA_LOG_ERROR("[YLA]: DeserializeValue failed: {}", lua_tostring(L, -1));
         lua_pop(L, 1);
         lua_pushnil(L);
         return false;
@@ -368,7 +368,7 @@ bool ALE::DeserializeValue(lua_State* L, const std::string& data)
     return true;
 }
 
-ALE::ALE(const YlaStateRef& self, uint32 mapId, uint32 instanceId) :
+YLA::YLA(const YlaStateRef& self, uint32 mapId, uint32 instanceId) :
 stateMapId(mapId),
 stateInstanceId(instanceId),
 selfRef(self),
@@ -412,7 +412,7 @@ CreatureUniqueBindings(NULL)
 }
 
 
-ALE::~ALE()
+YLA::~YLA()
 {
     ASSERT(IsInitialized());
 
@@ -422,7 +422,7 @@ ALE::~ALE()
     eventMgr = NULL;
 }
 
-void ALE::CloseLua()
+void YLA::CloseLua()
 {
     // Invalidate every pending DB/HTTP callback bound to this registry
     // before it is reclaimed. Callers hold this state's lock.
@@ -441,11 +441,11 @@ void ALE::CloseLua()
     continentDataRefs.clear();
 }
 
-void ALE::OpenLua()
+void YLA::OpenLua()
 {
     if (!YLAConfig::GetInstance().IsALEEnabled())
     {
-        YLA_LOG_INFO("[ALE]: ALE is disabled in config");
+        YLA_LOG_INFO("[YLA]: YLA is disabled in config");
         return;
     }
 
@@ -482,7 +482,7 @@ void ALE::OpenLua()
     lua_pop(L, 1);
 }
 
-void ALE::CreateBindStores()
+void YLA::CreateBindStores()
 {
     DestroyBindStores();
 
@@ -510,7 +510,7 @@ void ALE::CreateBindStores()
     CreatureUniqueBindings   = new BindingMap< UniqueObjectKey<Hooks::CreatureEvents> >(L);
 }
 
-void ALE::DestroyBindStores()
+void YLA::DestroyBindStores()
 {
     delete ServerEventBindings;
     delete PlayerEventBindings;
@@ -557,9 +557,9 @@ void ALE::DestroyBindStores()
     CreatureUniqueBindings = NULL;
 }
 
-void ALE::AddScriptPath(std::string filename, const std::string& fullpath)
+void YLA::AddScriptPath(std::string filename, const std::string& fullpath)
 {
-    YLA_LOG_DEBUG("[ALE]: AddScriptPath Checking file `{}`", fullpath);
+    YLA_LOG_DEBUG("[YLA]: AddScriptPath Checking file `{}`", fullpath);
 
     // split file name
     std::size_t extDot = filename.find_last_of('.');
@@ -582,10 +582,10 @@ void ALE::AddScriptPath(std::string filename, const std::string& fullpath)
         lua_extensions.push_back(script);
     else
         lua_scripts.push_back(script);
-    YLA_LOG_DEBUG("[ALE]: AddScriptPath add path `{}`", fullpath);
+    YLA_LOG_DEBUG("[YLA]: AddScriptPath add path `{}`", fullpath);
 }
 
-std::time_t ALE::GetFileModTime(const std::string& filepath)
+std::time_t YLA::GetFileModTime(const std::string& filepath)
 {
     struct stat fileInfo;
     if (stat(filepath.c_str(), &fileInfo) == 0)
@@ -593,7 +593,7 @@ std::time_t ALE::GetFileModTime(const std::string& filepath)
     return 0;
 }
 
-std::time_t ALE::GetFileModTimeWithCache(const std::string& filepath)
+std::time_t YLA::GetFileModTimeWithCache(const std::string& filepath)
 {
     auto it = timestampCache.find(filepath);
     if (it != timestampCache.end())
@@ -604,7 +604,7 @@ std::time_t ALE::GetFileModTimeWithCache(const std::string& filepath)
     return modTime;
 }
 
-bool ALE::CompileScriptToGlobalCache(const std::string& filepath)
+bool YLA::CompileScriptToGlobalCache(const std::string& filepath)
 {
     std::lock_guard<std::mutex> lock(globalCacheMutex);
     
@@ -652,7 +652,7 @@ bool ALE::CompileScriptToGlobalCache(const std::string& filepath)
     return true;
 }
 
-bool ALE::CompileMoonScriptToGlobalCache(const std::string& filepath)
+bool YLA::CompileMoonScriptToGlobalCache(const std::string& filepath)
 {
     std::lock_guard<std::mutex> lock(globalCacheMutex);
     
@@ -710,7 +710,7 @@ bool ALE::CompileMoonScriptToGlobalCache(const std::string& filepath)
     return true;
 }
 
-int ALE::TryLoadFromGlobalCache(lua_State* L, const std::string& filepath)
+int YLA::TryLoadFromGlobalCache(lua_State* L, const std::string& filepath)
 {
     std::lock_guard<std::mutex> lock(globalCacheMutex);
     
@@ -725,7 +725,7 @@ int ALE::TryLoadFromGlobalCache(lua_State* L, const std::string& filepath)
     return luaL_loadbuffer(L, reinterpret_cast<const char*>(it->second.bytecode.data()), it->second.bytecode.size(), filepath.c_str());
 }
 
-int ALE::LoadScriptWithCache(lua_State* L, const std::string& filepath, bool isMoonScript, uint32* compiledCount, uint32* cachedCount)
+int YLA::LoadScriptWithCache(lua_State* L, const std::string& filepath, bool isMoonScript, uint32* compiledCount, uint32* cachedCount)
 {
     bool cacheEnabled = YLAConfig::GetInstance().IsByteCodeCacheEnabled();
     
@@ -770,27 +770,27 @@ int ALE::LoadScriptWithCache(lua_State* L, const std::string& filepath, bool isM
     }
 }
 
-void ALE::ClearGlobalCache()
+void YLA::ClearGlobalCache()
 {
     std::lock_guard<std::mutex> lock(globalCacheMutex);
     globalBytecodeCache.clear();
     timestampCache.clear();
-    YLA_LOG_INFO("[ALE]: Global bytecode cache cleared");
+    YLA_LOG_INFO("[YLA]: Global bytecode cache cleared");
 }
 
-void ALE::ClearTimestampCache()
+void YLA::ClearTimestampCache()
 {
     std::lock_guard<std::mutex> lock(globalCacheMutex);
     timestampCache.clear();
 }
 
-size_t ALE::GetGlobalCacheSize()
+size_t YLA::GetGlobalCacheSize()
 {
     std::lock_guard<std::mutex> lock(globalCacheMutex);
     return globalBytecodeCache.size();
 }
 
-int ALE::LoadCompiledScript(lua_State* L, const std::string& filepath)
+int YLA::LoadCompiledScript(lua_State* L, const std::string& filepath)
 {
     std::ifstream file(filepath, std::ios::binary);
     if (!file.is_open())
@@ -808,9 +808,9 @@ int ALE::LoadCompiledScript(lua_State* L, const std::string& filepath)
 }
 
 // Finds lua script files from given path (including subdirectories) and pushes them to scripts
-void ALE::GetScripts(std::string path, uint32 mapId)
+void YLA::GetScripts(std::string path, uint32 mapId)
 {
-    YLA_LOG_DEBUG("[ALE]: GetScripts from path `{}`", path);
+    YLA_LOG_DEBUG("[YLA]: GetScripts from path `{}`", path);
 
     boost::filesystem::path someDir(path);
     boost::filesystem::directory_iterator end_iter;
@@ -866,13 +866,13 @@ static bool ScriptPathComparator(const LuaScript& first, const LuaScript& second
     return first.filepath < second.filepath;
 }
 
-void ALE::RunScripts()
+void YLA::RunScripts()
 {
     LOCK_ALE;
     RunScriptsLocked();
 }
 
-void ALE::RunScriptsLocked()
+void YLA::RunScriptsLocked()
 {
     if (!YLAConfig::GetInstance().IsALEEnabled())
         return;
@@ -910,7 +910,7 @@ void ALE::RunScriptsLocked()
         // Check that no duplicate names exist
         if (loaded.find(it->filename) != loaded.end())
         {
-            YLA_LOG_ERROR("[ALE]: Error loading `{}`. File with same name already loaded from `{}`, rename either file", it->filepath, loaded[it->filename]);
+            YLA_LOG_ERROR("[YLA]: Error loading `{}`. File with same name already loaded from `{}`, rename either file", it->filepath, loaded[it->filename]);
             continue;
         }
         loaded[it->filename] = it->filepath;
@@ -920,7 +920,7 @@ void ALE::RunScriptsLocked()
         if (!lua_isnoneornil(L, -1))
         {
             lua_pop(L, 1);
-            YLA_LOG_DEBUG("[ALE]: `{}` was already loaded or required", it->filepath);
+            YLA_LOG_DEBUG("[YLA]: `{}` was already loaded or required", it->filepath);
             continue;
         }
         lua_pop(L, 1);
@@ -931,7 +931,7 @@ void ALE::RunScriptsLocked()
             if (LoadScriptWithCache(L, it->filepath, true, &compiledCount, &cachedCount))
             {
                 // Stack: package, modules, errmsg
-                YLA_LOG_ERROR("[ALE]: Error loading MoonScript `{}`", it->filepath);
+                YLA_LOG_ERROR("[YLA]: Error loading MoonScript `{}`", it->filepath);
                 Report(L);
                 // Stack: package, modules
                 continue;
@@ -942,7 +942,7 @@ void ALE::RunScriptsLocked()
             if (LoadCompiledScript(L, it->filepath))
             {
                 // Stack: package, modules, errmsg
-                YLA_LOG_ERROR("[ALE]: Error loading compiled script `{}`", it->filepath);
+                YLA_LOG_ERROR("[YLA]: Error loading compiled script `{}`", it->filepath);
                 Report(L);
                 // Stack: package, modules
                 continue;
@@ -954,7 +954,7 @@ void ALE::RunScriptsLocked()
             if (LoadScriptWithCache(L, it->filepath, false, &compiledCount, &cachedCount))
             {
                 // Stack: package, modules, errmsg
-                YLA_LOG_ERROR("[ALE]: Error loading `{}`", it->filepath);
+                YLA_LOG_ERROR("[YLA]: Error loading `{}`", it->filepath);
                 Report(L);
                 // Stack: package, modules
                 continue;
@@ -965,7 +965,7 @@ void ALE::RunScriptsLocked()
            if (luaL_loadfile(L, it->filepath.c_str()))
            {
                // Stack: package, modules, errmsg
-               YLA_LOG_ERROR("[ALE]: Error loading `{}`", it->filepath);
+               YLA_LOG_ERROR("[YLA]: Error loading `{}`", it->filepath);
                Report(L);
                // Stack: package, modules
                continue;
@@ -986,7 +986,7 @@ void ALE::RunScriptsLocked()
             // Stack: package, modules
 
             // successfully loaded and ran file
-            YLA_LOG_DEBUG("[ALE]: Successfully loaded `{}`", it->filepath);
+            YLA_LOG_DEBUG("[YLA]: Successfully loaded `{}`", it->filepath);
             ++count;
             continue;
         }
@@ -999,18 +999,18 @@ void ALE::RunScriptsLocked()
     {
         details = fmt::format("({} compiled, {} cached, {} pre-compiled)", compiledCount, cachedCount, precompiledCount);
     }
-    YLA_LOG_INFO("[ALE]: Executed {} Lua scripts in {} ms {}", count, YLAUtil::GetTimeDiff(oldMSTime), details);
+    YLA_LOG_INFO("[YLA]: Executed {} Lua scripts in {} ms {}", count, YLAUtil::GetTimeDiff(oldMSTime), details);
 
     OnLuaStateOpen();
 }
 
-void ALE::InvalidateObjects()
+void YLA::InvalidateObjects()
 {
     ++callstackid;
     ASSERT(callstackid && "Callstackid overflow");
 }
 
-void ALE::Report(lua_State* _L)
+void YLA::Report(lua_State* _L)
 {
     const char* msg = lua_tostring(_L, -1);
     YLA_LOG_ERROR("{}", msg);
@@ -1018,7 +1018,7 @@ void ALE::Report(lua_State* _L)
 }
 
 // Borrowed from http://stackoverflow.com/questions/12256455/print-stacktrace-from-c-code-with-embedded-lua
-int ALE::StackTrace(lua_State *_L)
+int YLA::StackTrace(lua_State *_L)
 {
     // Stack: errmsg
     if (!lua_isstring(_L, -1))  /* 'message' not a string? */
@@ -1048,7 +1048,7 @@ int ALE::StackTrace(lua_State *_L)
     return 1;
 }
 
-bool ALE::ExecuteCall(int params, int res)
+bool YLA::ExecuteCall(int params, int res)
 {
     int top = lua_gettop(L);
     int base = top - params;
@@ -1059,7 +1059,7 @@ bool ALE::ExecuteCall(int params, int res)
     // Check function type
     if (!lua_isfunction(L, base))
     {
-        YLA_LOG_ERROR("[ALE]: Cannot execute call: registered value is {}, not a function.", luaL_tolstring(L, base, NULL));
+        YLA_LOG_ERROR("[YLA]: Cannot execute call: registered value is {}, not a function.", luaL_tolstring(L, base, NULL));
         ASSERT(false); // stack probably corrupt
     }
 
@@ -1105,63 +1105,63 @@ bool ALE::ExecuteCall(int params, int res)
     return true;
 }
 
-void ALE::Push(lua_State* luastate)
+void YLA::Push(lua_State* luastate)
 {
     lua_pushnil(luastate);
 }
-void ALE::Push(lua_State* luastate, const long long l)
+void YLA::Push(lua_State* luastate, const long long l)
 {
     YLATemplate<long long>::Push(luastate, new long long(l));
 }
-void ALE::Push(lua_State* luastate, const unsigned long long l)
+void YLA::Push(lua_State* luastate, const unsigned long long l)
 {
     YLATemplate<unsigned long long>::Push(luastate, new unsigned long long(l));
 }
-void ALE::Push(lua_State* luastate, const long l)
+void YLA::Push(lua_State* luastate, const long l)
 {
     Push(luastate, static_cast<long long>(l));
 }
-void ALE::Push(lua_State* luastate, const unsigned long l)
+void YLA::Push(lua_State* luastate, const unsigned long l)
 {
     Push(luastate, static_cast<unsigned long long>(l));
 }
-void ALE::Push(lua_State* luastate, const int i)
+void YLA::Push(lua_State* luastate, const int i)
 {
     lua_pushinteger(luastate, i);
 }
-void ALE::Push(lua_State* luastate, const unsigned int u)
+void YLA::Push(lua_State* luastate, const unsigned int u)
 {
     lua_pushunsigned(luastate, u);
 }
-void ALE::Push(lua_State* luastate, const double d)
+void YLA::Push(lua_State* luastate, const double d)
 {
     lua_pushnumber(luastate, d);
 }
-void ALE::Push(lua_State* luastate, const float f)
+void YLA::Push(lua_State* luastate, const float f)
 {
     lua_pushnumber(luastate, f);
 }
-void ALE::Push(lua_State* luastate, const bool b)
+void YLA::Push(lua_State* luastate, const bool b)
 {
     lua_pushboolean(luastate, b);
 }
-void ALE::Push(lua_State* luastate, const std::string& str)
+void YLA::Push(lua_State* luastate, const std::string& str)
 {
     lua_pushstring(luastate, str.c_str());
 }
-void ALE::Push(lua_State* luastate, const char* str)
+void YLA::Push(lua_State* luastate, const char* str)
 {
     lua_pushstring(luastate, str);
 }
-void ALE::Push(lua_State* luastate, Pet const* pet)
+void YLA::Push(lua_State* luastate, Pet const* pet)
 {
     Push<Creature>(luastate, pet);
 }
-void ALE::Push(lua_State* luastate, TempSummon const* summon)
+void YLA::Push(lua_State* luastate, TempSummon const* summon)
 {
     Push<Creature>(luastate, summon);
 }
-void ALE::Push(lua_State* luastate, Unit const* unit)
+void YLA::Push(lua_State* luastate, Unit const* unit)
 {
     if (!unit)
     {
@@ -1180,7 +1180,7 @@ void ALE::Push(lua_State* luastate, Unit const* unit)
             YLATemplate<Unit>::Push(luastate, unit);
     }
 }
-void ALE::Push(lua_State* luastate, WorldObject const* obj)
+void YLA::Push(lua_State* luastate, WorldObject const* obj)
 {
     if (!obj)
     {
@@ -1205,7 +1205,7 @@ void ALE::Push(lua_State* luastate, WorldObject const* obj)
             YLATemplate<WorldObject>::Push(luastate, obj);
     }
 }
-void ALE::Push(lua_State* luastate, Object const* obj)
+void YLA::Push(lua_State* luastate, Object const* obj)
 {
     if (!obj)
     {
@@ -1230,27 +1230,27 @@ void ALE::Push(lua_State* luastate, Object const* obj)
             YLATemplate<Object>::Push(luastate, obj);
     }
 }
-void ALE::Push(lua_State* luastate, ObjectGuid const guid)
+void YLA::Push(lua_State* luastate, ObjectGuid const guid)
 {
     YLATemplate<unsigned long long>::Push(luastate, new unsigned long long(guid.GetRawValue()));
 }
 
-void ALE::Push(lua_State* luastate, GemPropertiesEntry const& gemProperties)
+void YLA::Push(lua_State* luastate, GemPropertiesEntry const& gemProperties)
 {
     Push(luastate, &gemProperties);
 }
 
-void ALE::Push(lua_State* luastate, SpellEntry const& spell)
+void YLA::Push(lua_State* luastate, SpellEntry const& spell)
 {
     Push(luastate, &spell);
 }
 
-void ALE::Push(lua_State* luastate, CreatureTemplate const* creatureTemplate)
+void YLA::Push(lua_State* luastate, CreatureTemplate const* creatureTemplate)
 {
     Push<CreatureTemplate>(luastate, creatureTemplate);
 }
 
-std::string ALE::FormatQuery(lua_State* L, const char* query)
+std::string YLA::FormatQuery(lua_State* L, const char* query)
 {
     int numArgs = lua_gettop(L);
     std::string formattedQuery = query;
@@ -1329,76 +1329,76 @@ static unsigned int CheckUnsignedRange(lua_State* luastate, int narg, unsigned i
     return static_cast<unsigned int>(value);
 }
 
-template<> bool ALE::CHECKVAL<bool>(lua_State* luastate, int narg)
+template<> bool YLA::CHECKVAL<bool>(lua_State* luastate, int narg)
 {
     return lua_toboolean(luastate, narg) != 0;
 }
-template<> float ALE::CHECKVAL<float>(lua_State* luastate, int narg)
+template<> float YLA::CHECKVAL<float>(lua_State* luastate, int narg)
 {
     return static_cast<float>(luaL_checknumber(luastate, narg));
 }
-template<> double ALE::CHECKVAL<double>(lua_State* luastate, int narg)
+template<> double YLA::CHECKVAL<double>(lua_State* luastate, int narg)
 {
     return luaL_checknumber(luastate, narg);
 }
-template<> signed char ALE::CHECKVAL<signed char>(lua_State* luastate, int narg)
+template<> signed char YLA::CHECKVAL<signed char>(lua_State* luastate, int narg)
 {
     return CheckIntegerRange(luastate, narg, SCHAR_MIN, SCHAR_MAX);
 }
-template<> unsigned char ALE::CHECKVAL<unsigned char>(lua_State* luastate, int narg)
+template<> unsigned char YLA::CHECKVAL<unsigned char>(lua_State* luastate, int narg)
 {
     return CheckUnsignedRange(luastate, narg, UCHAR_MAX);
 }
-template<> short ALE::CHECKVAL<short>(lua_State* luastate, int narg)
+template<> short YLA::CHECKVAL<short>(lua_State* luastate, int narg)
 {
     return CheckIntegerRange(luastate, narg, SHRT_MIN, SHRT_MAX);
 }
-template<> unsigned short ALE::CHECKVAL<unsigned short>(lua_State* luastate, int narg)
+template<> unsigned short YLA::CHECKVAL<unsigned short>(lua_State* luastate, int narg)
 {
     return CheckUnsignedRange(luastate, narg, USHRT_MAX);
 }
-template<> int ALE::CHECKVAL<int>(lua_State* luastate, int narg)
+template<> int YLA::CHECKVAL<int>(lua_State* luastate, int narg)
 {
     return CheckIntegerRange(luastate, narg, INT_MIN, INT_MAX);
 }
-template<> unsigned int ALE::CHECKVAL<unsigned int>(lua_State* luastate, int narg)
+template<> unsigned int YLA::CHECKVAL<unsigned int>(lua_State* luastate, int narg)
 {
     return CheckUnsignedRange(luastate, narg, UINT_MAX);
 }
-template<> const char* ALE::CHECKVAL<const char*>(lua_State* luastate, int narg)
+template<> const char* YLA::CHECKVAL<const char*>(lua_State* luastate, int narg)
 {
     return luaL_checkstring(luastate, narg);
 }
-template<> std::string ALE::CHECKVAL<std::string>(lua_State* luastate, int narg)
+template<> std::string YLA::CHECKVAL<std::string>(lua_State* luastate, int narg)
 {
     return luaL_checkstring(luastate, narg);
 }
-template<> long long ALE::CHECKVAL<long long>(lua_State* luastate, int narg)
+template<> long long YLA::CHECKVAL<long long>(lua_State* luastate, int narg)
 {
     if (lua_isnumber(luastate, narg))
         return static_cast<long long>(CHECKVAL<double>(luastate, narg));
-    return *(ALE::CHECKOBJ<long long>(luastate, narg, true));
+    return *(YLA::CHECKOBJ<long long>(luastate, narg, true));
 }
-template<> unsigned long long ALE::CHECKVAL<unsigned long long>(lua_State* luastate, int narg)
+template<> unsigned long long YLA::CHECKVAL<unsigned long long>(lua_State* luastate, int narg)
 {
     if (lua_isnumber(luastate, narg))
         return static_cast<unsigned long long>(CHECKVAL<uint32>(luastate, narg));
-    return *(ALE::CHECKOBJ<unsigned long long>(luastate, narg, true));
+    return *(YLA::CHECKOBJ<unsigned long long>(luastate, narg, true));
 }
-template<> long ALE::CHECKVAL<long>(lua_State* luastate, int narg)
+template<> long YLA::CHECKVAL<long>(lua_State* luastate, int narg)
 {
     return static_cast<long>(CHECKVAL<long long>(luastate, narg));
 }
-template<> unsigned long ALE::CHECKVAL<unsigned long>(lua_State* luastate, int narg)
+template<> unsigned long YLA::CHECKVAL<unsigned long>(lua_State* luastate, int narg)
 {
     return static_cast<unsigned long>(CHECKVAL<unsigned long long>(luastate, narg));
 }
-template<> ObjectGuid ALE::CHECKVAL<ObjectGuid>(lua_State* luastate, int narg)
+template<> ObjectGuid YLA::CHECKVAL<ObjectGuid>(lua_State* luastate, int narg)
 {
     return ObjectGuid(uint64((CHECKVAL<unsigned long long>(luastate, narg))));
 }
 
-template<> Object* ALE::CHECKOBJ<Object>(lua_State* luastate, int narg, bool error)
+template<> Object* YLA::CHECKOBJ<Object>(lua_State* luastate, int narg, bool error)
 {
     Object* obj = CHECKOBJ<WorldObject>(luastate, narg, false);
     if (!obj)
@@ -1407,7 +1407,7 @@ template<> Object* ALE::CHECKOBJ<Object>(lua_State* luastate, int narg, bool err
         obj = YLATemplate<Object>::Check(luastate, narg, error);
     return obj;
 }
-template<> WorldObject* ALE::CHECKOBJ<WorldObject>(lua_State* luastate, int narg, bool error)
+template<> WorldObject* YLA::CHECKOBJ<WorldObject>(lua_State* luastate, int narg, bool error)
 {
     WorldObject* obj = CHECKOBJ<Unit>(luastate, narg, false);
     if (!obj)
@@ -1418,7 +1418,7 @@ template<> WorldObject* ALE::CHECKOBJ<WorldObject>(lua_State* luastate, int narg
         obj = YLATemplate<WorldObject>::Check(luastate, narg, error);
     return obj;
 }
-template<> Unit* ALE::CHECKOBJ<Unit>(lua_State* luastate, int narg, bool error)
+template<> Unit* YLA::CHECKOBJ<Unit>(lua_State* luastate, int narg, bool error)
 {
     Unit* obj = CHECKOBJ<Player>(luastate, narg, false);
     if (!obj)
@@ -1428,12 +1428,12 @@ template<> Unit* ALE::CHECKOBJ<Unit>(lua_State* luastate, int narg, bool error)
     return obj;
 }
 
-template<> ALEObject* ALE::CHECKOBJ<ALEObject>(lua_State* luastate, int narg, bool error)
+template<> ALEObject* YLA::CHECKOBJ<ALEObject>(lua_State* luastate, int narg, bool error)
 {
     return CHECKTYPE(luastate, narg, NULL, error);
 }
 
-ALEObject* ALE::CHECKTYPE(lua_State* luastate, int narg, const char* tname, bool error)
+ALEObject* YLA::CHECKTYPE(lua_State* luastate, int narg, const char* tname, bool error)
 {
     if (lua_islightuserdata(luastate, narg))
     {
@@ -1460,7 +1460,7 @@ ALEObject* ALE::CHECKTYPE(lua_State* luastate, int narg, const char* tname, bool
 template<typename K>
 static int cancelBinding(lua_State *L)
 {
-    uint64 bindingID = ALE::CHECKVAL<uint64>(L, lua_upvalueindex(1));
+    uint64 bindingID = YLA::CHECKVAL<uint64>(L, lua_upvalueindex(1));
 
     BindingMap<K>* bindings = (BindingMap<K>*)lua_touserdata(L, lua_upvalueindex(2));
     ASSERT(bindings != NULL);
@@ -1473,7 +1473,7 @@ static int cancelBinding(lua_State *L)
 template<typename K>
 static void createCancelCallback(lua_State* L, uint64 bindingID, BindingMap<K>* bindings)
 {
-    ALE::Push(L, bindingID);
+    YLA::Push(L, bindingID);
     lua_pushlightuserdata(L, bindings);
     // Stack: bindingID, bindings
 
@@ -1482,7 +1482,7 @@ static void createCancelCallback(lua_State* L, uint64 bindingID, BindingMap<K>* 
 }
 
 // Saves the function reference ID given to the register type's store for given entry under the given event
-int ALE::Register(lua_State* L, uint8 regtype, uint32 entry, ObjectGuid guid, uint32 instanceId, uint32 event_id, int functionRef, uint32 shots)
+int YLA::Register(lua_State* L, uint8 regtype, uint32 entry, ObjectGuid guid, uint32 instanceId, uint32 event_id, int functionRef, uint32 shots)
 {
     uint64 bindingID;
 
@@ -1760,7 +1760,7 @@ int ALE::Register(lua_State* L, uint8 regtype, uint32 entry, ObjectGuid guid, ui
 /*
  * Cleans up the stack, effectively undoing all Push calls and the Setup call.
  */
-void ALE::CleanUpStack(int number_of_arguments)
+void YLA::CleanUpStack(int number_of_arguments)
 {
     // Stack: event_id, [arguments]
 
@@ -1776,7 +1776,7 @@ void ALE::CleanUpStack(int number_of_arguments)
  *
  * The caller is responsible for keeping track of how many times this should be called.
  */
-int ALE::CallOneFunction(int number_of_functions, int number_of_arguments, int number_of_results)
+int YLA::CallOneFunction(int number_of_functions, int number_of_arguments, int number_of_results)
 {
     ++number_of_arguments; // Caller doesn't know about `event_id`.
     ASSERT(number_of_functions > 0 && number_of_arguments > 0 && number_of_results >= 0);
@@ -1801,7 +1801,7 @@ int ALE::CallOneFunction(int number_of_functions, int number_of_arguments, int n
     return functions_top + 1; // Return the location of the first result (if any exist).
 }
 
-CreatureAI* ALE::GetAI(Creature* creature)
+CreatureAI* YLA::GetAI(Creature* creature)
 {
     if (!YLAConfig::GetInstance().IsALEEnabled())
         return NULL;
@@ -1821,7 +1821,7 @@ CreatureAI* ALE::GetAI(Creature* creature)
     return NULL;
 }
 
-InstanceData* ALE::GetInstanceData(Map* map)
+InstanceData* YLA::GetInstanceData(Map* map)
 {
     if (!YLAConfig::GetInstance().IsALEEnabled())
         return NULL;
@@ -1840,7 +1840,7 @@ InstanceData* ALE::GetInstanceData(Map* map)
     return NULL;
 }
 
-bool ALE::HasInstanceData(Map const* map)
+bool YLA::HasInstanceData(Map const* map)
 {
     if (!map->Instanceable())
         return continentDataRefs.find(map->GetId()) != continentDataRefs.end();
@@ -1848,7 +1848,7 @@ bool ALE::HasInstanceData(Map const* map)
         return instanceDataRefs.find(map->GetInstanceId()) != instanceDataRefs.end();
 }
 
-void ALE::CreateInstanceData(Map const* map)
+void YLA::CreateInstanceData(Map const* map)
 {
     ASSERT(lua_istable(L, -1));
     int ref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -1885,7 +1885,7 @@ void ALE::CreateInstanceData(Map const* map)
  * Unrefs the instanceId related events and data
  * Does all required actions for when an instance is freed.
  */
-void ALE::FreeInstanceId(uint32 instanceId)
+void YLA::FreeInstanceId(uint32 instanceId)
 {
     // This state's lock (never global): every other binding access runs
     // under this same state lock, so Clear/unref cannot race Lua use.
@@ -1912,9 +1912,9 @@ void ALE::FreeInstanceId(uint32 instanceId)
     }
 }
 
-void ALE::PushInstanceData(lua_State* L, YLAInstanceAI* ai, bool incrementCounter)
+void YLA::PushInstanceData(lua_State* L, YLAInstanceAI* ai, bool incrementCounter)
 {
-    // Check if the instance data is missing (i.e. someone reloaded ALE).
+    // Check if the instance data is missing (i.e. someone reloaded YLA).
     if (!HasInstanceData(ai->instance))
         ai->Reload();
 

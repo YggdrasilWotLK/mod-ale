@@ -21,7 +21,7 @@ namespace LuaAchievement
      */
     int GetId(lua_State* L, AchievementEntry* const achievement)
     {
-        ALE::Push(L, achievement->ID);
+        YLA::Push(L, achievement->ID);
         return 1;
     }
 
@@ -46,13 +46,13 @@ namespace LuaAchievement
      */
     int GetName(lua_State* L, AchievementEntry* const achievement)
     {
-        uint8 locale = ALE::CHECKVAL<uint8>(L, 2, DEFAULT_LOCALE);
+        uint8 locale = YLA::CHECKVAL<uint8>(L, 2, DEFAULT_LOCALE);
         if (locale >= TOTAL_LOCALES)
         {
             return luaL_argerror(L, 2, "valid LocaleConstant expected");
         }
 
-        ALE::Push(L, achievement->name[locale]);
+        YLA::Push(L, achievement->name[locale]);
         return 1;
     }
 };

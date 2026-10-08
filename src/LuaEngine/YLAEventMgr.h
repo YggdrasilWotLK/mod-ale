@@ -18,13 +18,13 @@
 #include "Define.h"
 #include "ObjectGuid.h"
 
-class ALE;
+class YLA;
 class EventMgr;
 class YLAEventProcessor;
 class WorldObject;
 
 // Value-type identity of a Lua state for timer/HTTP/DB ownership.
-// Never a raw pointer: resolved via ALE::LockStateRef into a shared_ptr
+// Never a raw pointer: resolved via YLA::LockStateRef into a shared_ptr
 // that keeps the state alive for the duration of use. Recreating a map
 // state yields a new seq, so stale refs resolve to null instead of a new
 // state. (Global states resolve via the GALE holder.)
@@ -68,7 +68,7 @@ struct LuaEvent
     int funcRef;
     LuaEventState state;
     // Owning-state identity (never a raw slot): resolved via
-    // ALE::LockStateRef at fire/unref time, so destroy/reload can never
+    // YLA::LockStateRef at fire/unref time, so destroy/reload can never
     // leave a dangling reference behind, including for due-local events.
     YlaStateRef owner;
 };
@@ -83,7 +83,7 @@ public:
 
     // ownerLock keeps the owning state alive for registry insert/erase;
     // owner is the long-term identity used to resolve at fire/unref time.
-    YLAEventProcessor(const YlaStateRef& owner, std::shared_ptr<ALE> ownerLock, WorldObject* _obj);
+    YLAEventProcessor(const YlaStateRef& owner, std::shared_ptr<YLA> ownerLock, WorldObject* _obj);
     ~YLAEventProcessor();
 
     void CaptureGuid();

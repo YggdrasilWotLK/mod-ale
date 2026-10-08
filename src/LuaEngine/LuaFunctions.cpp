@@ -9,7 +9,7 @@ extern "C"
 #include "lua.h"
 };
 
-// ALE
+// YLA
 #include "LuaEngine.h"
 #include "YLAEventMgr.h"
 #include "YLAIncludes.h"
@@ -1850,7 +1850,7 @@ template<> int YLATemplate<Vehicle>::CollectGarbage(lua_State* L)
     ASSERT(!manageMemory);
 
     // Get object pointer (and check type, no error)
-    ALEObject* obj = ALE::CHECKOBJ<ALEObject>(L, 1, false);
+    ALEObject* obj = YLA::CHECKOBJ<ALEObject>(L, 1, false);
     delete obj;
     return 0;
 }
@@ -1860,7 +1860,7 @@ template<> int YLATemplate<Group>::CollectGarbage(lua_State* L)
 {
     ASSERT(!manageMemory);
 
-    ALEObject* obj = ALE::CHECKOBJ<ALEObject>(L, 1, false);
+    ALEObject* obj = YLA::CHECKOBJ<ALEObject>(L, 1, false);
     delete obj;
     return 0;
 }
@@ -1869,59 +1869,59 @@ template<> int YLATemplate<Guild>::CollectGarbage(lua_State* L)
 {
     ASSERT(!manageMemory);
 
-    ALEObject* obj = ALE::CHECKOBJ<ALEObject>(L, 1, false);
+    ALEObject* obj = YLA::CHECKOBJ<ALEObject>(L, 1, false);
     delete obj;
     return 0;
 }
 
 // Template by Mud from http://stackoverflow.com/questions/4484437/lua-integer-type/4485511#4485511
-template<> int YLATemplate<unsigned long long>::Add(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) + ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int YLATemplate<unsigned long long>::Substract(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) - ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int YLATemplate<unsigned long long>::Multiply(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) * ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int YLATemplate<unsigned long long>::Divide(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) / ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int YLATemplate<unsigned long long>::Mod(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) % ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-// template<> int YLATemplate<unsigned long long>::UnaryMinus(lua_State* L) { ALE::Push(L, -ALE::CHECKVAL<unsigned long long>(L, 1)); return 1; }
-template<> int YLATemplate<unsigned long long>::Equal(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) == ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int YLATemplate<unsigned long long>::Less(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) < ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
-template<> int YLATemplate<unsigned long long>::LessOrEqual(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) <= ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int YLATemplate<unsigned long long>::Add(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<unsigned long long>(L, 1) + YLA::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int YLATemplate<unsigned long long>::Substract(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<unsigned long long>(L, 1) - YLA::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int YLATemplate<unsigned long long>::Multiply(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<unsigned long long>(L, 1) * YLA::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int YLATemplate<unsigned long long>::Divide(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<unsigned long long>(L, 1) / YLA::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int YLATemplate<unsigned long long>::Mod(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<unsigned long long>(L, 1) % YLA::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+// template<> int YLATemplate<unsigned long long>::UnaryMinus(lua_State* L) { YLA::Push(L, -YLA::CHECKVAL<unsigned long long>(L, 1)); return 1; }
+template<> int YLATemplate<unsigned long long>::Equal(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<unsigned long long>(L, 1) == YLA::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int YLATemplate<unsigned long long>::Less(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<unsigned long long>(L, 1) < YLA::CHECKVAL<unsigned long long>(L, 2)); return 1; }
+template<> int YLATemplate<unsigned long long>::LessOrEqual(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<unsigned long long>(L, 1) <= YLA::CHECKVAL<unsigned long long>(L, 2)); return 1; }
 template<> int YLATemplate<unsigned long long>::Pow(lua_State* L)
 {
-    ALE::Push(L, static_cast<unsigned long long>(powl(static_cast<long double>(ALE::CHECKVAL<unsigned long long>(L, 1)), static_cast<long double>(ALE::CHECKVAL<unsigned long long>(L, 2)))));
+    YLA::Push(L, static_cast<unsigned long long>(powl(static_cast<long double>(YLA::CHECKVAL<unsigned long long>(L, 1)), static_cast<long double>(YLA::CHECKVAL<unsigned long long>(L, 2)))));
     return 1;
 }
 template<> int YLATemplate<unsigned long long>::ToString(lua_State* L)
 {
-    unsigned long long l = ALE::CHECKVAL<unsigned long long>(L, 1);
+    unsigned long long l = YLA::CHECKVAL<unsigned long long>(L, 1);
     std::ostringstream ss;
     ss << l;
-    ALE::Push(L, ss.str());
+    YLA::Push(L, ss.str());
     return 1;
 }
 
-template<> int YLATemplate<long long>::Add(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) + ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int YLATemplate<long long>::Substract(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) - ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int YLATemplate<long long>::Multiply(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) * ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int YLATemplate<long long>::Divide(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) / ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int YLATemplate<long long>::Mod(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) % ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int YLATemplate<long long>::UnaryMinus(lua_State* L) { ALE::Push(L, -ALE::CHECKVAL<long long>(L, 1)); return 1; }
-template<> int YLATemplate<long long>::Equal(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) == ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int YLATemplate<long long>::Less(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) < ALE::CHECKVAL<long long>(L, 2)); return 1; }
-template<> int YLATemplate<long long>::LessOrEqual(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<long long>(L, 1) <= ALE::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::Add(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<long long>(L, 1) + YLA::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::Substract(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<long long>(L, 1) - YLA::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::Multiply(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<long long>(L, 1) * YLA::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::Divide(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<long long>(L, 1) / YLA::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::Mod(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<long long>(L, 1) % YLA::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::UnaryMinus(lua_State* L) { YLA::Push(L, -YLA::CHECKVAL<long long>(L, 1)); return 1; }
+template<> int YLATemplate<long long>::Equal(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<long long>(L, 1) == YLA::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::Less(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<long long>(L, 1) < YLA::CHECKVAL<long long>(L, 2)); return 1; }
+template<> int YLATemplate<long long>::LessOrEqual(lua_State* L) { YLA::Push(L, YLA::CHECKVAL<long long>(L, 1) <= YLA::CHECKVAL<long long>(L, 2)); return 1; }
 template<> int YLATemplate<long long>::Pow(lua_State* L)
 {
-    ALE::Push(L, static_cast<long long>(powl(static_cast<long double>(ALE::CHECKVAL<long long>(L, 1)), static_cast<long double>(ALE::CHECKVAL<long long>(L, 2)))));
+    YLA::Push(L, static_cast<long long>(powl(static_cast<long double>(YLA::CHECKVAL<long long>(L, 1)), static_cast<long double>(YLA::CHECKVAL<long long>(L, 2)))));
     return 1;
 }
 template<> int YLATemplate<long long>::ToString(lua_State* L)
 {
-    long long l = ALE::CHECKVAL<long long>(L, 1);
+    long long l = YLA::CHECKVAL<long long>(L, 1);
     std::ostringstream ss;
     ss << l;
-    ALE::Push(L, ss.str());
+    YLA::Push(L, ss.str());
     return 1;
 }
 
-void RegisterFunctions(ALE* E)
+void RegisterFunctions(YLA* E)
 {
     ALEGlobal::SetMethods(E, GlobalMethods);
 

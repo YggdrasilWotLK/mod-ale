@@ -20,7 +20,7 @@ using namespace Hooks;
         return;\
     LOCK_ALE
 
-void ALE::OnAddMember(Group* group, ObjectGuid guid)
+void YLA::OnAddMember(Group* group, ObjectGuid guid)
 {
     START_HOOK(GROUP_EVENT_ON_MEMBER_ADD);
     Push(group);
@@ -28,7 +28,7 @@ void ALE::OnAddMember(Group* group, ObjectGuid guid)
     CallAllFunctions(GroupEventBindings, key);
 }
 
-void ALE::OnInviteMember(Group* group, ObjectGuid guid)
+void YLA::OnInviteMember(Group* group, ObjectGuid guid)
 {
     START_HOOK(GROUP_EVENT_ON_MEMBER_INVITE);
     Push(group);
@@ -36,7 +36,7 @@ void ALE::OnInviteMember(Group* group, ObjectGuid guid)
     CallAllFunctions(GroupEventBindings, key);
 }
 
-void ALE::OnRemoveMember(Group* group, ObjectGuid guid, uint8 method)
+void YLA::OnRemoveMember(Group* group, ObjectGuid guid, uint8 method)
 {
     START_HOOK(GROUP_EVENT_ON_MEMBER_REMOVE);
     Push(group);
@@ -45,7 +45,7 @@ void ALE::OnRemoveMember(Group* group, ObjectGuid guid, uint8 method)
     CallAllFunctions(GroupEventBindings, key);
 }
 
-void ALE::OnChangeLeader(Group* group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid)
+void YLA::OnChangeLeader(Group* group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid)
 {
     START_HOOK(GROUP_EVENT_ON_LEADER_CHANGE);
     Push(group);
@@ -54,14 +54,14 @@ void ALE::OnChangeLeader(Group* group, ObjectGuid newLeaderGuid, ObjectGuid oldL
     CallAllFunctions(GroupEventBindings, key);
 }
 
-void ALE::OnDisband(Group* group)
+void YLA::OnDisband(Group* group)
 {
     START_HOOK(GROUP_EVENT_ON_DISBAND);
     Push(group);
     CallAllFunctions(GroupEventBindings, key);
 }
 
-void ALE::OnCreate(Group* group, ObjectGuid leaderGuid, GroupType groupType)
+void YLA::OnCreate(Group* group, ObjectGuid leaderGuid, GroupType groupType)
 {
     START_HOOK(GROUP_EVENT_ON_CREATE);
     Push(group);

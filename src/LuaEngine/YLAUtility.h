@@ -33,9 +33,9 @@ typedef QueryResult ALEQuery;
 #define HIGHGUID_INSTANCE       HighGuid::Instance
 #define HIGHGUID_GROUP          HighGuid::Group
 
-#define YLA_LOG_INFO(...)     LOG_INFO("ALE", __VA_ARGS__);
-#define YLA_LOG_ERROR(...)    LOG_ERROR("ALE", __VA_ARGS__);
-#define YLA_LOG_DEBUG(...)    LOG_DEBUG("ALE", __VA_ARGS__);
+#define YLA_LOG_INFO(...)     LOG_INFO("YLA", __VA_ARGS__);
+#define YLA_LOG_ERROR(...)    LOG_ERROR("YLA", __VA_ARGS__);
+#define YLA_LOG_DEBUG(...)    LOG_DEBUG("YLA", __VA_ARGS__);
 
 #ifndef MAKE_NEW_GUID
 #define MAKE_NEW_GUID(l, e, h)  ObjectGuid(h, e, l)

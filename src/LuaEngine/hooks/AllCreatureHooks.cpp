@@ -29,21 +29,21 @@ using namespace Hooks;
         return RETVAL;\
     LOCK_YLA_STATE
 
-void ALE::OnAllCreatureAddToWorld(Creature* creature)
+void YLA::OnAllCreatureAddToWorld(Creature* creature)
 {
     START_HOOK(ALL_CREATURE_EVENT_ON_ADD);
     Push(creature);
     CallAllFunctions(AllCreatureEventBindings, key);
 }
 
-void ALE::OnAllCreatureRemoveFromWorld(Creature* creature)
+void YLA::OnAllCreatureRemoveFromWorld(Creature* creature)
 {
     START_HOOK(ALL_CREATURE_EVENT_ON_REMOVE);
     Push(creature);
     CallAllFunctions(AllCreatureEventBindings, key);
 }
 
-void ALE::OnAllCreatureSelectLevel(const CreatureTemplate* cinfo, Creature* creature)
+void YLA::OnAllCreatureSelectLevel(const CreatureTemplate* cinfo, Creature* creature)
 {
     START_HOOK(ALL_CREATURE_EVENT_ON_SELECT_LEVEL);
     Push(cinfo);
@@ -51,7 +51,7 @@ void ALE::OnAllCreatureSelectLevel(const CreatureTemplate* cinfo, Creature* crea
     CallAllFunctions(AllCreatureEventBindings, key);
 }
 
-void ALE::OnAllCreatureBeforeSelectLevel(const CreatureTemplate* cinfo, Creature* creature, uint8& level)
+void YLA::OnAllCreatureBeforeSelectLevel(const CreatureTemplate* cinfo, Creature* creature, uint8& level)
 {
     START_HOOK(ALL_CREATURE_EVENT_ON_BEFORE_SELECT_LEVEL);
     Push(cinfo);

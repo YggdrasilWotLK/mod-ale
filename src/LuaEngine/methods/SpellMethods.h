@@ -21,7 +21,7 @@ namespace LuaSpell
      */
     int IsAutoRepeat(lua_State* L, Spell* spell)
     {
-        ALE::Push(L, spell->IsAutoRepeat());
+        YLA::Push(L, spell->IsAutoRepeat());
         return 1;
     }
 
@@ -32,7 +32,7 @@ namespace LuaSpell
      */
     int GetCaster(lua_State* L, Spell* spell)
     {
-        ALE::Push(L, spell->GetCaster());
+        YLA::Push(L, spell->GetCaster());
         return 1;
     }
 
@@ -43,7 +43,7 @@ namespace LuaSpell
      */
     int GetCastTime(lua_State* L, Spell* spell)
     {
-        ALE::Push(L, spell->GetCastTime());
+        YLA::Push(L, spell->GetCastTime());
         return 1;
     }
 
@@ -54,7 +54,7 @@ namespace LuaSpell
      */
     int GetEntry(lua_State* L, Spell* spell)
     {
-        ALE::Push(L, spell->m_spellInfo->Id);
+        YLA::Push(L, spell->m_spellInfo->Id);
         return 1;
     }
 
@@ -65,7 +65,7 @@ namespace LuaSpell
      */
     int GetPowerCost(lua_State* L, Spell* spell)
     {
-        ALE::Push(L, spell->GetPowerCost());
+        YLA::Push(L, spell->GetPowerCost());
         return 1;
     }
 
@@ -86,8 +86,8 @@ namespace LuaSpell
                 continue;
             auto reagent = eObjectMgr->GetItemTemplate(reagents[i]);
             auto count = reagentCounts[i];
-            ALE::Push(L, reagent);
-            ALE::Push(L, count);
+            YLA::Push(L, reagent);
+            YLA::Push(L, count);
             lua_settable(L, -3);
         }
         return 1;
@@ -100,7 +100,7 @@ namespace LuaSpell
      */
     int GetDuration(lua_State* L, Spell* spell)
     {
-        ALE::Push(L, spell->GetSpellInfo()->GetDuration());
+        YLA::Push(L, spell->GetSpellInfo()->GetDuration());
         return 1;
     }
 
@@ -118,9 +118,9 @@ namespace LuaSpell
         float x, y, z;
         spell->m_targets.GetDstPos()->GetPosition(x, y, z);
 
-        ALE::Push(L, x);
-        ALE::Push(L, y);
-        ALE::Push(L, z);
+        YLA::Push(L, x);
+        YLA::Push(L, y);
+        YLA::Push(L, z);
         return 3;
     }
 
@@ -139,15 +139,15 @@ namespace LuaSpell
     int GetTarget(lua_State* L, Spell* spell)
     {
         if (GameObject* target = spell->m_targets.GetGOTarget())
-            ALE::Push(L, target);
+            YLA::Push(L, target);
         else if (Item* target = spell->m_targets.GetItemTarget())
-            ALE::Push(L, target);
+            YLA::Push(L, target);
         else if (Corpse* target = spell->m_targets.GetCorpseTarget())
-            ALE::Push(L, target);
+            YLA::Push(L, target);
         else if (Unit* target = spell->m_targets.GetUnitTarget())
-            ALE::Push(L, target);
+            YLA::Push(L, target);
         else if (WorldObject* target = spell->m_targets.GetObjectTarget())
-            ALE::Push(L, target);
+            YLA::Push(L, target);
         return 1;
     }
 
@@ -158,7 +158,7 @@ namespace LuaSpell
      */
     int SetAutoRepeat(lua_State* L, Spell* spell)
     {
-        bool repeat = ALE::CHECKVAL<bool>(L, 2);
+        bool repeat = YLA::CHECKVAL<bool>(L, 2);
         spell->SetAutoRepeat(repeat);
         return 0;
     }
@@ -170,7 +170,7 @@ namespace LuaSpell
      */
     int Cast(lua_State* L, Spell* spell)
     {
-        bool skipCheck = ALE::CHECKVAL<bool>(L, 2, false);
+        bool skipCheck = YLA::CHECKVAL<bool>(L, 2, false);
         spell->cast(skipCheck);
         return 0;
     }

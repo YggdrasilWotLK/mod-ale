@@ -10,7 +10,7 @@ class TableDict(TypedDict):
     values: List[List[Any]]
 
 class ParameterDoc(object):
-    """The documentation data of a parameter or return value for an ALE method."""
+    """The documentation data of a parameter or return value for an YLA method."""
 
     # The integer ranges that each C++ type is valid for. None means valid for all numbers.
     valid_ranges = {
@@ -68,7 +68,7 @@ class ParameterDoc(object):
 
 
 class MethodDoc(object):
-    """The documentation data of an ALE method."""
+    """The documentation data of an YLA method."""
     @params(self=object, name=str, description=str, table=TableDict, prototypes=[str], parameters=[ParameterDoc], returned=[ParameterDoc])
     def __init__(self, name, description, table, prototypes, parameters, returned):
         self.name = name

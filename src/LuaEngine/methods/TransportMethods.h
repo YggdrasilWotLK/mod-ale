@@ -28,7 +28,7 @@ namespace LuaTransport
         int i = 1;
         for (WorldObject* passenger : passengers)
         {
-            ALE::Push(L, passenger);
+            YLA::Push(L, passenger);
             lua_rawseti(L, -2, i++);
         }
         return 1;
@@ -41,7 +41,7 @@ namespace LuaTransport
      */
     int IsMotionTransport(lua_State* L, Transport* transport)
     {
-        ALE::Push(L, dynamic_cast<MotionTransport*>(transport) != nullptr);
+        YLA::Push(L, dynamic_cast<MotionTransport*>(transport) != nullptr);
         return 1;
     }
 
@@ -53,8 +53,8 @@ namespace LuaTransport
      */
     int AddPassenger(lua_State* L, Transport* transport)
     {
-        WorldObject* passenger = ALE::CHECKOBJ<WorldObject>(L, 2);
-        bool withAll = ALE::CHECKVAL<bool>(L, 3, false);
+        WorldObject* passenger = YLA::CHECKOBJ<WorldObject>(L, 2);
+        bool withAll = YLA::CHECKVAL<bool>(L, 3, false);
         transport->AddPassenger(passenger, withAll);
         return 0;
     }
@@ -67,8 +67,8 @@ namespace LuaTransport
      */
     int RemovePassenger(lua_State* L, Transport* transport)
     {
-        WorldObject* passenger = ALE::CHECKOBJ<WorldObject>(L, 2);
-        bool withAll = ALE::CHECKVAL<bool>(L, 3, false);
+        WorldObject* passenger = YLA::CHECKOBJ<WorldObject>(L, 2);
+        bool withAll = YLA::CHECKVAL<bool>(L, 3, false);
         transport->RemovePassenger(passenger, withAll);
         return 0;
     }
@@ -82,7 +82,7 @@ namespace LuaTransport
      */
     int EnableMovement(lua_State* L, Transport* transport)
     {
-        bool enabled = ALE::CHECKVAL<bool>(L, 2);
+        bool enabled = YLA::CHECKVAL<bool>(L, 2);
         MotionTransport* mt = dynamic_cast<MotionTransport*>(transport);
         if (mt)
             mt->EnableMovement(enabled);

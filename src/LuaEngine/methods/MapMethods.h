@@ -23,7 +23,7 @@ namespace LuaMap
     // callers run with maps idle and keep existing behavior either way.
     static bool IsOwnMap(lua_State* L, Map* map)
     {
-        ALE* callingE = ALE::GetALE(L);
+        YLA* callingE = YLA::GetALE(L);
         return callingE->GetStateMapId() == YLA_GLOBAL_STATE ||
             (map->GetId() == callingE->GetStateMapId() && map->GetInstanceId() == callingE->GetStateInstanceId());
     }
@@ -35,7 +35,7 @@ namespace LuaMap
      */
     int IsArena(lua_State* L, Map* map)
     {
-        ALE::Push(L, map->IsBattleArena());
+        YLA::Push(L, map->IsBattleArena());
         return 1;
     }
 
@@ -46,7 +46,7 @@ namespace LuaMap
      */
     int IsBattleground(lua_State* L, Map* map)
     {
-        ALE::Push(L, map->IsBattleground());
+        YLA::Push(L, map->IsBattleground());
         return 1;
     }
 
@@ -57,7 +57,7 @@ namespace LuaMap
      */
     int IsDungeon(lua_State* L, Map* map)
     {
-        ALE::Push(L, map->IsDungeon());
+        YLA::Push(L, map->IsDungeon());
         return 1;
     }
 
@@ -68,7 +68,7 @@ namespace LuaMap
      */
     int IsEmpty(lua_State* L, Map* map)
     {
-        ALE::Push(L, map->IsEmpty());
+        YLA::Push(L, map->IsEmpty());
         return 1;
     }
 
@@ -79,7 +79,7 @@ namespace LuaMap
      */
     int IsHeroic(lua_State* L, Map* map)
     {
-        ALE::Push(L, map->IsHeroic());
+        YLA::Push(L, map->IsHeroic());
         return 1;
     }
 
@@ -90,7 +90,7 @@ namespace LuaMap
      */
     int IsRaid(lua_State* L, Map* map)
     {
-        ALE::Push(L, map->IsRaid());
+        YLA::Push(L, map->IsRaid());
         return 1;
     }
 
@@ -101,7 +101,7 @@ namespace LuaMap
      */
     int GetName(lua_State* L, Map* map)
     {
-        ALE::Push(L, map->GetMapName());
+        YLA::Push(L, map->GetMapName());
         return 1;
     }
 
@@ -116,12 +116,12 @@ namespace LuaMap
      */
     int GetHeight(lua_State* L, Map* map)
     {
-        float x = ALE::CHECKVAL<float>(L, 2);
-        float y = ALE::CHECKVAL<float>(L, 3);
-        uint32 phasemask = ALE::CHECKVAL<uint32>(L, 4, 1);
+        float x = YLA::CHECKVAL<float>(L, 2);
+        float y = YLA::CHECKVAL<float>(L, 3);
+        uint32 phasemask = YLA::CHECKVAL<uint32>(L, 4, 1);
         float z = map->GetHeight(phasemask, x, y, MAX_HEIGHT);
         if (z != INVALID_HEIGHT)
-            ALE::Push(L, z);
+            YLA::Push(L, z);
         return 1;
     }
 
@@ -134,7 +134,7 @@ namespace LuaMap
      */
     int GetDifficulty(lua_State* L, Map* map)
     {
-        ALE::Push(L, map->GetDifficulty());
+        YLA::Push(L, map->GetDifficulty());
         return 1;
     }
 
@@ -145,7 +145,7 @@ namespace LuaMap
      */
     int GetInstanceId(lua_State* L, Map* map)
     {
-        ALE::Push(L, map->GetInstanceId());
+        YLA::Push(L, map->GetInstanceId());
         return 1;
     }
 
@@ -156,7 +156,7 @@ namespace LuaMap
      */
     int GetPlayerCount(lua_State* L, Map* map)
     {
-        ALE::Push(L, map->GetPlayersCountExceptGMs());
+        YLA::Push(L, map->GetPlayersCountExceptGMs());
         return 1;
     }
 
@@ -167,7 +167,7 @@ namespace LuaMap
      */
     int GetMapId(lua_State* L, Map* map)
     {
-        ALE::Push(L, map->GetId());
+        YLA::Push(L, map->GetId());
         return 1;
     }
 
@@ -182,12 +182,12 @@ namespace LuaMap
      */
     int GetAreaId(lua_State* L, Map* map)
     {
-        float x = ALE::CHECKVAL<float>(L, 2);
-        float y = ALE::CHECKVAL<float>(L, 3);
-        float z = ALE::CHECKVAL<float>(L, 4);
-        float phasemask = ALE::CHECKVAL<uint32>(L, 5, PHASEMASK_NORMAL);
+        float x = YLA::CHECKVAL<float>(L, 2);
+        float y = YLA::CHECKVAL<float>(L, 3);
+        float z = YLA::CHECKVAL<float>(L, 4);
+        float phasemask = YLA::CHECKVAL<uint32>(L, 5, PHASEMASK_NORMAL);
 
-        ALE::Push(L, map->GetAreaId(phasemask, x, y, z));
+        YLA::Push(L, map->GetAreaId(phasemask, x, y, z));
         return 1;
     }
 
@@ -199,36 +199,36 @@ namespace LuaMap
      */
     int GetWorldObject(lua_State* L, Map* map)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
 
         if (!IsOwnMap(L, map))
         {
-            ALE::Push(L);
+            YLA::Push(L);
             return 1;
         }
 
         switch (guid.GetHigh())
         {
             case HIGHGUID_PLAYER:
-                ALE::Push(L, eObjectAccessor()GetPlayer(map, guid));
+                YLA::Push(L, eObjectAccessor()GetPlayer(map, guid));
                 break;
             case HIGHGUID_TRANSPORT:
             case HIGHGUID_MO_TRANSPORT:
             case HIGHGUID_GAMEOBJECT:
-                ALE::Push(L, map->GetGameObject(guid));
+                YLA::Push(L, map->GetGameObject(guid));
                 break;
             case HIGHGUID_VEHICLE:
             case HIGHGUID_UNIT:
-                ALE::Push(L, map->GetCreature(guid));
+                YLA::Push(L, map->GetCreature(guid));
                 break;
             case HIGHGUID_PET:
-                ALE::Push(L, map->GetPet(guid));
+                YLA::Push(L, map->GetPet(guid));
                 break;
             case HIGHGUID_DYNAMICOBJECT:
-                ALE::Push(L, map->GetDynamicObject(guid));
+                YLA::Push(L, map->GetDynamicObject(guid));
                 break;
             case HIGHGUID_CORPSE:
-                ALE::Push(L, map->GetCorpse(guid));
+                YLA::Push(L, map->GetCorpse(guid));
                 break;
             default:
                 break;
@@ -255,9 +255,9 @@ namespace LuaMap
      */
     int SetWeather(lua_State* L, Map* map)
     {
-        uint32 zoneId = ALE::CHECKVAL<uint32>(L, 2);
-        uint32 weatherType = ALE::CHECKVAL<uint32>(L, 3);
-        float grade = ALE::CHECKVAL<float>(L, 4);
+        uint32 zoneId = YLA::CHECKVAL<uint32>(L, 2);
+        uint32 weatherType = YLA::CHECKVAL<uint32>(L, 3);
+        float grade = YLA::CHECKVAL<float>(L, 4);
 
         if (!IsOwnMap(L, map))
             return 0;
@@ -271,7 +271,7 @@ namespace LuaMap
     /**
      * Gets the instance data table for the [Map], if it exists.
      *
-     * The instance must be scripted using ALE for this to succeed.
+     * The instance must be scripted using YLA for this to succeed.
      * If the instance is scripted in C++ this will return `nil`.
      *
      * @return table instance_data : instance data table, or `nil`
@@ -283,9 +283,9 @@ namespace LuaMap
             iAI = dynamic_cast<YLAInstanceAI*>(inst->GetInstanceScript());
 
         if (iAI)
-            ALE::GetALE(L)->PushInstanceData(L, iAI, false);
+            YLA::GetALE(L)->PushInstanceData(L, iAI, false);
         else
-            ALE::Push(L); // nil
+            YLA::Push(L); // nil
 
         return 1;
     }
@@ -320,7 +320,7 @@ namespace LuaMap
     */
     int GetPlayers(lua_State* L, Map* map)
     {
-        uint32 team = ALE::CHECKVAL<uint32>(L, 2, TEAM_NEUTRAL);
+        uint32 team = YLA::CHECKVAL<uint32>(L, 2, TEAM_NEUTRAL);
 
         lua_newtable(L);
         int tbl = lua_gettop(L);
@@ -341,7 +341,7 @@ namespace LuaMap
                     continue;
                 if (player->GetSession() && (team >= TEAM_NEUTRAL || player->GetTeamId() == team))
                 {
-                    ALE::Push(L, player);
+                    YLA::Push(L, player);
                     lua_rawseti(L, tbl, ++i);
                 }
             }
@@ -373,7 +373,7 @@ namespace LuaMap
         {
             Creature* creature = pair.second;
 
-            ALE::Push(L, creature);
+            YLA::Push(L, creature);
             lua_rawseti(L, tbl, creature->GetSpawnId());
         }
 
@@ -389,7 +389,7 @@ namespace LuaMap
      */
     int GetCreaturesByAreaId(lua_State* L, Map* map)
     {
-        int32 areaId = ALE::CHECKVAL<int32>(L, 2, -1);
+        int32 areaId = YLA::CHECKVAL<int32>(L, 2, -1);
 
         if (!IsOwnMap(L, map))
         {
@@ -413,7 +413,7 @@ namespace LuaMap
 
         for (Creature* creature : filteredCreatures)
         {
-            ALE::Push(L, creature);
+            YLA::Push(L, creature);
             lua_rawseti(L, tbl, creature->GetSpawnId());
         }
 
@@ -439,7 +439,7 @@ namespace LuaMap
         int i = 1;
         for (Transport* transport : transports)
         {
-            ALE::Push(L, transport);
+            YLA::Push(L, transport);
             lua_rawseti(L, -2, i++);
         }
         return 1;
@@ -470,18 +470,18 @@ namespace LuaMap
             std::string serialized;
             if (!erase)
             {
-                serialized = ALE::SerializeValue(L, 3);
+                serialized = YLA::SerializeValue(L, 3);
                 if (serialized.empty())
                 {
                     lua_pushvalue(L, 1);
                     return 1;
                 }
             }
-            std::lock_guard lock(ALE::mapDataMutex);
+            std::lock_guard lock(YLA::mapDataMutex);
             if (erase)
-                ALE::mapDataCache[mapId].erase(key);
+                YLA::mapDataCache[mapId].erase(key);
             else
-                ALE::mapDataCache[mapId][key] = std::move(serialized);
+                YLA::mapDataCache[mapId][key] = std::move(serialized);
             lua_pushvalue(L, 1);
             return 1;
         }, 1);
@@ -497,9 +497,9 @@ namespace LuaMap
             // Copy out under lock, decode after: blob size is unbounded.
             std::string blob;
             {
-                std::shared_lock lock(ALE::mapDataMutex);
-                auto mapIt = ALE::mapDataCache.find(mapId);
-            if (mapIt == ALE::mapDataCache.end())
+                std::shared_lock lock(YLA::mapDataMutex);
+                auto mapIt = YLA::mapDataCache.find(mapId);
+            if (mapIt == YLA::mapDataCache.end())
             {
                 lua_pushnil(L);
                 return 1;
@@ -513,7 +513,7 @@ namespace LuaMap
             blob = valIt->second;
             }
 
-            ALE::DeserializeValue(L, blob);
+            YLA::DeserializeValue(L, blob);
 
             if (!lua_istable(L, -1))
                 return 1;
@@ -547,9 +547,9 @@ namespace LuaMap
             // Snapshot under lock, decode after: blobs are unbounded.
             std::vector<std::pair<std::string, std::string>> entries;
             {
-                std::shared_lock lock(ALE::mapDataMutex);
-                auto mapIt = ALE::mapDataCache.find(mapId);
-                if (mapIt == ALE::mapDataCache.end())
+                std::shared_lock lock(YLA::mapDataMutex);
+                auto mapIt = YLA::mapDataCache.find(mapId);
+                if (mapIt == YLA::mapDataCache.end())
                     return 1;
                 for (auto& [key, val] : mapIt->second)
                     entries.emplace_back(key, val);
@@ -557,7 +557,7 @@ namespace LuaMap
             for (auto& [key, val] : entries)
             {
                 lua_pushstring(L, key.c_str());
-                ALE::DeserializeValue(L, val);
+                YLA::DeserializeValue(L, val);
                 lua_rawset(L, result);
             }
             return 1;

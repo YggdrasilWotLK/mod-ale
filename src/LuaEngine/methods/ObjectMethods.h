@@ -33,10 +33,10 @@ namespace LuaObject
      */
     int HasFlag(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        uint32 flag = ALE::CHECKVAL<uint32>(L, 3);
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        uint32 flag = YLA::CHECKVAL<uint32>(L, 3);
 
-        ALE::Push(L, obj->HasFlag(index, flag));
+        YLA::Push(L, obj->HasFlag(index, flag));
         return 1;
     }
 
@@ -47,7 +47,7 @@ namespace LuaObject
      */
     int IsInWorld(lua_State* L, Object* obj)
     {
-        ALE::Push(L, obj->IsInWorld());
+        YLA::Push(L, obj->IsInWorld());
         return 1;
     }
 
@@ -58,7 +58,7 @@ namespace LuaObject
  */
     int IsPlayer(lua_State* L, Object* obj)
     {
-        ALE::Push(L, obj->IsPlayer());
+        YLA::Push(L, obj->IsPlayer());
         return 1;
     }
 
@@ -70,8 +70,8 @@ namespace LuaObject
      */
     int GetInt32Value(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        ALE::Push(L, obj->GetInt32Value(index));
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        YLA::Push(L, obj->GetInt32Value(index));
         return 1;
     }
 
@@ -83,8 +83,8 @@ namespace LuaObject
      */
     int GetUInt32Value(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        ALE::Push(L, obj->GetUInt32Value(index));
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        YLA::Push(L, obj->GetUInt32Value(index));
         return 1;
     }
 
@@ -96,8 +96,8 @@ namespace LuaObject
      */
     int GetFloatValue(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        ALE::Push(L, obj->GetFloatValue(index));
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        YLA::Push(L, obj->GetFloatValue(index));
         return 1;
     }
 
@@ -112,9 +112,9 @@ namespace LuaObject
      */
     int GetByteValue(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        uint8 offset = ALE::CHECKVAL<uint8>(L, 3);
-        ALE::Push(L, obj->GetByteValue(index, offset));
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        uint8 offset = YLA::CHECKVAL<uint8>(L, 3);
+        YLA::Push(L, obj->GetByteValue(index, offset));
         return 1;
     }
 
@@ -129,9 +129,9 @@ namespace LuaObject
      */
     int GetUInt16Value(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        uint8 offset = ALE::CHECKVAL<uint8>(L, 3);
-        ALE::Push(L, obj->GetUInt16Value(index, offset));
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        uint8 offset = YLA::CHECKVAL<uint8>(L, 3);
+        YLA::Push(L, obj->GetUInt16Value(index, offset));
         return 1;
     }
 
@@ -144,7 +144,7 @@ namespace LuaObject
      */
     int GetScale(lua_State* L, Object* obj)
     {
-        ALE::Push(L, obj->GetFloatValue(OBJECT_FIELD_SCALE_X));
+        YLA::Push(L, obj->GetFloatValue(OBJECT_FIELD_SCALE_X));
         return 1;
     }
 
@@ -157,7 +157,7 @@ namespace LuaObject
      */
     int GetEntry(lua_State* L, Object* obj)
     {
-        ALE::Push(L, obj->GetEntry());
+        YLA::Push(L, obj->GetEntry());
         return 1;
     }
 
@@ -175,7 +175,7 @@ namespace LuaObject
      */
     int GetGUID(lua_State* L, Object* obj)
     {
-        ALE::Push(L, obj->GET_GUID());
+        YLA::Push(L, obj->GET_GUID());
         return 1;
     }
 
@@ -193,7 +193,7 @@ namespace LuaObject
      */
     int GetGUIDLow(lua_State* L, Object* obj)
     {
-        ALE::Push(L, obj->GetGUID().GetCounter());
+        YLA::Push(L, obj->GetGUID().GetCounter());
         return 1;
     }
 
@@ -216,7 +216,7 @@ namespace LuaObject
      */
     int GetTypeId(lua_State* L, Object* obj)
     {
-        ALE::Push(L, obj->GetTypeId());
+        YLA::Push(L, obj->GetTypeId());
         return 1;
     }
 
@@ -228,8 +228,8 @@ namespace LuaObject
      */
     int GetUInt64Value(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        ALE::Push(L, obj->GetUInt64Value(index));
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        YLA::Push(L, obj->GetUInt64Value(index));
         return 1;
     }
 
@@ -245,8 +245,8 @@ namespace LuaObject
      */
     int SetFlag(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        uint32 flag = ALE::CHECKVAL<uint32>(L, 3);
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        uint32 flag = YLA::CHECKVAL<uint32>(L, 3);
 
         obj->SetFlag(index, flag);
         return 0;
@@ -260,8 +260,8 @@ namespace LuaObject
      */
     int SetInt32Value(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        int32 value = ALE::CHECKVAL<int32>(L, 3);
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        int32 value = YLA::CHECKVAL<int32>(L, 3);
         obj->SetInt32Value(index, value);
         return 0;
     }
@@ -274,8 +274,8 @@ namespace LuaObject
      */
     int SetUInt32Value(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        uint32 value = ALE::CHECKVAL<uint32>(L, 3);
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        uint32 value = YLA::CHECKVAL<uint32>(L, 3);
         obj->SetUInt32Value(index, value);
         return 0;
     }
@@ -288,8 +288,8 @@ namespace LuaObject
      */
     int UpdateUInt32Value(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        uint32 value = ALE::CHECKVAL<uint32>(L, 3);
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        uint32 value = YLA::CHECKVAL<uint32>(L, 3);
         obj->UpdateUInt32Value(index, value);
         return 0;
     }
@@ -302,8 +302,8 @@ namespace LuaObject
      */
     int SetFloatValue(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        float value = ALE::CHECKVAL<float>(L, 3);
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        float value = YLA::CHECKVAL<float>(L, 3);
 
         obj->SetFloatValue(index, value);
         return 0;
@@ -318,9 +318,9 @@ namespace LuaObject
      */
     int SetByteValue(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        uint8 offset = ALE::CHECKVAL<uint8>(L, 3);
-        uint8 value = ALE::CHECKVAL<uint8>(L, 4);
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        uint8 offset = YLA::CHECKVAL<uint8>(L, 3);
+        uint8 value = YLA::CHECKVAL<uint8>(L, 4);
         obj->SetByteValue(index, offset, value);
         return 0;
     }
@@ -334,9 +334,9 @@ namespace LuaObject
      */
     int SetUInt16Value(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        uint8 offset = ALE::CHECKVAL<uint8>(L, 3);
-        uint16 value = ALE::CHECKVAL<uint16>(L, 4);
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        uint8 offset = YLA::CHECKVAL<uint8>(L, 3);
+        uint16 value = YLA::CHECKVAL<uint16>(L, 4);
         obj->SetUInt16Value(index, offset, value);
         return 0;
     }
@@ -350,9 +350,9 @@ namespace LuaObject
      */
     int SetInt16Value(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        uint8 offset = ALE::CHECKVAL<uint8>(L, 3);
-        int16 value = ALE::CHECKVAL<int16>(L, 4);
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        uint8 offset = YLA::CHECKVAL<uint8>(L, 3);
+        int16 value = YLA::CHECKVAL<int16>(L, 4);
         obj->SetInt16Value(index, offset, value);
         return 0;
     }
@@ -364,7 +364,7 @@ namespace LuaObject
      */
     int SetScale(lua_State* L, Object* obj)
     {
-        float size = ALE::CHECKVAL<float>(L, 2);
+        float size = YLA::CHECKVAL<float>(L, 2);
 
         obj->SetObjectScale(size);
         return 0;
@@ -378,8 +378,8 @@ namespace LuaObject
      */
     int SetUInt64Value(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        uint64 value = ALE::CHECKVAL<uint64>(L, 3);
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        uint64 value = YLA::CHECKVAL<uint64>(L, 3);
         obj->SetUInt64Value(index, value);
         return 0;
     }
@@ -392,8 +392,8 @@ namespace LuaObject
      */
     int RemoveFlag(lua_State* L, Object* obj)
     {
-        uint16 index = ALE::CHECKVAL<uint16>(L, 2);
-        uint32 flag = ALE::CHECKVAL<uint32>(L, 3);
+        uint16 index = YLA::CHECKVAL<uint16>(L, 2);
+        uint32 flag = YLA::CHECKVAL<uint32>(L, 3);
 
         obj->RemoveFlag(index, flag);
         return 0;
@@ -408,7 +408,7 @@ namespace LuaObject
      */
     int ToCorpse(lua_State* L, Object* obj)
     {
-        ALE::Push(L, obj->ToCorpse());
+        YLA::Push(L, obj->ToCorpse());
         return 1;
     }
 
@@ -421,7 +421,7 @@ namespace LuaObject
      */
     int ToGameObject(lua_State* L, Object* obj)
     {
-        ALE::Push(L, obj->ToGameObject());
+        YLA::Push(L, obj->ToGameObject());
         return 1;
     }
 
@@ -434,7 +434,7 @@ namespace LuaObject
      */
     int ToUnit(lua_State* L, Object* obj)
     {
-        ALE::Push(L, obj->ToUnit());
+        YLA::Push(L, obj->ToUnit());
         return 1;
     }
 
@@ -447,7 +447,7 @@ namespace LuaObject
      */
     int ToCreature(lua_State* L, Object* obj)
     {
-        ALE::Push(L, obj->ToCreature());
+        YLA::Push(L, obj->ToCreature());
         return 1;
     }
 
@@ -460,7 +460,7 @@ namespace LuaObject
      */
     int ToPlayer(lua_State* L, Object* obj)
     {
-        ALE::Push(L, obj->ToPlayer());
+        YLA::Push(L, obj->ToPlayer());
         return 1;
     }
 };

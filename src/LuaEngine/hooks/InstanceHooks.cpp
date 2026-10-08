@@ -36,47 +36,47 @@ using namespace Hooks;
     PushInstanceData(L, AI);\
     Push(AI->instance)
 
-void ALE::OnInitialize(YLAInstanceAI* ai)
+void YLA::OnInitialize(YLAInstanceAI* ai)
 {
     START_HOOK(INSTANCE_EVENT_ON_INITIALIZE, ai);
     CallAllFunctions(MapEventBindings, InstanceEventBindings, mapKey, instanceKey);
 }
 
-void ALE::OnLoad(YLAInstanceAI* ai)
+void YLA::OnLoad(YLAInstanceAI* ai)
 {
     START_HOOK(INSTANCE_EVENT_ON_LOAD, ai);
     CallAllFunctions(MapEventBindings, InstanceEventBindings, mapKey, instanceKey);
 }
 
-void ALE::OnUpdateInstance(YLAInstanceAI* ai, uint32 diff)
+void YLA::OnUpdateInstance(YLAInstanceAI* ai, uint32 diff)
 {
     START_HOOK(INSTANCE_EVENT_ON_UPDATE, ai);
     Push(diff);
     CallAllFunctions(MapEventBindings, InstanceEventBindings, mapKey, instanceKey);
 }
 
-void ALE::OnPlayerEnterInstance(YLAInstanceAI* ai, Player* player)
+void YLA::OnPlayerEnterInstance(YLAInstanceAI* ai, Player* player)
 {
     START_HOOK(INSTANCE_EVENT_ON_PLAYER_ENTER, ai);
     Push(player);
     CallAllFunctions(MapEventBindings, InstanceEventBindings, mapKey, instanceKey);
 }
 
-void ALE::OnCreatureCreate(YLAInstanceAI* ai, Creature* creature)
+void YLA::OnCreatureCreate(YLAInstanceAI* ai, Creature* creature)
 {
     START_HOOK(INSTANCE_EVENT_ON_CREATURE_CREATE, ai);
     Push(creature);
     CallAllFunctions(MapEventBindings, InstanceEventBindings, mapKey, instanceKey);
 }
 
-void ALE::OnGameObjectCreate(YLAInstanceAI* ai, GameObject* gameobject)
+void YLA::OnGameObjectCreate(YLAInstanceAI* ai, GameObject* gameobject)
 {
     START_HOOK(INSTANCE_EVENT_ON_GAMEOBJECT_CREATE, ai);
     Push(gameobject);
     CallAllFunctions(MapEventBindings, InstanceEventBindings, mapKey, instanceKey);
 }
 
-bool ALE::OnCheckEncounterInProgress(YLAInstanceAI* ai)
+bool YLA::OnCheckEncounterInProgress(YLAInstanceAI* ai)
 {
     START_HOOK_WITH_RETVAL(INSTANCE_EVENT_ON_CHECK_ENCOUNTER_IN_PROGRESS, ai, false);
     return CallAllFunctionsBool(MapEventBindings, InstanceEventBindings, mapKey, instanceKey);

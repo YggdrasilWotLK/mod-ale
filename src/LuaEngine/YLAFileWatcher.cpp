@@ -159,7 +159,7 @@ void YLAFileWatcher::CheckForChanges()
     if (hasChanges)
     {
         YLA_LOG_INFO("[YLAFileWatcher]: Lua script changes detected - triggering reload");
-        ALE::ReloadALE();
+        YLA::ReloadALE();
         
         ScanDirectory(watchPath);
     }

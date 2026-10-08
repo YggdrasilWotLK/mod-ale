@@ -11,10 +11,10 @@ import time
 @returns([(str, typing.IO)])
 @params(search_path=str)
 def find_class_files(search_path):
-    """Find and open all files containing ALE class methods in `search_path`.
+    """Find and open all files containing YLA class methods in `search_path`.
 
-    :param search_path: the path to search for ALE methods in
-    :return: a list of all files containing ALE methods, and the name of their respective classes
+    :param search_path: the path to search for YLA methods in
+    :return: a list of all files containing YLA methods, and the name of their respective classes
     """
     # Search for all files ending in "Methods.h".
     method_file_names = glob.glob(os.path.join(search_path, '**', '*Methods.h'))
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     shutil.copytree('YLADoc/static', 'build/static')
 
     # Load up all files with methods we need to parse.
-    print('Finding ALE method files...')
+    print('Finding YLA method files...')
     class_files = find_class_files('../')
 
     # Parse all the method files.

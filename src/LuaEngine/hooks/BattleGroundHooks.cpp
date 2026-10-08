@@ -20,7 +20,7 @@ using namespace Hooks;
         return;\
     LOCK_YLA_STATE
 
-void ALE::OnBGStart(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId)
+void YLA::OnBGStart(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId)
 {
     START_HOOK(BG_EVENT_ON_START);
     Push(bg);
@@ -29,7 +29,7 @@ void ALE::OnBGStart(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId
     CallAllFunctions(BGEventBindings, key);
 }
 
-void ALE::OnBGEnd(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId, TeamId winner)
+void YLA::OnBGEnd(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId, TeamId winner)
 {
     START_HOOK(BG_EVENT_ON_END);
     Push(bg);
@@ -39,7 +39,7 @@ void ALE::OnBGEnd(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId, 
     CallAllFunctions(BGEventBindings, key);
 }
 
-void ALE::OnBGCreate(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId)
+void YLA::OnBGCreate(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId)
 {
     START_HOOK(BG_EVENT_ON_CREATE);
     Push(bg);
@@ -48,7 +48,7 @@ void ALE::OnBGCreate(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceI
     CallAllFunctions(BGEventBindings, key);
 }
 
-void ALE::OnBGDestroy(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId)
+void YLA::OnBGDestroy(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId)
 {
     START_HOOK(BG_EVENT_ON_PRE_DESTROY);
     Push(bg);

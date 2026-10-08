@@ -17,7 +17,7 @@ extern "C"
 #include "lauxlib.h"
 };
 
-YLAEventProcessor::YLAEventProcessor(const YlaStateRef& _owner, std::shared_ptr<ALE> ownerLock, WorldObject* _obj) : m_time(0), obj(_obj), guidCaptured(false), owner(_owner)
+YLAEventProcessor::YLAEventProcessor(const YlaStateRef& _owner, std::shared_ptr<YLA> ownerLock, WorldObject* _obj) : m_time(0), obj(_obj), guidCaptured(false), owner(_owner)
 {
     // can be called from multiple threads
     if (obj && ownerLock && ownerLock->eventMgr)
@@ -35,9 +35,9 @@ YLAEventProcessor::~YLAEventProcessor()
         dead = true;
     }
     // can be called from multiple threads
-    if (auto state = ALE::LockStateRef(owner))
+    if (auto state = YLA::LockStateRef(owner))
     {
-        ALE::Guard guard(state->GetStateLock());
+        YLA::Guard guard(state->GetStateLock());
         RemoveEvents_internal();
     }
     else
@@ -45,9 +45,9 @@ YLAEventProcessor::~YLAEventProcessor()
         RemoveEvents_internal();
     }
 
-    if (obj && ALE::IsInitialized())
+    if (obj && YLA::IsInitialized())
     {
-        if (auto state = ALE::LockStateRef(owner))
+        if (auto state = YLA::LockStateRef(owner))
         {
             if (state->eventMgr)
             {
@@ -172,10 +172,10 @@ void YLAEventProcessor::Update(uint32 diff)
         // null and are skipped: no raw slot is ever dereferenced. Locking
         // mirrors LOCK_YLA_STATE for the resolved state (global -> state
         // in compat, state-only in multistate).
-        if (auto state = ALE::LockStateRef(call.owner))
+        if (auto state = YLA::LockStateRef(call.owner))
         {
-            ALE::Guard globalGuard(YLAConfig::GetInstance().IsCompatibilityModeEnabled() ? ALE::GetLock() : ALE::GetNoopLock());
-            ALE::Guard stateGuard(state->GetStateLock());
+            YLA::Guard globalGuard(YLAConfig::GetInstance().IsCompatibilityModeEnabled() ? YLA::GetLock() : YLA::GetNoopLock());
+            YLA::Guard stateGuard(state->GetStateLock());
             if (state->HasLuaState())
                 state->OnTimedEvent(call.luaEvent->funcRef, call.delay, call.repeatsArg, call.liveObj);
         }
@@ -267,15 +267,15 @@ void YLAEventProcessor::RemoveEvent(LuaEvent* luaEvent)
         erase = (luaEvent->state == LUAEVENT_STATE_ERASE);
     }
     delete luaEvent;
-    if (!erase && ALE::IsInitialized())
+    if (!erase && YLA::IsInitialized())
     {
-        if (auto state = ALE::LockStateRef(owner))
+        if (auto state = YLA::LockStateRef(owner))
         {
             // Unreference using the event's own state, mirroring
             // LOCK_YLA_STATE (global -> state in compat, state-only in
             // multistate) so the unref cannot race Lua execution on L.
-            ALE::Guard globalGuard(YLAConfig::GetInstance().IsCompatibilityModeEnabled() ? ALE::GetLock() : ALE::GetNoopLock());
-            ALE::Guard stateGuard(state->GetStateLock());
+            YLA::Guard globalGuard(YLAConfig::GetInstance().IsCompatibilityModeEnabled() ? YLA::GetLock() : YLA::GetNoopLock());
+            YLA::Guard stateGuard(state->GetStateLock());
             if (state->HasLuaState())
                 luaL_unref(state->L, LUA_REGISTRYINDEX, funcRef);
         }

@@ -50,7 +50,7 @@ public:
     // Runs queued responses for the given owner state (held alive by the
     // caller). Stale-generation responses (CloseLua/reload raced the
     // worker) are dropped, never run on the new registry.
-    void HandleHttpResponses(class ALE* owner, bool isGlobal);
+    void HandleHttpResponses(class YLA* owner, bool isGlobal);
     // Drops queued work/responses (reload path, before CloseLua).
     void DropPending();
 

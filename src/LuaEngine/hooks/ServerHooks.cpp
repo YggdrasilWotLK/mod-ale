@@ -48,7 +48,7 @@ using namespace Hooks;
     LOCK_YLA_STATE
 
 // WORLD
-bool ALE::OnAddonMessage(Player* sender, uint32 type, std::string& msg, Player* receiver, Guild* guild, Group* group, Channel* channel)
+bool YLA::OnAddonMessage(Player* sender, uint32 type, std::string& msg, Player* receiver, Guild* guild, Group* group, Channel* channel)
 {
     START_HOOK_WORLD_WITH_RETVAL(ADDON_EVENT_ON_MESSAGE, true);
     Push(sender);
@@ -82,7 +82,7 @@ bool ALE::OnAddonMessage(Player* sender, uint32 type, std::string& msg, Player* 
     return CallAllFunctionsBool(ServerEventBindings, key, true);
 }
 
-void ALE::OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj)
+void YLA::OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj)
 {
     LOCK_YLA_STATE;
     ASSERT(!event_level);
@@ -101,7 +101,7 @@ void ALE::OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj
 }
 
 // WORLD
-void ALE::OnGameEventStart(uint32 eventid)
+void YLA::OnGameEventStart(uint32 eventid)
 {
     START_HOOK_WORLD(GAME_EVENT_START);
     Push(eventid);
@@ -109,27 +109,27 @@ void ALE::OnGameEventStart(uint32 eventid)
 }
 
 // WORLD
-void ALE::OnGameEventStop(uint32 eventid)
+void YLA::OnGameEventStop(uint32 eventid)
 {
     START_HOOK_WORLD(GAME_EVENT_STOP);
     Push(eventid);
     CallAllFunctions(ServerEventBindings, key);
 }
 
-void ALE::OnLuaStateClose()
+void YLA::OnLuaStateClose()
 {
     START_HOOK_WORLD(YLA_EVENT_ON_LUA_STATE_CLOSE);
     CallAllFunctions(ServerEventBindings, key);
 }
 
-void ALE::OnLuaStateOpen()
+void YLA::OnLuaStateOpen()
 {
     START_HOOK_WORLD(YLA_EVENT_ON_LUA_STATE_OPEN);
     CallAllFunctions(ServerEventBindings, key);
 }
 
 // MAP
-bool ALE::OnAreaTrigger(Player* pPlayer, AreaTriggerEntry const* pTrigger)
+bool YLA::OnAreaTrigger(Player* pPlayer, AreaTriggerEntry const* pTrigger)
 {
     START_HOOK_MAP_WITH_RETVAL(TRIGGER_EVENT_ON_TRIGGER, false);
     Push(pPlayer);
@@ -138,7 +138,7 @@ bool ALE::OnAreaTrigger(Player* pPlayer, AreaTriggerEntry const* pTrigger)
 }
 
 // WORLD
-void ALE::OnChange(Weather* /*weather*/, uint32 zone, WeatherState state, float grade)
+void YLA::OnChange(Weather* /*weather*/, uint32 zone, WeatherState state, float grade)
 {
     START_HOOK_WORLD(WEATHER_EVENT_ON_CHANGE);
     Push(zone);
@@ -148,7 +148,7 @@ void ALE::OnChange(Weather* /*weather*/, uint32 zone, WeatherState state, float 
 }
 
 // WORLD
-void ALE::OnAdd(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
+void YLA::OnAdd(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
 {
     Player* owner = eObjectAccessor()FindPlayer(entry->owner);
     Item* item = eAuctionMgr->GetAItem(entry->item_guid);
@@ -170,7 +170,7 @@ void ALE::OnAdd(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
 }
 
 // WORLD
-void ALE::OnRemove(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
+void YLA::OnRemove(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
 {
     Player* owner = eObjectAccessor()FindPlayer(entry->owner);
     Item* item = eAuctionMgr->GetAItem(entry->item_guid);
@@ -192,7 +192,7 @@ void ALE::OnRemove(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
 }
 
 // WORLD
-void ALE::OnSuccessful(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
+void YLA::OnSuccessful(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
 {
     Player* owner = eObjectAccessor()FindPlayer(entry->owner);
     Item* item = eAuctionMgr->GetAItem(entry->item_guid);
@@ -214,7 +214,7 @@ void ALE::OnSuccessful(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
 }
 
 // WORLD
-void ALE::OnExpire(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
+void YLA::OnExpire(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
 {
     Player* owner = eObjectAccessor()FindPlayer(entry->owner);
     Item* item = eAuctionMgr->GetAItem(entry->item_guid);
@@ -236,7 +236,7 @@ void ALE::OnExpire(AuctionHouseObject* /*ah*/, AuctionEntry* entry)
 }
 
 // WORLD
-void ALE::OnOpenStateChange(bool open)
+void YLA::OnOpenStateChange(bool open)
 {
     START_HOOK_WORLD(WORLD_EVENT_ON_OPEN_STATE_CHANGE);
     Push(open);
@@ -244,7 +244,7 @@ void ALE::OnOpenStateChange(bool open)
 }
 
 // WORLD
-void ALE::OnConfigLoad(bool reload, bool isBefore)
+void YLA::OnConfigLoad(bool reload, bool isBefore)
 {
     START_HOOK_WORLD(WORLD_EVENT_ON_CONFIG_LOAD);
     Push(reload);
@@ -253,7 +253,7 @@ void ALE::OnConfigLoad(bool reload, bool isBefore)
 }
 
 // WORLD
-void ALE::OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask)
+void YLA::OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask)
 {
     START_HOOK_WORLD(WORLD_EVENT_ON_SHUTDOWN_INIT);
     Push(code);
@@ -262,14 +262,14 @@ void ALE::OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask)
 }
 
 // WORLD
-void ALE::OnShutdownCancel()
+void YLA::OnShutdownCancel()
 {
     START_HOOK_WORLD(WORLD_EVENT_ON_SHUTDOWN_CANCEL);
     CallAllFunctions(ServerEventBindings, key);
 }
 
 // WORLD
-void ALE::OnWorldUpdate(uint32 diff)
+void YLA::OnWorldUpdate(uint32 diff)
 {
     {
         LOCK_ALE;
@@ -295,7 +295,7 @@ void ALE::OnWorldUpdate(uint32 diff)
         // Copy owning references and release g_states before touching
         // callbacks: callbacks take global -> state, so holding g_states
         // shared across them would invert the order (g_states -> global).
-        std::vector<std::shared_ptr<ALE>> states;
+        std::vector<std::shared_ptr<YLA>> states;
         {
             std::shared_lock lock(g_states_mutex);
             for (auto& [mapId, state] : g_states)
@@ -318,21 +318,21 @@ void ALE::OnWorldUpdate(uint32 diff)
 }
 
 // WORLD
-void ALE::OnStartup()
+void YLA::OnStartup()
 {
     START_HOOK_WORLD(WORLD_EVENT_ON_STARTUP);
     CallAllFunctions(ServerEventBindings, key);
 }
 
 // WORLD
-void ALE::OnShutdown()
+void YLA::OnShutdown()
 {
     START_HOOK_WORLD(WORLD_EVENT_ON_SHUTDOWN);
     CallAllFunctions(ServerEventBindings, key);
 }
 
 // MAP
-void ALE::OnCreate(Map* map)
+void YLA::OnCreate(Map* map)
 {
     START_HOOK_MAP(MAP_EVENT_ON_CREATE);
     Push(map);
@@ -340,7 +340,7 @@ void ALE::OnCreate(Map* map)
 }
 
 // MAP
-void ALE::OnDestroy(Map* map)
+void YLA::OnDestroy(Map* map)
 {
     START_HOOK_MAP(MAP_EVENT_ON_DESTROY);
     Push(map);
@@ -348,7 +348,7 @@ void ALE::OnDestroy(Map* map)
 }
 
 // MAP
-void ALE::OnPlayerEnter(Map* map, Player* player)
+void YLA::OnPlayerEnter(Map* map, Player* player)
 {
     START_HOOK_MAP(MAP_EVENT_ON_PLAYER_ENTER);
     Push(map);
@@ -357,7 +357,7 @@ void ALE::OnPlayerEnter(Map* map, Player* player)
 }
 
 // MAP
-void ALE::OnPlayerLeave(Map* map, Player* player)
+void YLA::OnPlayerLeave(Map* map, Player* player)
 {
     START_HOOK_MAP(MAP_EVENT_ON_PLAYER_LEAVE);
     Push(map);
@@ -366,7 +366,7 @@ void ALE::OnPlayerLeave(Map* map, Player* player)
 }
 
 // MAP
-void ALE::OnUpdate(Map* map, uint32 diff)
+void YLA::OnUpdate(Map* map, uint32 diff)
 {
     START_HOOK_MAP(MAP_EVENT_ON_UPDATE);
     Push(map);
@@ -375,7 +375,7 @@ void ALE::OnUpdate(Map* map, uint32 diff)
 }
 
 // MAP
-void ALE::OnRemove(GameObject* gameobject)
+void YLA::OnRemove(GameObject* gameobject)
 {
     START_HOOK_MAP(WORLD_EVENT_ON_DELETE_GAMEOBJECT);
     Push(gameobject);
@@ -383,7 +383,7 @@ void ALE::OnRemove(GameObject* gameobject)
 }
 
 // MAP
-void ALE::OnRemove(Creature* creature)
+void YLA::OnRemove(Creature* creature)
 {
     START_HOOK_MAP(WORLD_EVENT_ON_DELETE_CREATURE);
     Push(creature);

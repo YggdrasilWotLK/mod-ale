@@ -22,9 +22,9 @@ namespace LuaGameObject
      */
     int HasQuest(lua_State* L, GameObject* go)
     {
-        uint32 questId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 questId = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, go->hasQuest(questId));
+        YLA::Push(L, go->hasQuest(questId));
         return 1;
     }
 
@@ -35,7 +35,7 @@ namespace LuaGameObject
      */
     int IsSpawned(lua_State* L, GameObject* go)
     {
-        ALE::Push(L, go->isSpawned());
+        YLA::Push(L, go->isSpawned());
         return 1;
     }
 
@@ -46,7 +46,7 @@ namespace LuaGameObject
      */
     int IsTransport(lua_State* L, GameObject* go)
     {
-        ALE::Push(L, go->IsTransport());
+        YLA::Push(L, go->IsTransport());
         return 1;
     }
 
@@ -57,13 +57,13 @@ namespace LuaGameObject
      */
     int IsActive(lua_State* L, GameObject* go)
     {
-        ALE::Push(L, go->isActiveObject());
+        YLA::Push(L, go->isActiveObject());
         return 1;
     }
 
     /*int IsDestructible(lua_State* L, GameObject* go) // TODO: Implementation core side
     {
-        ALE::Push(L, go->IsDestructibleBuilding());
+        YLA::Push(L, go->IsDestructibleBuilding());
         return 1;
     }*/
 
@@ -74,7 +74,7 @@ namespace LuaGameObject
      */
     int GetDisplayId(lua_State* L, GameObject* go)
     {
-        ALE::Push(L, go->GetDisplayId());
+        YLA::Push(L, go->GetDisplayId());
         return 1;
     }
 
@@ -95,7 +95,7 @@ namespace LuaGameObject
      */
     int GetGoState(lua_State* L, GameObject* go)
     {
-        ALE::Push(L, go->GetGoState());
+        YLA::Push(L, go->GetGoState());
         return 1;
     }
 
@@ -117,7 +117,7 @@ namespace LuaGameObject
      */
     int GetLootState(lua_State* L, GameObject* go)
     {
-        ALE::Push(L, go->getLootState());
+        YLA::Push(L, go->getLootState());
         return 1;
     }
 
@@ -130,7 +130,7 @@ namespace LuaGameObject
      */
     int GetLootRecipient(lua_State* L, GameObject* go)
     {
-        ALE::Push(L, go->GetLootRecipient());
+        YLA::Push(L, go->GetLootRecipient());
         return 1;
     }
 
@@ -143,7 +143,7 @@ namespace LuaGameObject
      */
     int GetLootRecipientGroup(lua_State* L, GameObject* go)
     {
-        ALE::Push(L, go->GetLootRecipientGroup());
+        YLA::Push(L, go->GetLootRecipientGroup());
         return 1;
     }
 
@@ -154,7 +154,7 @@ namespace LuaGameObject
     */
     int GetSpawnId(lua_State* L, GameObject* go)
     {
-        ALE::Push(L, go->GetSpawnId());
+        YLA::Push(L, go->GetSpawnId());
         return 1;
     }
 
@@ -174,7 +174,7 @@ namespace LuaGameObject
      */
     int SetGoState(lua_State* L, GameObject* go)
     {
-        uint32 state = ALE::CHECKVAL<uint32>(L, 2, 0);
+        uint32 state = YLA::CHECKVAL<uint32>(L, 2, 0);
 
         if (state == 0)
             go->SetGoState(GO_STATE_ACTIVE);
@@ -204,7 +204,7 @@ namespace LuaGameObject
      */
     int SetLootState(lua_State* L, GameObject* go)
     {
-        uint32 state = ALE::CHECKVAL<uint32>(L, 2, 0);
+        uint32 state = YLA::CHECKVAL<uint32>(L, 2, 0);
 
         if (state == 0)
             go->SetLootState(GO_NOT_READY);
@@ -236,8 +236,8 @@ namespace LuaGameObject
         uint8 addedItems = 0;
         while (i + 2 <= argAmount)
         {
-            uint32 entry = ALE::CHECKVAL<uint32>(L, ++i);
-            uint32 amount = ALE::CHECKVAL<uint32>(L, ++i);
+            uint32 entry = YLA::CHECKVAL<uint32>(L, ++i);
+            uint32 amount = YLA::CHECKVAL<uint32>(L, ++i);
 
             ItemTemplate const* item_proto = eObjectMgr->GetItemTemplate(entry);
             if (!item_proto)
@@ -255,7 +255,7 @@ namespace LuaGameObject
                 item->SaveToDB(trans);
                 LootStoreItem storeItem(item->GetEntry(), 0, 100, 0, LOOT_MODE_DEFAULT, 0, item->GetCount(), item->GetCount());
                 go->loot.AddItem(storeItem);
-                ALE::Push(L, item->GetGUID().GetCounter());
+                YLA::Push(L, item->GetGUID().GetCounter());
                 ++addedItems;
             }
         }
@@ -284,7 +284,7 @@ namespace LuaGameObject
      */
     int RemoveFromWorld(lua_State* L, GameObject* go)
     {
-        bool deldb = ALE::CHECKVAL<bool>(L, 2, false);
+        bool deldb = YLA::CHECKVAL<bool>(L, 2, false);
 
         // cs_gobject.cpp copy paste
         ObjectGuid ownerGuid = go->GetOwnerGUID();
@@ -303,7 +303,7 @@ namespace LuaGameObject
         go->SetRespawnTime(0);
         go->Delete();
 
-        ALE::CHECKOBJ<ALEObject>(L, 1)->Invalidate();
+        YLA::CHECKOBJ<ALEObject>(L, 1)->Invalidate();
         return 0;
     }
 
@@ -314,7 +314,7 @@ namespace LuaGameObject
      */
     int UseDoorOrButton(lua_State* L, GameObject* go)
     {
-        uint32 delay = ALE::CHECKVAL<uint32>(L, 2, 0);
+        uint32 delay = YLA::CHECKVAL<uint32>(L, 2, 0);
 
         go->UseDoorOrButton(delay);
         return 0;
@@ -349,7 +349,7 @@ namespace LuaGameObject
      */
     int SetRespawnTime(lua_State* L, GameObject* go)
     {
-        int32 respawn = ALE::CHECKVAL<int32>(L, 2);
+        int32 respawn = YLA::CHECKVAL<int32>(L, 2);
 
         go->SetRespawnTime(respawn);
         return 0;
@@ -364,7 +364,7 @@ namespace LuaGameObject
      */
     int SetRespawnDelay(lua_State* L, GameObject* go)
     {
-        int32 respawn = ALE::CHECKVAL<int32>(L, 2);
+        int32 respawn = YLA::CHECKVAL<int32>(L, 2);
 
         go->SetRespawnDelay(respawn);
         return 0;

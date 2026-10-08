@@ -30,7 +30,7 @@ extern std::vector<DBCDefinition> dbcRegistry;
         },                                      \
         [](lua_State* L, const void* entry) {   \
             auto cast_entry = static_cast<const entryType*>(entry); \
-            ALE::Push(L, *cast_entry);        \
+            YLA::Push(L, *cast_entry);        \
         }                                       \
     }
 

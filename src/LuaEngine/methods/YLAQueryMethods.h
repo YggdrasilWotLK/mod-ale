@@ -20,7 +20,7 @@ namespace LuaQuery
 {
     static void CheckFields(lua_State* L, ALEQuery* result)
     {
-        uint32 field = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 field = YLA::CHECKVAL<uint32>(L, 2);
         uint32 count = RESULT->GetFieldCount();
         if (field >= count)
         {
@@ -38,10 +38,10 @@ namespace LuaQuery
      */
     int IsNull(lua_State* L, ALEQuery* result)
     {
-        uint32 col = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 col = YLA::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
 
-        ALE::Push(L, RESULT->Fetch()[col].IsNull());
+        YLA::Push(L, RESULT->Fetch()[col].IsNull());
         return 1;
     }
 
@@ -52,7 +52,7 @@ namespace LuaQuery
      */
     int GetColumnCount(lua_State* L, ALEQuery* result)
     {
-        ALE::Push(L, RESULT->GetFieldCount());
+        YLA::Push(L, RESULT->GetFieldCount());
         return 1;
     }
 
@@ -64,9 +64,9 @@ namespace LuaQuery
     int GetRowCount(lua_State* L, ALEQuery* result)
     {
         if (RESULT->GetRowCount() > (uint32)-1)
-            ALE::Push(L, (uint32)-1);
+            YLA::Push(L, (uint32)-1);
         else
-            ALE::Push(L, (uint32)(RESULT->GetRowCount()));
+            YLA::Push(L, (uint32)(RESULT->GetRowCount()));
         return 1;
     }
 
@@ -78,9 +78,9 @@ namespace LuaQuery
      */
     int GetBool(lua_State* L, ALEQuery* result)
     {
-        uint32 col = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 col = YLA::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        ALE::Push(L, RESULT->Fetch()[col].Get<bool>());
+        YLA::Push(L, RESULT->Fetch()[col].Get<bool>());
         return 1;
     }
 
@@ -92,9 +92,9 @@ namespace LuaQuery
      */
     int GetUInt8(lua_State* L, ALEQuery* result)
     {
-        uint32 col = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 col = YLA::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        ALE::Push(L, RESULT->Fetch()[col].Get<uint8>());
+        YLA::Push(L, RESULT->Fetch()[col].Get<uint8>());
         return 1;
     }
 
@@ -106,9 +106,9 @@ namespace LuaQuery
      */
     int GetUInt16(lua_State* L, ALEQuery* result)
     {
-        uint32 col = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 col = YLA::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        ALE::Push(L, RESULT->Fetch()[col].Get<uint16>());
+        YLA::Push(L, RESULT->Fetch()[col].Get<uint16>());
         return 1;
     }
 
@@ -120,9 +120,9 @@ namespace LuaQuery
      */
     int GetUInt32(lua_State* L, ALEQuery* result)
     {
-        uint32 col = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 col = YLA::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        ALE::Push(L, RESULT->Fetch()[col].Get<uint32>());
+        YLA::Push(L, RESULT->Fetch()[col].Get<uint32>());
         return 1;
     }
 
@@ -134,9 +134,9 @@ namespace LuaQuery
      */
     int GetUInt64(lua_State* L, ALEQuery* result)
     {
-        uint32 col = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 col = YLA::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        ALE::Push(L, RESULT->Fetch()[col].Get<uint64>());
+        YLA::Push(L, RESULT->Fetch()[col].Get<uint64>());
         return 1;
     }
 
@@ -148,9 +148,9 @@ namespace LuaQuery
      */
     int GetInt8(lua_State* L, ALEQuery* result)
     {
-        uint32 col = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 col = YLA::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        ALE::Push(L, RESULT->Fetch()[col].Get<int8>());
+        YLA::Push(L, RESULT->Fetch()[col].Get<int8>());
         return 1;
     }
 
@@ -162,9 +162,9 @@ namespace LuaQuery
      */
     int GetInt16(lua_State* L, ALEQuery* result)
     {
-        uint32 col = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 col = YLA::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        ALE::Push(L, RESULT->Fetch()[col].Get<int16>());
+        YLA::Push(L, RESULT->Fetch()[col].Get<int16>());
         return 1;
     }
 
@@ -176,9 +176,9 @@ namespace LuaQuery
      */
     int GetInt32(lua_State* L, ALEQuery* result)
     {
-        uint32 col = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 col = YLA::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        ALE::Push(L, RESULT->Fetch()[col].Get<int32>());
+        YLA::Push(L, RESULT->Fetch()[col].Get<int32>());
         return 1;
     }
 
@@ -190,9 +190,9 @@ namespace LuaQuery
      */
     int GetInt64(lua_State* L, ALEQuery* result)
     {
-        uint32 col = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 col = YLA::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        ALE::Push(L, RESULT->Fetch()[col].Get<int64>());
+        YLA::Push(L, RESULT->Fetch()[col].Get<int64>());
         return 1;
     }
 
@@ -204,9 +204,9 @@ namespace LuaQuery
      */
     int GetFloat(lua_State* L, ALEQuery* result)
     {
-        uint32 col = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 col = YLA::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        ALE::Push(L, RESULT->Fetch()[col].Get<float>());
+        YLA::Push(L, RESULT->Fetch()[col].Get<float>());
         return 1;
     }
 
@@ -218,9 +218,9 @@ namespace LuaQuery
      */
     int GetDouble(lua_State* L, ALEQuery* result)
     {
-        uint32 col = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 col = YLA::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        ALE::Push(L, RESULT->Fetch()[col].Get<double>());
+        YLA::Push(L, RESULT->Fetch()[col].Get<double>());
         return 1;
     }
 
@@ -232,9 +232,9 @@ namespace LuaQuery
      */
     int GetString(lua_State* L, ALEQuery* result)
     {
-        uint32 col = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 col = YLA::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
-        ALE::Push(L, RESULT->Fetch()[col].Get<std::string>());
+        YLA::Push(L, RESULT->Fetch()[col].Get<std::string>());
         return 1;
     }
 
@@ -249,7 +249,7 @@ namespace LuaQuery
      */
     int NextRow(lua_State* L, ALEQuery* result)
     {
-        ALE::Push(L, RESULT->NextRow());
+        YLA::Push(L, RESULT->NextRow());
         return 1;
     }
 
@@ -280,12 +280,12 @@ namespace LuaQuery
 
         for (uint32 i = 0; i < col; ++i)
         {
-            ALE::Push(L, RESULT->GetFieldName(i));
+            YLA::Push(L, RESULT->GetFieldName(i));
 
             std::string _str = row[i].Get<std::string>();
             const char* str = _str.c_str();
             if (row[i].IsNull() || !str)
-                ALE::Push(L);
+                YLA::Push(L);
             else
             {
                 // MYSQL_TYPE_LONGLONG Interpreted as string for lua
@@ -297,10 +297,10 @@ namespace LuaQuery
                     case DatabaseFieldTypes::Int64:
                     case DatabaseFieldTypes::Float:
                     case DatabaseFieldTypes::Double:
-                        ALE::Push(L, strtod(str, NULL));
+                        YLA::Push(L, strtod(str, NULL));
                         break;
                     default:
-                        ALE::Push(L, str);
+                        YLA::Push(L, str);
                         break;
                 }
             }

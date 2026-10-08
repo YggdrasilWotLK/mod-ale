@@ -29,7 +29,7 @@ using namespace Hooks;
         return RETVAL;\
     LOCK_YLA_STATE
 
-bool ALE::OnGossipHello(Player* pPlayer, GameObject* pGameObject)
+bool YLA::OnGossipHello(Player* pPlayer, GameObject* pGameObject)
 {
     START_HOOK_WITH_RETVAL(GameObjectGossipBindings, GOSSIP_EVENT_ON_HELLO, pGameObject->GetEntry(), false);
     pPlayer->PlayerTalkClass->ClearMenus();
@@ -38,7 +38,7 @@ bool ALE::OnGossipHello(Player* pPlayer, GameObject* pGameObject)
     return CallAllFunctionsBool(GameObjectGossipBindings, key, true);
 }
 
-bool ALE::OnGossipSelect(Player* pPlayer, GameObject* pGameObject, uint32 sender, uint32 action)
+bool YLA::OnGossipSelect(Player* pPlayer, GameObject* pGameObject, uint32 sender, uint32 action)
 {
     START_HOOK_WITH_RETVAL(GameObjectGossipBindings, GOSSIP_EVENT_ON_SELECT, pGameObject->GetEntry(), false);
     pPlayer->PlayerTalkClass->ClearMenus();
@@ -49,7 +49,7 @@ bool ALE::OnGossipSelect(Player* pPlayer, GameObject* pGameObject, uint32 sender
     return CallAllFunctionsBool(GameObjectGossipBindings, key, true);
 }
 
-bool ALE::OnGossipSelectCode(Player* pPlayer, GameObject* pGameObject, uint32 sender, uint32 action, const char* code)
+bool YLA::OnGossipSelectCode(Player* pPlayer, GameObject* pGameObject, uint32 sender, uint32 action, const char* code)
 {
     START_HOOK_WITH_RETVAL(GameObjectGossipBindings, GOSSIP_EVENT_ON_SELECT, pGameObject->GetEntry(), false);
     pPlayer->PlayerTalkClass->ClearMenus();
@@ -61,7 +61,7 @@ bool ALE::OnGossipSelectCode(Player* pPlayer, GameObject* pGameObject, uint32 se
     return CallAllFunctionsBool(GameObjectGossipBindings, key, true);
 }
 
-void ALE::HandleGossipSelectOption(Player* pPlayer, uint32 menuId, uint32 sender, uint32 action, const std::string& code)
+void YLA::HandleGossipSelectOption(Player* pPlayer, uint32 menuId, uint32 sender, uint32 action, const std::string& code)
 {
     START_HOOK(PlayerGossipBindings, GOSSIP_EVENT_ON_SELECT, menuId);
     pPlayer->PlayerTalkClass->ClearMenus();
@@ -78,7 +78,7 @@ void ALE::HandleGossipSelectOption(Player* pPlayer, uint32 menuId, uint32 sender
     CallAllFunctions(PlayerGossipBindings, key);
 }
 
-bool ALE::OnItemGossip(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets*/)
+bool YLA::OnItemGossip(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets*/)
 {
     START_HOOK_WITH_RETVAL(ItemGossipBindings, GOSSIP_EVENT_ON_HELLO, pItem->GetEntry(), true);
     pPlayer->PlayerTalkClass->ClearMenus();
@@ -87,7 +87,7 @@ bool ALE::OnItemGossip(Player* pPlayer, Item* pItem, SpellCastTargets const& /*t
     return CallAllFunctionsBool(ItemGossipBindings, key, true);
 }
 
-void ALE::HandleGossipSelectOption(Player* pPlayer, Item* pItem, uint32 sender, uint32 action, const std::string& code)
+void YLA::HandleGossipSelectOption(Player* pPlayer, Item* pItem, uint32 sender, uint32 action, const std::string& code)
 {
     START_HOOK(ItemGossipBindings, GOSSIP_EVENT_ON_SELECT, pItem->GetEntry());
     pPlayer->PlayerTalkClass->ClearMenus();
@@ -104,7 +104,7 @@ void ALE::HandleGossipSelectOption(Player* pPlayer, Item* pItem, uint32 sender, 
     CallAllFunctions(ItemGossipBindings, key);
 }
 
-bool ALE::OnGossipHello(Player* pPlayer, Creature* pCreature)
+bool YLA::OnGossipHello(Player* pPlayer, Creature* pCreature)
 {
     START_HOOK_WITH_RETVAL(CreatureGossipBindings, GOSSIP_EVENT_ON_HELLO, pCreature->GetEntry(), false);
     pPlayer->PlayerTalkClass->ClearMenus();
@@ -113,7 +113,7 @@ bool ALE::OnGossipHello(Player* pPlayer, Creature* pCreature)
     return CallAllFunctionsBool(CreatureGossipBindings, key, true);
 }
 
-bool ALE::OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
+bool YLA::OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action)
 {
     START_HOOK_WITH_RETVAL(CreatureGossipBindings, GOSSIP_EVENT_ON_SELECT, pCreature->GetEntry(), false);
     auto originalMenu = *pPlayer->PlayerTalkClass;
@@ -128,7 +128,7 @@ bool ALE::OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 sender, ui
     return preventDefault;
 }
 
-bool ALE::OnGossipSelectCode(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action, const char* code)
+bool YLA::OnGossipSelectCode(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action, const char* code)
 {
     START_HOOK_WITH_RETVAL(CreatureGossipBindings, GOSSIP_EVENT_ON_SELECT, pCreature->GetEntry(), false);
     auto originalMenu = *pPlayer->PlayerTalkClass;

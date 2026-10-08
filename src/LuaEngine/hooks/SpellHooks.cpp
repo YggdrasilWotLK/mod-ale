@@ -29,7 +29,7 @@ using namespace Hooks;
         return RETVAL;\
     LOCK_YLA_STATE
 
-void ALE::OnSpellCastCancel(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bool bySelf)
+void YLA::OnSpellCastCancel(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bool bySelf)
 {
     START_HOOK(SPELL_EVENT_ON_CAST_CANCEL, spellInfo->Id);
     Push(caster);
@@ -38,7 +38,7 @@ void ALE::OnSpellCastCancel(Unit* caster, Spell* spell, SpellInfo const* spellIn
     CallAllFunctions(SpellEventBindings, key);
 }
 
-void ALE::OnSpellCast(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bool skipCheck)
+void YLA::OnSpellCast(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bool skipCheck)
 {
     START_HOOK(SPELL_EVENT_ON_CAST, spellInfo->Id);
     Push(caster);
@@ -47,7 +47,7 @@ void ALE::OnSpellCast(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bo
     CallAllFunctions(SpellEventBindings, key);
 }
 
-void ALE::OnSpellPrepare(Unit* caster, Spell* spell, SpellInfo const* spellInfo)
+void YLA::OnSpellPrepare(Unit* caster, Spell* spell, SpellInfo const* spellInfo)
 {
     START_HOOK(SPELL_EVENT_ON_PREPARE, spellInfo->Id);
     Push(caster);

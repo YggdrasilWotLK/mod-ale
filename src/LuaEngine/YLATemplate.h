@@ -52,7 +52,7 @@ public:
         int args = lua_gettop(L) - top;
         if (args < 0 || args > expected)
         {
-            YLA_LOG_ERROR("[ALE]: {} returned unexpected amount of arguments {} out of {}. Report to devs", l->name, args, expected);
+            YLA_LOG_ERROR("[YLA]: {} returned unexpected amount of arguments {} out of {}. Report to devs", l->name, args, expected);
             ASSERT(false);
         }
         lua_settop(L, top + expected);
@@ -65,7 +65,7 @@ public:
         return 0;
     }
 
-    static void SetMethods(ALE* E, ALEGlobalRegister* methodTable)
+    static void SetMethods(YLA* E, ALEGlobalRegister* methodTable)
     {
         ASSERT(E);
         ASSERT(methodTable);
@@ -188,7 +188,7 @@ public:
     // If gc is true, lua will handle the memory management for object pushed
     // gc should be used if pushing for example WorldPacket,
     // that will only be needed on lua side and will not be managed by TC/mangos/<core>
-    static void Register(ALE* E, const char* name, bool gc = false)
+    static void Register(YLA* E, const char* name, bool gc = false)
     {
         ASSERT(E);
         ASSERT(name);
@@ -288,7 +288,7 @@ public:
     }
 
     template<typename C>
-    static void SetMethods(ALE* E, ALERegister<C>* methodTable)
+    static void SetMethods(YLA* E, ALERegister<C>* methodTable)
     {
         ASSERT(E);
         ASSERT(tname);
@@ -343,7 +343,7 @@ public:
             lua_pushnil(L);
             return 1;
         }
-        *ptrHold = new ALEObject(const_cast<T*>(obj), manageMemory, ALE::GetALE(L)->GetCallstackId());
+        *ptrHold = new ALEObject(const_cast<T*>(obj), manageMemory, YLA::GetALE(L)->GetCallstackId());
 
         // Set metatable for it
         lua_pushstring(L, tname);
@@ -362,7 +362,7 @@ public:
     // Snapshot of the creating state's incarnation id. Stored per Push,
     // so validity is always judged against the state whose Lua owns this
     // userdata (multistate-safe, unlike a single global counter).
-    static uint64 YlaSnapId(lua_State* L) { return ALE::GetALE(L)->GetCallstackId(); }
+    static uint64 YlaSnapId(lua_State* L) { return YLA::GetALE(L)->GetCallstackId(); }
 
     // GUID-checked at Push time; destroyed/relogged players are Lua errors.
     // Not-in-world players pass through (normal during login hooks).
@@ -406,7 +406,7 @@ public:
 
     static T* Check(lua_State* L, int narg, bool error = true)
     {
-        ALEObject* ALEObj = ALE::CHECKTYPE(L, narg, tname, error);
+        ALEObject* ALEObj = YLA::CHECKTYPE(L, narg, tname, error);
         if (!ALEObj)
             return NULL;
 
@@ -436,8 +436,8 @@ public:
 
     static int SetInvalidation(lua_State* L)
     {
-        ALEObject* ALEObj = ALE::CHECKOBJ<ALEObject>(L, 1);
-        bool invalidate = ALE::CHECKVAL<bool>(L, 2);
+        ALEObject* ALEObj = YLA::CHECKOBJ<ALEObject>(L, 1);
+        bool invalidate = YLA::CHECKVAL<bool>(L, 2);
 
         ALEObj->SetValidation(invalidate);
         return 0;
@@ -455,7 +455,7 @@ public:
         // purpose (Lua errors longjmp past C++ destructors). Liveness is
         // enforced by GUID resolution inside Check, so a destroyed object
         // becomes a Lua error, not a SIGSEGV.
-        T* obj = ALE::CHECKOBJ<T>(L, 1); // get self
+        T* obj = YLA::CHECKOBJ<T>(L, 1); // get self
         if (!obj)
             return 0;
         ALERegister<T>* l = static_cast<ALERegister<T>*>(lua_touserdata(L, lua_upvalueindex(1)));
@@ -464,7 +464,7 @@ public:
         int args = lua_gettop(L) - top;
         if (args < 0 || args > expected)
         {
-            YLA_LOG_ERROR("[ALE]: {} returned unexpected amount of arguments {} out of {}. Report to devs", l->name, args, expected);
+            YLA_LOG_ERROR("[YLA]: {} returned unexpected amount of arguments {} out of {}. Report to devs", l->name, args, expected);
             ASSERT(false);
         }
         lua_settop(L, top + expected);
@@ -477,7 +477,7 @@ public:
     static int CollectGarbage(lua_State* L)
     {
         // Get object pointer (and check type, no error)
-        ALEObject* obj = ALE::CHECKOBJ<ALEObject>(L, 1, false);
+        ALEObject* obj = YLA::CHECKOBJ<ALEObject>(L, 1, false);
         if (obj && manageMemory)
             delete static_cast<T*>(obj->GetObj());
         delete obj;
@@ -486,7 +486,7 @@ public:
 
     static int ToString(lua_State* L)
     {
-        T* obj = ALE::CHECKOBJ<T>(L, 1, true); // get self
+        T* obj = YLA::CHECKOBJ<T>(L, 1, true); // get self
         lua_pushfstring(L, "%s: %p", tname, obj);
         return 1;
     }
@@ -502,7 +502,7 @@ public:
     static int UnaryMinus(lua_State* L) { return ArithmeticError(L); }
     static int Concat(lua_State* L) { return luaL_error(L, "attempt to concatenate a %s value", tname); }
     static int Length(lua_State* L) { return luaL_error(L, "attempt to get length of a %s value", tname); }
-    static int Equal(lua_State* L) { ALE::Push(L, ALE::CHECKOBJ<T>(L, 1) == ALE::CHECKOBJ<T>(L, 2)); return 1; }
+    static int Equal(lua_State* L) { YLA::Push(L, YLA::CHECKOBJ<T>(L, 1) == YLA::CHECKOBJ<T>(L, 2)); return 1; }
     static int Less(lua_State* L) { return CompareError(L); }
     static int LessOrEqual(lua_State* L) { return CompareError(L); }
     static int Call(lua_State* L) { return luaL_error(L, "attempt to call a %s value", tname); }

@@ -20,10 +20,10 @@
  * ======
  *
  * Instances of `YLAInstanceAI` are owned by the core, so they
- *   are not deleted when ALE is reloaded. Thus `Load` is only called
- *   by the core once, no matter how many times ALE is reloaded.
+ *   are not deleted when YLA is reloaded. Thus `Load` is only called
+ *   by the core once, no matter how many times YLA is reloaded.
  *
- * However, when ALE reloads, all instance data in ALE is lost.
+ * However, when YLA reloads, all instance data in YLA is lost.
  * So the solution is as follows:
  *
  *   1. Store the last save data in the member var `lastSaveData`.
@@ -31,13 +31,13 @@
  *      At first this is just the data given to us by the core when it calls `Load`,
  *        but later on once we start saving new data this is from YLA.
  *
- *   2. When retrieving instance data from ALE, check if it's missing.
+ *   2. When retrieving instance data from YLA, check if it's missing.
  *
- *      The data will be missing if ALE is reloaded, since a new Lua state is created.
+ *      The data will be missing if YLA is reloaded, since a new Lua state is created.
  *
  *   3. If it *is* missing, call `Reload`.
  *
- *      This reloads the last known instance save data into ALE, and calls the appropriate hooks.
+ *      This reloads the last known instance save data into YLA, and calls the appropriate hooks.
  *
  *
  * Note 2
@@ -103,8 +103,8 @@ public:
      */
     void Update(uint32 diff) override
     {
-        auto state = ALE::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId());
-        // If ALE is reloaded, it will be missing our instance data.
+        auto state = YLA::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId());
+        // If YLA is reloaded, it will be missing our instance data.
         // Reload here instead of waiting for the next hook call (possibly never).
         // This avoids having to have an empty Update hook handler just to trigger the reload.
         if (!state->HasInstanceData(instance))
@@ -115,22 +115,22 @@ public:
 
     bool IsEncounterInProgress() const override
     {
-        return ALE::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId())->OnCheckEncounterInProgress(const_cast<YLAInstanceAI*>(this));
+        return YLA::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId())->OnCheckEncounterInProgress(const_cast<YLAInstanceAI*>(this));
     }
 
     void OnPlayerEnter(Player* player) override
     {
-        ALE::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId())->OnPlayerEnterInstance(this, player);
+        YLA::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId())->OnPlayerEnterInstance(this, player);
     }
 
     void OnGameObjectCreate(GameObject* gameobject) override
     {
-        ALE::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId())->OnGameObjectCreate(this, gameobject);
+        YLA::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId())->OnGameObjectCreate(this, gameobject);
     }
 
     void OnCreatureCreate(Creature* creature) override
     {
-        ALE::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId())->OnCreatureCreate(this, creature);
+        YLA::GetMapStateOrGlobal(instance->GetId(), instance->GetInstanceId())->OnCreatureCreate(this, creature);
     }
 };
 

@@ -21,7 +21,7 @@ namespace LuaWorldObject
      */
     int GetName(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetName());
+        YLA::Push(L, obj->GetName());
         return 1;
     }
 
@@ -32,7 +32,7 @@ namespace LuaWorldObject
      */
     int GetMap(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetMap());
+        YLA::Push(L, obj->GetMap());
         return 1;
     }
 
@@ -43,7 +43,7 @@ namespace LuaWorldObject
      */
     int GetPhaseMask(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetPhaseMask());
+        YLA::Push(L, obj->GetPhaseMask());
         return 1;
     }
 
@@ -55,8 +55,8 @@ namespace LuaWorldObject
     */
     int SetPhaseMask(lua_State* L, WorldObject* obj)
     {
-        uint32 phaseMask = ALE::CHECKVAL<uint32>(L, 2);
-        bool update = ALE::CHECKVAL<bool>(L, 3, true);
+        uint32 phaseMask = YLA::CHECKVAL<uint32>(L, 2);
+        bool update = YLA::CHECKVAL<bool>(L, 3, true);
         obj->SetPhaseMask(phaseMask, update);
         return 0;
     }
@@ -68,7 +68,7 @@ namespace LuaWorldObject
      */
     int GetInstanceId(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetInstanceId());
+        YLA::Push(L, obj->GetInstanceId());
         return 1;
     }
 
@@ -79,7 +79,7 @@ namespace LuaWorldObject
      */
     int GetAreaId(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetAreaId());
+        YLA::Push(L, obj->GetAreaId());
         return 1;
     }
 
@@ -90,7 +90,7 @@ namespace LuaWorldObject
      */
     int GetZoneId(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetZoneId());
+        YLA::Push(L, obj->GetZoneId());
         return 1;
     }
 
@@ -101,7 +101,7 @@ namespace LuaWorldObject
      */
     int GetMapId(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetMapId());
+        YLA::Push(L, obj->GetMapId());
         return 1;
     }
 
@@ -112,7 +112,7 @@ namespace LuaWorldObject
      */
     int GetX(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetPositionX());
+        YLA::Push(L, obj->GetPositionX());
         return 1;
     }
 
@@ -123,7 +123,7 @@ namespace LuaWorldObject
      */
     int GetY(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetPositionY());
+        YLA::Push(L, obj->GetPositionY());
         return 1;
     }
 
@@ -134,7 +134,7 @@ namespace LuaWorldObject
      */
     int GetZ(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetPositionZ());
+        YLA::Push(L, obj->GetPositionZ());
         return 1;
     }
 
@@ -145,7 +145,7 @@ namespace LuaWorldObject
      */
     int GetO(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetOrientation());
+        YLA::Push(L, obj->GetOrientation());
         return 1;
     }
 
@@ -159,10 +159,10 @@ namespace LuaWorldObject
      */
     int GetLocation(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetPositionX());
-        ALE::Push(L, obj->GetPositionY());
-        ALE::Push(L, obj->GetPositionZ());
-        ALE::Push(L, obj->GetOrientation());
+        YLA::Push(L, obj->GetPositionX());
+        YLA::Push(L, obj->GetPositionY());
+        YLA::Push(L, obj->GetPositionZ());
+        YLA::Push(L, obj->GetOrientation());
         return 4;
     }
 
@@ -177,9 +177,9 @@ namespace LuaWorldObject
      */
     int GetNearestPlayer(lua_State* L, WorldObject* obj)
     {
-        float range = ALE::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
-        uint32 hostile = ALE::CHECKVAL<uint32>(L, 3, 0);
-        uint32 dead = ALE::CHECKVAL<uint32>(L, 4, 1);
+        float range = YLA::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+        uint32 hostile = YLA::CHECKVAL<uint32>(L, 3, 0);
+        uint32 dead = YLA::CHECKVAL<uint32>(L, 4, 1);
 
         Unit* target = NULL;
         YLAUtil::WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_PLAYER, 0, hostile, dead);
@@ -187,7 +187,7 @@ namespace LuaWorldObject
         Acore::UnitLastSearcher<YLAUtil::WorldObjectInRangeCheck> searcher(obj, target, checker);
         Cell::VisitObjects(obj, searcher, range);
 
-        ALE::Push(L, target);
+        YLA::Push(L, target);
         return 1;
     }
 
@@ -202,9 +202,9 @@ namespace LuaWorldObject
      */
     int GetNearestGameObject(lua_State* L, WorldObject* obj)
     {
-        float range = ALE::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 3, 0);
-        uint32 hostile = ALE::CHECKVAL<uint32>(L, 4, 0);
+        float range = YLA::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 3, 0);
+        uint32 hostile = YLA::CHECKVAL<uint32>(L, 4, 0);
 
         GameObject* target = NULL;
         YLAUtil::WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_GAMEOBJECT, entry, hostile);
@@ -212,7 +212,7 @@ namespace LuaWorldObject
         Acore::GameObjectLastSearcher<YLAUtil::WorldObjectInRangeCheck> searcher(obj, target, checker);
         Cell::VisitObjects(obj, searcher, range);
 
-        ALE::Push(L, target);
+        YLA::Push(L, target);
         return 1;
     }
 
@@ -228,10 +228,10 @@ namespace LuaWorldObject
      */
     int GetNearestCreature(lua_State* L, WorldObject* obj)
     {
-        float range = ALE::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 3, 0);
-        uint32 hostile = ALE::CHECKVAL<uint32>(L, 4, 0);
-        uint32 dead = ALE::CHECKVAL<uint32>(L, 5, 1);
+        float range = YLA::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 3, 0);
+        uint32 hostile = YLA::CHECKVAL<uint32>(L, 4, 0);
+        uint32 dead = YLA::CHECKVAL<uint32>(L, 5, 1);
 
         Creature* target = NULL;
         YLAUtil::WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_UNIT, entry, hostile, dead);
@@ -239,7 +239,7 @@ namespace LuaWorldObject
         Acore::CreatureLastSearcher<YLAUtil::WorldObjectInRangeCheck> searcher(obj, target, checker);
         Cell::VisitObjects(obj, searcher, range);
 
-        ALE::Push(L, target);
+        YLA::Push(L, target);
         return 1;
     }
 
@@ -254,9 +254,9 @@ namespace LuaWorldObject
      */
     int GetPlayersInRange(lua_State* L, WorldObject* obj)
     {
-        float range = ALE::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
-        uint32 hostile = ALE::CHECKVAL<uint32>(L, 3, 0);
-        uint32 dead = ALE::CHECKVAL<uint32>(L, 4, 1);
+        float range = YLA::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+        uint32 hostile = YLA::CHECKVAL<uint32>(L, 3, 0);
+        uint32 dead = YLA::CHECKVAL<uint32>(L, 4, 1);
 
         std::list<Player*> list;
         YLAUtil::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_PLAYER, 0, hostile, dead);
@@ -270,7 +270,7 @@ namespace LuaWorldObject
 
         for (std::list<Player*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
-            ALE::Push(L, *it);
+            YLA::Push(L, *it);
             lua_rawseti(L, tbl, ++i);
         }
 
@@ -290,10 +290,10 @@ namespace LuaWorldObject
      */
     int GetCreaturesInRange(lua_State* L, WorldObject* obj)
     {
-        float range = ALE::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 3, 0);
-        uint32 hostile = ALE::CHECKVAL<uint32>(L, 4, 0);
-        uint32 dead = ALE::CHECKVAL<uint32>(L, 5, 1);
+        float range = YLA::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 3, 0);
+        uint32 hostile = YLA::CHECKVAL<uint32>(L, 4, 0);
+        uint32 dead = YLA::CHECKVAL<uint32>(L, 5, 1);
 
         std::list<Creature*> list;
         YLAUtil::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_UNIT, entry, hostile, dead);
@@ -307,7 +307,7 @@ namespace LuaWorldObject
 
         for (std::list<Creature*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
-            ALE::Push(L, *it);
+            YLA::Push(L, *it);
             lua_rawseti(L, tbl, ++i);
         }
 
@@ -326,9 +326,9 @@ namespace LuaWorldObject
      */
     int GetGameObjectsInRange(lua_State* L, WorldObject* obj)
     {
-        float range = ALE::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 3, 0);
-        uint32 hostile = ALE::CHECKVAL<uint32>(L, 4, 0);
+        float range = YLA::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 3, 0);
+        uint32 hostile = YLA::CHECKVAL<uint32>(L, 4, 0);
 
         std::list<GameObject*> list;
         YLAUtil::WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_GAMEOBJECT, entry, hostile);
@@ -342,7 +342,7 @@ namespace LuaWorldObject
 
         for (std::list<GameObject*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
-            ALE::Push(L, *it);
+            YLA::Push(L, *it);
             lua_rawseti(L, tbl, ++i);
         }
 
@@ -364,11 +364,11 @@ namespace LuaWorldObject
      */
     int GetNearObject(lua_State* L, WorldObject* obj)
     {
-        float range = ALE::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
-        uint16 type = ALE::CHECKVAL<uint16>(L, 3, 0); // TypeMask
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 4, 0);
-        uint32 hostile = ALE::CHECKVAL<uint32>(L, 5, 0); // 0 none, 1 hostile, 2 friendly
-        uint32 dead = ALE::CHECKVAL<uint32>(L, 6, 1); // 0 both, 1 alive, 2 dead
+        float range = YLA::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+        uint16 type = YLA::CHECKVAL<uint16>(L, 3, 0); // TypeMask
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 4, 0);
+        uint32 hostile = YLA::CHECKVAL<uint32>(L, 5, 0); // 0 none, 1 hostile, 2 friendly
+        uint32 dead = YLA::CHECKVAL<uint32>(L, 6, 1); // 0 both, 1 alive, 2 dead
 
         float x, y, z;
         obj->GetPosition(x, y, z);
@@ -379,7 +379,7 @@ namespace LuaWorldObject
         Acore::WorldObjectLastSearcher<YLAUtil::WorldObjectInRangeCheck> searcher(obj, target, checker);
         Cell::VisitObjects(obj, searcher, range);
 
-        ALE::Push(L, target);
+        YLA::Push(L, target);
         return 1;
     }
 
@@ -397,11 +397,11 @@ namespace LuaWorldObject
      */
     int GetNearObjects(lua_State* L, WorldObject* obj)
     {
-        float range = ALE::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
-        uint16 type = ALE::CHECKVAL<uint16>(L, 3, 0); // TypeMask
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 4, 0);
-        uint32 hostile = ALE::CHECKVAL<uint32>(L, 5, 0); // 0 none, 1 hostile, 2 friendly
-        uint32 dead = ALE::CHECKVAL<uint32>(L, 6, 1); // 0 both, 1 alive, 2 dead
+        float range = YLA::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+        uint16 type = YLA::CHECKVAL<uint16>(L, 3, 0); // TypeMask
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 4, 0);
+        uint32 hostile = YLA::CHECKVAL<uint32>(L, 5, 0); // 0 none, 1 hostile, 2 friendly
+        uint32 dead = YLA::CHECKVAL<uint32>(L, 6, 1); // 0 both, 1 alive, 2 dead
 
         float x, y, z;
         obj->GetPosition(x, y, z);
@@ -418,7 +418,7 @@ namespace LuaWorldObject
 
         for (std::list<WorldObject*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
-            ALE::Push(L, *it);
+            YLA::Push(L, *it);
             lua_rawseti(L, tbl, ++i);
         }
 
@@ -443,15 +443,15 @@ namespace LuaWorldObject
      */
     int GetDistance(lua_State* L, WorldObject* obj)
     {
-        WorldObject* target = ALE::CHECKOBJ<WorldObject>(L, 2, false);
+        WorldObject* target = YLA::CHECKOBJ<WorldObject>(L, 2, false);
         if (target)
-            ALE::Push(L, obj->GetDistance(target));
+            YLA::Push(L, obj->GetDistance(target));
         else
         {
-            float X = ALE::CHECKVAL<float>(L, 2);
-            float Y = ALE::CHECKVAL<float>(L, 3);
-            float Z = ALE::CHECKVAL<float>(L, 4);
-            ALE::Push(L, obj->GetDistance(X, Y, Z));
+            float X = YLA::CHECKVAL<float>(L, 2);
+            float Y = YLA::CHECKVAL<float>(L, 3);
+            float Z = YLA::CHECKVAL<float>(L, 4);
+            YLA::Push(L, obj->GetDistance(X, Y, Z));
         }
         return 1;
     }
@@ -475,7 +475,7 @@ namespace LuaWorldObject
     {
         float x, y, z;
         obj->GetPosition(x, y, z);
-        WorldObject* target = ALE::CHECKOBJ<WorldObject>(L, 2, false);
+        WorldObject* target = YLA::CHECKOBJ<WorldObject>(L, 2, false);
         if (target)
         {
             float x2, y2, z2;
@@ -486,12 +486,12 @@ namespace LuaWorldObject
         }
         else
         {
-            x -= ALE::CHECKVAL<float>(L, 2);
-            y -= ALE::CHECKVAL<float>(L, 3);
-            z -= ALE::CHECKVAL<float>(L, 4);
+            x -= YLA::CHECKVAL<float>(L, 2);
+            y -= YLA::CHECKVAL<float>(L, 3);
+            z -= YLA::CHECKVAL<float>(L, 4);
         }
 
-        ALE::Push(L, std::sqrt(x*x + y*y + z*z));
+        YLA::Push(L, std::sqrt(x*x + y*y + z*z));
         return 1;
     }
 
@@ -511,14 +511,14 @@ namespace LuaWorldObject
      */
     int GetDistance2d(lua_State* L, WorldObject* obj)
     {
-        WorldObject* target = ALE::CHECKOBJ<WorldObject>(L, 2, false);
+        WorldObject* target = YLA::CHECKOBJ<WorldObject>(L, 2, false);
         if (target)
-            ALE::Push(L, obj->GetDistance2d(target));
+            YLA::Push(L, obj->GetDistance2d(target));
         else
         {
-            float X = ALE::CHECKVAL<float>(L, 2);
-            float Y = ALE::CHECKVAL<float>(L, 3);
-            ALE::Push(L, obj->GetDistance2d(X, Y));
+            float X = YLA::CHECKVAL<float>(L, 2);
+            float Y = YLA::CHECKVAL<float>(L, 3);
+            YLA::Push(L, obj->GetDistance2d(X, Y));
         }
         return 1;
     }
@@ -541,7 +541,7 @@ namespace LuaWorldObject
     {
         float x, y, z;
         obj->GetPosition(x, y, z);
-        WorldObject* target = ALE::CHECKOBJ<WorldObject>(L, 2, false);
+        WorldObject* target = YLA::CHECKOBJ<WorldObject>(L, 2, false);
         if (target)
         {
             float x2, y2, z2;
@@ -551,11 +551,11 @@ namespace LuaWorldObject
         }
         else
         {
-            x -= ALE::CHECKVAL<float>(L, 2);
-            y -= ALE::CHECKVAL<float>(L, 3);
+            x -= YLA::CHECKVAL<float>(L, 2);
+            y -= YLA::CHECKVAL<float>(L, 3);
         }
 
-        ALE::Push(L, std::sqrt(x*x + y*y));
+        YLA::Push(L, std::sqrt(x*x + y*y));
         return 1;
     }
 
@@ -571,15 +571,15 @@ namespace LuaWorldObject
      */
     int GetRelativePoint(lua_State* L, WorldObject* obj)
     {
-        float dist = ALE::CHECKVAL<float>(L, 2);
-        float rad = ALE::CHECKVAL<float>(L, 3);
+        float dist = YLA::CHECKVAL<float>(L, 2);
+        float rad = YLA::CHECKVAL<float>(L, 3);
 
         float x, y, z;
         obj->GetClosePoint(x, y, z, 0.0f, dist, rad);
 
-        ALE::Push(L, x);
-        ALE::Push(L, y);
-        ALE::Push(L, z);
+        YLA::Push(L, x);
+        YLA::Push(L, y);
+        YLA::Push(L, z);
         return 3;
     }
 
@@ -599,14 +599,14 @@ namespace LuaWorldObject
      */
     int GetAngle(lua_State* L, WorldObject* obj)
     {
-        WorldObject* target = ALE::CHECKOBJ<WorldObject>(L, 2, false);
+        WorldObject* target = YLA::CHECKOBJ<WorldObject>(L, 2, false);
         if (target)
-            ALE::Push(L, obj->GetAbsoluteAngle(target));
+            YLA::Push(L, obj->GetAbsoluteAngle(target));
         else
         {
-            float x = ALE::CHECKVAL<float>(L, 2);
-            float y = ALE::CHECKVAL<float>(L, 3);
-            ALE::Push(L, obj->GetAbsoluteAngle(x, y));
+            float x = YLA::CHECKVAL<float>(L, 2);
+            float y = YLA::CHECKVAL<float>(L, 3);
+            YLA::Push(L, obj->GetAbsoluteAngle(x, y));
         }
 
         return 1;
@@ -619,7 +619,7 @@ namespace LuaWorldObject
      */
     int SendPacket(lua_State* L, WorldObject* obj)
     {
-        WorldPacket* data = ALE::CHECKOBJ<WorldPacket>(L, 2);
+        WorldPacket* data = YLA::CHECKOBJ<WorldPacket>(L, 2);
         obj->SendMessageToSet(data, true);
         return 0;
     }
@@ -637,14 +637,14 @@ namespace LuaWorldObject
      */
     int SummonGameObject(lua_State* L, WorldObject* obj)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
-        float x = ALE::CHECKVAL<float>(L, 3);
-        float y = ALE::CHECKVAL<float>(L, 4);
-        float z = ALE::CHECKVAL<float>(L, 5);
-        float o = ALE::CHECKVAL<float>(L, 6);
-        uint32 respawnDelay = ALE::CHECKVAL<uint32>(L, 7, 30);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
+        float x = YLA::CHECKVAL<float>(L, 3);
+        float y = YLA::CHECKVAL<float>(L, 4);
+        float z = YLA::CHECKVAL<float>(L, 5);
+        float o = YLA::CHECKVAL<float>(L, 6);
+        uint32 respawnDelay = YLA::CHECKVAL<uint32>(L, 7, 30);
 
-        ALE::Push(L, obj->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
+        YLA::Push(L, obj->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
         return 1;
     }
 
@@ -676,13 +676,13 @@ namespace LuaWorldObject
      */
     int SpawnCreature(lua_State* L, WorldObject* obj)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
-        float x = ALE::CHECKVAL<float>(L, 3);
-        float y = ALE::CHECKVAL<float>(L, 4);
-        float z = ALE::CHECKVAL<float>(L, 5);
-        float o = ALE::CHECKVAL<float>(L, 6);
-        uint32 spawnType = ALE::CHECKVAL<uint32>(L, 7, 8);
-        uint32 despawnTimer = ALE::CHECKVAL<uint32>(L, 8, 0);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
+        float x = YLA::CHECKVAL<float>(L, 3);
+        float y = YLA::CHECKVAL<float>(L, 4);
+        float z = YLA::CHECKVAL<float>(L, 5);
+        float o = YLA::CHECKVAL<float>(L, 6);
+        uint32 spawnType = YLA::CHECKVAL<uint32>(L, 7, 8);
+        uint32 despawnTimer = YLA::CHECKVAL<uint32>(L, 8, 0);
 
         TempSummonType type;
         switch (spawnType)
@@ -715,7 +715,7 @@ namespace LuaWorldObject
                 return luaL_argerror(L, 7, "valid SpawnType expected");
         }
 
-        ALE::Push(L, obj->SummonCreature(entry, x, y, z, o, type, despawnTimer));
+        YLA::Push(L, obj->SummonCreature(entry, x, y, z, o, type, despawnTimer));
         return 1;
     }
 
@@ -750,17 +750,17 @@ namespace LuaWorldObject
         uint32 min, max;
         if (lua_istable(L, 3))
         {
-            ALE::Push(L, 1);
+            YLA::Push(L, 1);
             lua_gettable(L, 3);
-            min = ALE::CHECKVAL<uint32>(L, -1);
-            ALE::Push(L, 2);
+            min = YLA::CHECKVAL<uint32>(L, -1);
+            YLA::Push(L, 2);
             lua_gettable(L, 3);
-            max = ALE::CHECKVAL<uint32>(L, -1);
+            max = YLA::CHECKVAL<uint32>(L, -1);
             lua_pop(L, 2);
         }
         else
-            min = max = ALE::CHECKVAL<uint32>(L, 3);
-        uint32 repeats = ALE::CHECKVAL<uint32>(L, 4, 1);
+            min = max = YLA::CHECKVAL<uint32>(L, 3);
+        uint32 repeats = YLA::CHECKVAL<uint32>(L, 4, 1);
 
         if (min > max)
             return luaL_argerror(L, 3, "min is bigger than max delay");
@@ -769,9 +769,9 @@ namespace LuaWorldObject
         int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
         if (functionRef != LUA_REFNIL && functionRef != LUA_NOREF)
         {
-            ALE* callingE = ALE::GetALE(L);
+            YLA* callingE = YLA::GetALE(L);
             obj->YLAEvents->AddEvent(functionRef, min, max, repeats, callingE->GetSelfRef());
-            ALE::Push(L, functionRef);
+            YLA::Push(L, functionRef);
         }
         return 1;
     }
@@ -783,7 +783,7 @@ namespace LuaWorldObject
      */
     int RemoveEventById(lua_State* L, WorldObject* obj)
     {
-        int eventId = ALE::CHECKVAL<int>(L, 2);
+        int eventId = YLA::CHECKVAL<int>(L, 2);
         obj->YLAEvents->SetState(eventId, LUAEVENT_STATE_ABORT);
         return 0;
     }
@@ -812,16 +812,16 @@ namespace LuaWorldObject
      */
     int IsWithinLoS(lua_State* L, WorldObject* obj)
     {
-        WorldObject* target = ALE::CHECKOBJ<WorldObject>(L, 2, false);
+        WorldObject* target = YLA::CHECKOBJ<WorldObject>(L, 2, false);
 
         if (target)
-            ALE::Push(L, obj->IsWithinLOSInMap(target));
+            YLA::Push(L, obj->IsWithinLOSInMap(target));
         else
         {
-            float x = ALE::CHECKVAL<float>(L, 2);
-            float y = ALE::CHECKVAL<float>(L, 3);
-            float z = ALE::CHECKVAL<float>(L, 4);
-            ALE::Push(L, obj->IsWithinLOS(x, y, z));
+            float x = YLA::CHECKVAL<float>(L, 2);
+            float y = YLA::CHECKVAL<float>(L, 3);
+            float z = YLA::CHECKVAL<float>(L, 4);
+            YLA::Push(L, obj->IsWithinLOS(x, y, z));
         }
 
         return 1;
@@ -835,8 +835,8 @@ namespace LuaWorldObject
      */
     int IsInMap(lua_State* L, WorldObject* obj)
     {
-        WorldObject* target = ALE::CHECKOBJ<WorldObject>(L, 2, true);
-        ALE::Push(L, obj->IsInMap(target));
+        WorldObject* target = YLA::CHECKOBJ<WorldObject>(L, 2, true);
+        YLA::Push(L, obj->IsInMap(target));
         return 1;
     }
 
@@ -853,11 +853,11 @@ namespace LuaWorldObject
      */
     int IsWithinDist3d(lua_State* L, WorldObject* obj)
     {
-        float x = ALE::CHECKVAL<float>(L, 2);
-        float y = ALE::CHECKVAL<float>(L, 3);
-        float z = ALE::CHECKVAL<float>(L, 4);
-        float dist = ALE::CHECKVAL<float>(L, 5);
-        ALE::Push(L, obj->IsWithinDist3d(x, y, z, dist));
+        float x = YLA::CHECKVAL<float>(L, 2);
+        float y = YLA::CHECKVAL<float>(L, 3);
+        float z = YLA::CHECKVAL<float>(L, 4);
+        float dist = YLA::CHECKVAL<float>(L, 5);
+        YLA::Push(L, obj->IsWithinDist3d(x, y, z, dist));
         return 1;
     }
 
@@ -874,10 +874,10 @@ namespace LuaWorldObject
      */
     int IsWithinDist2d(lua_State* L, WorldObject* obj)
     {
-        float x = ALE::CHECKVAL<float>(L, 2);
-        float y = ALE::CHECKVAL<float>(L, 3);
-        float dist = ALE::CHECKVAL<float>(L, 4);
-        ALE::Push(L, obj->IsWithinDist2d(x, y, dist));
+        float x = YLA::CHECKVAL<float>(L, 2);
+        float y = YLA::CHECKVAL<float>(L, 3);
+        float dist = YLA::CHECKVAL<float>(L, 4);
+        YLA::Push(L, obj->IsWithinDist2d(x, y, dist));
         return 1;
     }
 
@@ -893,10 +893,10 @@ namespace LuaWorldObject
      */
     int IsWithinDist(lua_State* L, WorldObject* obj)
     {
-        WorldObject* target = ALE::CHECKOBJ<WorldObject>(L, 2, true);
-        float distance = ALE::CHECKVAL<float>(L, 3);
-        bool is3D = ALE::CHECKVAL<bool>(L, 4, true);
-        ALE::Push(L, obj->IsWithinDist(target, distance, is3D));
+        WorldObject* target = YLA::CHECKOBJ<WorldObject>(L, 2, true);
+        float distance = YLA::CHECKVAL<float>(L, 3);
+        bool is3D = YLA::CHECKVAL<bool>(L, 4, true);
+        YLA::Push(L, obj->IsWithinDist(target, distance, is3D));
         return 1;
     }
 
@@ -912,11 +912,11 @@ namespace LuaWorldObject
      */
     int IsWithinDistInMap(lua_State* L, WorldObject* obj)
     {
-        WorldObject* target = ALE::CHECKOBJ<WorldObject>(L, 2);
-        float distance = ALE::CHECKVAL<float>(L, 3);
-        bool is3D = ALE::CHECKVAL<bool>(L, 4, true);
+        WorldObject* target = YLA::CHECKOBJ<WorldObject>(L, 2);
+        float distance = YLA::CHECKVAL<float>(L, 3);
+        bool is3D = YLA::CHECKVAL<bool>(L, 4, true);
 
-        ALE::Push(L, obj->IsWithinDistInMap(target, distance, is3D));
+        YLA::Push(L, obj->IsWithinDistInMap(target, distance, is3D));
         return 1;
     }
 
@@ -933,12 +933,12 @@ namespace LuaWorldObject
      */
     int IsInRange(lua_State* L, WorldObject* obj)
     {
-        WorldObject* target = ALE::CHECKOBJ<WorldObject>(L, 2);
-        float minrange = ALE::CHECKVAL<float>(L, 3);
-        float maxrange = ALE::CHECKVAL<float>(L, 4);
-        bool is3D = ALE::CHECKVAL<bool>(L, 5, true);
+        WorldObject* target = YLA::CHECKOBJ<WorldObject>(L, 2);
+        float minrange = YLA::CHECKVAL<float>(L, 3);
+        float maxrange = YLA::CHECKVAL<float>(L, 4);
+        bool is3D = YLA::CHECKVAL<bool>(L, 5, true);
 
-        ALE::Push(L, obj->IsInRange(target, minrange, maxrange, is3D));
+        YLA::Push(L, obj->IsInRange(target, minrange, maxrange, is3D));
         return 1;
     }
 
@@ -955,12 +955,12 @@ namespace LuaWorldObject
      */
     int IsInRange2d(lua_State* L, WorldObject* obj)
     {
-        float x = ALE::CHECKVAL<float>(L, 2);
-        float y = ALE::CHECKVAL<float>(L, 3);
-        float minrange = ALE::CHECKVAL<float>(L, 4);
-        float maxrange = ALE::CHECKVAL<float>(L, 5);
+        float x = YLA::CHECKVAL<float>(L, 2);
+        float y = YLA::CHECKVAL<float>(L, 3);
+        float minrange = YLA::CHECKVAL<float>(L, 4);
+        float maxrange = YLA::CHECKVAL<float>(L, 5);
 
-        ALE::Push(L, obj->IsInRange2d(x, y, minrange, maxrange));
+        YLA::Push(L, obj->IsInRange2d(x, y, minrange, maxrange));
         return 1;
     }
 
@@ -978,13 +978,13 @@ namespace LuaWorldObject
      */
     int IsInRange3d(lua_State* L, WorldObject* obj)
     {
-        float x = ALE::CHECKVAL<float>(L, 2);
-        float y = ALE::CHECKVAL<float>(L, 3);
-        float z = ALE::CHECKVAL<float>(L, 4);
-        float minrange = ALE::CHECKVAL<float>(L, 5);
-        float maxrange = ALE::CHECKVAL<float>(L, 6);
+        float x = YLA::CHECKVAL<float>(L, 2);
+        float y = YLA::CHECKVAL<float>(L, 3);
+        float z = YLA::CHECKVAL<float>(L, 4);
+        float minrange = YLA::CHECKVAL<float>(L, 5);
+        float maxrange = YLA::CHECKVAL<float>(L, 6);
 
-        ALE::Push(L, obj->IsInRange3d(x, y, z, minrange, maxrange));
+        YLA::Push(L, obj->IsInRange3d(x, y, z, minrange, maxrange));
         return 1;
     }
 
@@ -997,10 +997,10 @@ namespace LuaWorldObject
      */
     int IsInFront(lua_State* L, WorldObject* obj)
     {
-        WorldObject* target = ALE::CHECKOBJ<WorldObject>(L, 2);
-        float arc = ALE::CHECKVAL<float>(L, 3, static_cast<float>(M_PI));
+        WorldObject* target = YLA::CHECKOBJ<WorldObject>(L, 2);
+        float arc = YLA::CHECKVAL<float>(L, 3, static_cast<float>(M_PI));
 
-        ALE::Push(L, obj->isInFront(target, arc));
+        YLA::Push(L, obj->isInFront(target, arc));
         return 1;
     }
 
@@ -1013,10 +1013,10 @@ namespace LuaWorldObject
      */
     int IsInBack(lua_State* L, WorldObject* obj)
     {
-        WorldObject* target = ALE::CHECKOBJ<WorldObject>(L, 2);
-        float arc = ALE::CHECKVAL<float>(L, 3, static_cast<float>(M_PI));
+        WorldObject* target = YLA::CHECKOBJ<WorldObject>(L, 2);
+        float arc = YLA::CHECKVAL<float>(L, 3, static_cast<float>(M_PI));
 
-        ALE::Push(L, obj->isInBack(target, arc));
+        YLA::Push(L, obj->isInBack(target, arc));
         return 1;
     }
 
@@ -1033,8 +1033,8 @@ namespace LuaWorldObject
      */
     int PlayMusic(lua_State* L, WorldObject* obj)
     {
-        uint32 musicid = ALE::CHECKVAL<uint32>(L, 2);
-        Player* player = ALE::CHECKOBJ<Player>(L, 3, false);
+        uint32 musicid = YLA::CHECKVAL<uint32>(L, 2);
+        Player* player = YLA::CHECKOBJ<Player>(L, 3, false);
 
         WorldPacket data(SMSG_PLAY_MUSIC, 4);
         data << uint32(musicid);
@@ -1058,8 +1058,8 @@ namespace LuaWorldObject
      */
     int PlayDirectSound(lua_State* L, WorldObject* obj)
     {
-        uint32 soundId = ALE::CHECKVAL<uint32>(L, 2);
-        Player* player = ALE::CHECKOBJ<Player>(L, 3, false);
+        uint32 soundId = YLA::CHECKVAL<uint32>(L, 2);
+        Player* player = YLA::CHECKOBJ<Player>(L, 3, false);
         if (!sSoundEntriesStore.LookupEntry(soundId))
             return 0;
 
@@ -1084,8 +1084,8 @@ namespace LuaWorldObject
      */
     int PlayDistanceSound(lua_State* L, WorldObject* obj)
     {
-        uint32 soundId = ALE::CHECKVAL<uint32>(L, 2);
-        Player* player = ALE::CHECKOBJ<Player>(L, 3, false);
+        uint32 soundId = YLA::CHECKVAL<uint32>(L, 2);
+        Player* player = YLA::CHECKOBJ<Player>(L, 3, false);
         if (!sSoundEntriesStore.LookupEntry(soundId))
             return 0;
 
@@ -1121,18 +1121,18 @@ namespace LuaWorldObject
             std::string serialized;
             if (!erase)
             {
-                serialized = ALE::SerializeValue(L, 3);
+                serialized = YLA::SerializeValue(L, 3);
                 if (serialized.empty())
                 {
                     lua_pushvalue(L, 1);
                     return 1;
                 }
             }
-            std::lock_guard lock(ALE::objectDataMutex);
+            std::lock_guard lock(YLA::objectDataMutex);
             if (erase)
-                ALE::objectDataCache[guid].erase(key);
+                YLA::objectDataCache[guid].erase(key);
             else
-                ALE::objectDataCache[guid][key] = std::move(serialized);
+                YLA::objectDataCache[guid][key] = std::move(serialized);
             lua_pushvalue(L, 1);
             return 1;
         }, 1);
@@ -1148,9 +1148,9 @@ namespace LuaWorldObject
             // Copy out under lock, decode after: blob size is unbounded.
             std::string blob;
             {
-                std::shared_lock lock(ALE::objectDataMutex);
-                auto objIt = ALE::objectDataCache.find(guid);
-            if (objIt == ALE::objectDataCache.end())
+                std::shared_lock lock(YLA::objectDataMutex);
+                auto objIt = YLA::objectDataCache.find(guid);
+            if (objIt == YLA::objectDataCache.end())
             {
                 lua_pushnil(L);
                 return 1;
@@ -1164,7 +1164,7 @@ namespace LuaWorldObject
             blob = valIt->second;
             }
 
-            ALE::DeserializeValue(L, blob);
+            YLA::DeserializeValue(L, blob);
 
             if (!lua_istable(L, -1))
                 return 1;
@@ -1198,9 +1198,9 @@ namespace LuaWorldObject
             // Snapshot under lock, decode after: blobs are unbounded.
             std::vector<std::pair<std::string, std::string>> entries;
             {
-                std::shared_lock lock(ALE::objectDataMutex);
-                auto objIt = ALE::objectDataCache.find(guid);
-                if (objIt == ALE::objectDataCache.end())
+                std::shared_lock lock(YLA::objectDataMutex);
+                auto objIt = YLA::objectDataCache.find(guid);
+                if (objIt == YLA::objectDataCache.end())
                     return 1;
                 for (auto& [key, val] : objIt->second)
                     entries.emplace_back(key, val);
@@ -1208,7 +1208,7 @@ namespace LuaWorldObject
             for (auto& [key, val] : entries)
             {
                 lua_pushstring(L, key.c_str());
-                ALE::DeserializeValue(L, val);
+                YLA::DeserializeValue(L, val);
                 lua_rawset(L, result);
             }
             return 1;
@@ -1225,7 +1225,7 @@ namespace LuaWorldObject
      */
     int IsOutdoors(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->IsOutdoors());
+        YLA::Push(L, obj->IsOutdoors());
         return 1;
     }
 
@@ -1236,7 +1236,7 @@ namespace LuaWorldObject
      */
     int GetGroundZ(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetMapHeight(obj->GetPositionX(), obj->GetPositionY(), MAX_HEIGHT));
+        YLA::Push(L, obj->GetMapHeight(obj->GetPositionX(), obj->GetPositionY(), MAX_HEIGHT));
         return 1;
     }
 
@@ -1247,7 +1247,7 @@ namespace LuaWorldObject
      */
     int GetFloorZ(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, obj->GetMapHeight(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ()));
+        YLA::Push(L, obj->GetMapHeight(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ()));
         return 1;
     }
 
@@ -1263,11 +1263,11 @@ namespace LuaWorldObject
     int GetLiquidData(lua_State* L, WorldObject* obj)
     {
         LiquidData const& liquidData = obj->GetLiquidData();
-        ALE::Push(L, liquidData.Level);
-        ALE::Push(L, liquidData.DepthLevel);
-        ALE::Push(L, liquidData.Entry);
-        ALE::Push(L, liquidData.Flags);
-        ALE::Push(L, liquidData.Status);
+        YLA::Push(L, liquidData.Level);
+        YLA::Push(L, liquidData.DepthLevel);
+        YLA::Push(L, liquidData.Entry);
+        YLA::Push(L, liquidData.Flags);
+        YLA::Push(L, liquidData.Status);
         return 5;
     }
 
@@ -1278,7 +1278,7 @@ namespace LuaWorldObject
      */
     int GetTransport(lua_State* L, WorldObject* obj)
     {
-        ALE::Push(L, static_cast<Transport*>(obj->GetTransport()));
+        YLA::Push(L, static_cast<Transport*>(obj->GetTransport()));
         return 1;
     }
 };

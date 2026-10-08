@@ -29,7 +29,7 @@ using namespace Hooks;
         return;\
     LOCK_ALE
 
-bool ALE::OnPacketSend(WorldSession* session, const WorldPacket& packet)
+bool YLA::OnPacketSend(WorldSession* session, const WorldPacket& packet)
 {
     bool result = true;
     Player* player = NULL;
@@ -40,7 +40,7 @@ bool ALE::OnPacketSend(WorldSession* session, const WorldPacket& packet)
     return result;
 }
 
-void ALE::OnPacketSendAny(Player* player, const WorldPacket& packet, bool& result)
+void YLA::OnPacketSendAny(Player* player, const WorldPacket& packet, bool& result)
 {
     START_HOOK_SERVER(SERVER_EVENT_ON_PACKET_SEND);
     Push(new WorldPacket(packet));
@@ -60,7 +60,7 @@ void ALE::OnPacketSendAny(Player* player, const WorldPacket& packet, bool& resul
     CleanUpStack(2);
 }
 
-void ALE::OnPacketSendOne(Player* player, const WorldPacket& packet, bool& result)
+void YLA::OnPacketSendOne(Player* player, const WorldPacket& packet, bool& result)
 {
     START_HOOK_PACKET(PACKET_EVENT_ON_PACKET_SEND, packet.GetOpcode());
     Push(new WorldPacket(packet));
@@ -80,7 +80,7 @@ void ALE::OnPacketSendOne(Player* player, const WorldPacket& packet, bool& resul
     CleanUpStack(2);
 }
 
-bool ALE::OnPacketReceive(WorldSession* session, WorldPacket& packet)
+bool YLA::OnPacketReceive(WorldSession* session, WorldPacket& packet)
 {
     bool result = true;
     Player* player = NULL;
@@ -91,7 +91,7 @@ bool ALE::OnPacketReceive(WorldSession* session, WorldPacket& packet)
     return result;
 }
 
-void ALE::OnPacketReceiveAny(Player* player, WorldPacket& packet, bool& result)
+void YLA::OnPacketReceiveAny(Player* player, WorldPacket& packet, bool& result)
 {
     START_HOOK_SERVER(SERVER_EVENT_ON_PACKET_RECEIVE);
     Push(new WorldPacket(packet));
@@ -115,7 +115,7 @@ void ALE::OnPacketReceiveAny(Player* player, WorldPacket& packet, bool& result)
     CleanUpStack(2);
 }
 
-void ALE::OnPacketReceiveOne(Player* player, WorldPacket& packet, bool& result)
+void YLA::OnPacketReceiveOne(Player* player, WorldPacket& packet, bool& result)
 {
     START_HOOK_PACKET(PACKET_EVENT_ON_PACKET_RECEIVE, packet.GetOpcode());
     Push(new WorldPacket(packet));

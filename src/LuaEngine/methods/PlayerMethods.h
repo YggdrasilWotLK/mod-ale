@@ -24,7 +24,7 @@ namespace LuaPlayer
      */
     int CanTitanGrip(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->CanTitanGrip());
+        YLA::Push(L, player->CanTitanGrip());
         return 1;
     }
 
@@ -37,12 +37,12 @@ namespace LuaPlayer
      */
     int HasTalent(lua_State* L, Player* player)
     {
-        uint32 spellId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 spellId = YLA::CHECKVAL<uint32>(L, 2);
         uint8 maxSpecs = MAX_TALENT_SPECS;
-        uint8 spec = ALE::CHECKVAL<uint8>(L, 3);
+        uint8 spec = YLA::CHECKVAL<uint8>(L, 3);
         if (spec >= maxSpecs)
             return 1;
-        ALE::Push(L, player->HasTalent(spellId, spec));
+        YLA::Push(L, player->HasTalent(spellId, spec));
         return 1;
     }
     
@@ -61,8 +61,8 @@ namespace LuaPlayer
      */
     int HasAchieved(lua_State* L, Player* player)
     {
-        uint32 achievementId = ALE::CHECKVAL<uint32>(L, 2);
-        ALE::Push(L, player->HasAchieved(achievementId));
+        uint32 achievementId = YLA::CHECKVAL<uint32>(L, 2);
+        YLA::Push(L, player->HasAchieved(achievementId));
         return 1;
     }
 
@@ -74,16 +74,16 @@ namespace LuaPlayer
      */
     int GetAchievementCriteriaProgress(lua_State* L, Player* player)
     {
-        uint32 criteriaId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 criteriaId = YLA::CHECKVAL<uint32>(L, 2);
         const AchievementCriteriaEntry* criteria = sAchievementCriteriaStore.LookupEntry(criteriaId);
         CriteriaProgress* progress = player->GetAchievementMgr()->GetCriteriaProgress(criteria);
         if (progress)
         {
-            ALE::Push(L, progress->counter);
+            YLA::Push(L, progress->counter);
         }
         else
         {
-            ALE::Push(L, (void*)nullptr);
+            YLA::Push(L, (void*)nullptr);
         }
         return 1;
     }
@@ -96,9 +96,9 @@ namespace LuaPlayer
      */
     int HasQuest(lua_State* L, Player* player)
     {
-        uint32 quest = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 quest = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->IsActiveQuest(quest));
+        YLA::Push(L, player->IsActiveQuest(quest));
         return 1;
     }
 
@@ -110,9 +110,9 @@ namespace LuaPlayer
      */
     int HasSkill(lua_State* L, Player* player)
     {
-        uint32 skill = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 skill = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->HasSkill(skill));
+        YLA::Push(L, player->HasSkill(skill));
         return 1;
     }
 
@@ -124,9 +124,9 @@ namespace LuaPlayer
      */
     int HasSpell(lua_State* L, Player* player)
     {
-        uint32 id = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 id = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->HasSpell(id));
+        YLA::Push(L, player->HasSpell(id));
         return 1;
     }
 
@@ -138,9 +138,9 @@ namespace LuaPlayer
      */
     int HasAtLoginFlag(lua_State* L, Player* player)
     {
-        uint32 flag = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 flag = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->HasAtLoginFlag((AtLoginFlags)flag));
+        YLA::Push(L, player->HasAtLoginFlag((AtLoginFlags)flag));
         return 1;
     }
 
@@ -152,9 +152,9 @@ namespace LuaPlayer
      */
     int HasQuestForGO(lua_State* L, Player* player)
     {
-        int32 entry = ALE::CHECKVAL<int32>(L, 2);
+        int32 entry = YLA::CHECKVAL<int32>(L, 2);
 
-        ALE::Push(L, player->HasQuestForGO(entry));
+        YLA::Push(L, player->HasQuestForGO(entry));
         return 1;
     }
 
@@ -166,10 +166,10 @@ namespace LuaPlayer
      */
     int HasTitle(lua_State* L, Player* player)
     {
-        uint32 id = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 id = YLA::CHECKVAL<uint32>(L, 2);
         CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
         if (titleInfo)
-            ALE::Push(L, player->HasTitle(titleInfo));
+            YLA::Push(L, player->HasTitle(titleInfo));
         return 1;
     }
     
@@ -183,10 +183,10 @@ namespace LuaPlayer
      */
     int HasItem(lua_State* L, Player* player)
     {
-        uint32 itemId = ALE::CHECKVAL<uint32>(L, 2);
-        uint32 count = ALE::CHECKVAL<uint32>(L, 3, 1);
-        bool check_bank = ALE::CHECKVAL<bool>(L, 4, false);
-        ALE::Push(L, player->HasItemCount(itemId, count, check_bank));
+        uint32 itemId = YLA::CHECKVAL<uint32>(L, 2);
+        uint32 count = YLA::CHECKVAL<uint32>(L, 3, 1);
+        bool check_bank = YLA::CHECKVAL<bool>(L, 4, false);
+        YLA::Push(L, player->HasItemCount(itemId, count, check_bank));
         return 1;
     }
     
@@ -198,9 +198,9 @@ namespace LuaPlayer
      */
     int HasQuestForItem(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->HasQuestForItem(entry));
+        YLA::Push(L, player->HasQuestForItem(entry));
         return 1;
     }
     
@@ -215,17 +215,17 @@ namespace LuaPlayer
      */
     int CanUseItem(lua_State* L, Player* player)
     {
-        Item* item = ALE::CHECKOBJ<Item>(L, 2, false);
+        Item* item = YLA::CHECKOBJ<Item>(L, 2, false);
         if (item)
-            ALE::Push(L, player->CanUseItem(item) == EQUIP_ERR_OK);
+            YLA::Push(L, player->CanUseItem(item) == EQUIP_ERR_OK);
         else
         {
-            uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+            uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
             const ItemTemplate* temp = eObjectMgr->GetItemTemplate(entry);
             if (temp)
-                ALE::Push(L, player->CanUseItem(temp) == EQUIP_ERR_OK);
+                YLA::Push(L, player->CanUseItem(temp) == EQUIP_ERR_OK);
             else
-                ALE::Push(L, false);
+                YLA::Push(L, false);
         }
         return 1;
     }
@@ -238,9 +238,9 @@ namespace LuaPlayer
      */
     int HasSpellCooldown(lua_State* L, Player* player)
     {
-        uint32 spellId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 spellId = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->HasSpellCooldown(spellId));
+        YLA::Push(L, player->HasSpellCooldown(spellId));
         return 1;
     }
 
@@ -252,9 +252,9 @@ namespace LuaPlayer
      */
     int CanShareQuest(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->CanShareQuest(entry));
+        YLA::Push(L, player->CanShareQuest(entry));
         return 1;
     }
 
@@ -265,7 +265,7 @@ namespace LuaPlayer
      */
     int CanSpeak(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->CanSpeak());
+        YLA::Push(L, player->CanSpeak());
         return 1;
     }
 
@@ -276,7 +276,7 @@ namespace LuaPlayer
      */
     int CanUninviteFromGroup(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->CanUninviteFromGroup() == ERR_PARTY_RESULT_OK);
+        YLA::Push(L, player->CanUninviteFromGroup() == ERR_PARTY_RESULT_OK);
         return 1;
     }
 
@@ -287,7 +287,7 @@ namespace LuaPlayer
      */
     int CanFly(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->CanFly());
+        YLA::Push(L, player->CanFly());
         return 1;
     }
 
@@ -298,7 +298,7 @@ namespace LuaPlayer
      */
     int IsInWater(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->IsInWater());
+        YLA::Push(L, player->IsInWater());
         return 1;
     }
 
@@ -309,7 +309,7 @@ namespace LuaPlayer
      */
     int IsMoving(lua_State* L, Player* player) // enable for unit when mangos support it
     {
-        ALE::Push(L, player->isMoving());
+        YLA::Push(L, player->isMoving());
         return 1;
     }
 
@@ -320,7 +320,7 @@ namespace LuaPlayer
      */
     int IsFlying(lua_State* L, Player* player) // enable for unit when mangos support it
     {
-        ALE::Push(L, player->IsFlying());
+        YLA::Push(L, player->IsFlying());
         return 1;
     }
 
@@ -331,7 +331,7 @@ namespace LuaPlayer
      */
     int HasTankSpec(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->HasTankSpec());
+        YLA::Push(L, player->HasTankSpec());
         return 1;
     }
     
@@ -342,7 +342,7 @@ namespace LuaPlayer
      */
     int HasMeleeSpec(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->HasMeleeSpec());
+        YLA::Push(L, player->HasMeleeSpec());
         return 1;
     }
     
@@ -353,7 +353,7 @@ namespace LuaPlayer
      */
     int HasCasterSpec(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->HasCasterSpec());
+        YLA::Push(L, player->HasCasterSpec());
         return 1;
     }
     
@@ -364,7 +364,7 @@ namespace LuaPlayer
      */
     int HasHealSpec(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->HasHealSpec());
+        YLA::Push(L, player->HasHealSpec());
         return 1;
     }
 
@@ -375,7 +375,7 @@ namespace LuaPlayer
      */
     int IsInGroup(lua_State* L, Player* player)
     {
-        ALE::Push(L, (player->GetGroup() != NULL));
+        YLA::Push(L, (player->GetGroup() != NULL));
         return 1;
     }
 
@@ -386,7 +386,7 @@ namespace LuaPlayer
      */
     int IsInGuild(lua_State* L, Player* player)
     {
-        ALE::Push(L, (player->GetGuildId() != 0));
+        YLA::Push(L, (player->GetGuildId() != 0));
         return 1;
     }
 
@@ -399,7 +399,7 @@ namespace LuaPlayer
      */
     int IsGM(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->IsGameMaster());
+        YLA::Push(L, player->IsGameMaster());
         return 1;
     }
 
@@ -411,11 +411,11 @@ namespace LuaPlayer
      */
     int IsInArenaTeam(lua_State* L, Player* player)
     {
-        uint32 type = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 type = YLA::CHECKVAL<uint32>(L, 2);
         if (type < MAX_ARENA_SLOT && player->GetArenaTeamId(type))
-            ALE::Push(L, true);
+            YLA::Push(L, true);
         else
-            ALE::Push(L, false);
+            YLA::Push(L, false);
         return 1;
     }
 
@@ -426,7 +426,7 @@ namespace LuaPlayer
      */
     int IsImmuneToDamage(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->isTotalImmune());
+        YLA::Push(L, player->isTotalImmune());
         return 1;
     }
 
@@ -438,15 +438,15 @@ namespace LuaPlayer
      */
     int CanCompleteRepeatableQuest(lua_State* L, Player* player)
     {
-        uint32 questId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 questId = YLA::CHECKVAL<uint32>(L, 2);
         const Quest* quest = sObjectMgr->GetQuestTemplate(questId); // Retrieve the Quest object
         if (!quest)
         {
-            ALE::Push(L, false);
+            YLA::Push(L, false);
             return 1;
         }
 
-        ALE::Push(L, player->CanCompleteRepeatableQuest(quest));
+        YLA::Push(L, player->CanCompleteRepeatableQuest(quest));
         return 1;
     }
 
@@ -458,15 +458,15 @@ namespace LuaPlayer
      */
     int CanRewardQuest(lua_State* L, Player* player)
     {
-        uint32 questId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 questId = YLA::CHECKVAL<uint32>(L, 2);
         const Quest* quest = sObjectMgr->GetQuestTemplate(questId); // Retrieve the Quest object
         if (!quest)
         {
-            ALE::Push(L, false);
+            YLA::Push(L, false);
             return 1;
         }
 
-        ALE::Push(L, player->CanRewardQuest(quest, true)); // Modify the second argument as needed
+        YLA::Push(L, player->CanRewardQuest(quest, true)); // Modify the second argument as needed
         return 1;
     }
 
@@ -478,9 +478,9 @@ namespace LuaPlayer
      */
     int CanCompleteQuest(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->CanCompleteQuest(entry));
+        YLA::Push(L, player->CanCompleteQuest(entry));
         return 1;
     }
 
@@ -491,7 +491,7 @@ namespace LuaPlayer
      */
     int IsHorde(lua_State* L, Player* player)
     {
-        ALE::Push(L, (player->GetTeamId() == TEAM_HORDE));
+        YLA::Push(L, (player->GetTeamId() == TEAM_HORDE));
         return 1;
     }
 
@@ -502,7 +502,7 @@ namespace LuaPlayer
      */
     int IsAlliance(lua_State* L, Player* player)
     {
-        ALE::Push(L, (player->GetTeamId() == TEAM_ALLIANCE));
+        YLA::Push(L, (player->GetTeamId() == TEAM_ALLIANCE));
         return 1;
     }
 
@@ -513,7 +513,7 @@ namespace LuaPlayer
      */
     int IsDND(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->isDND());
+        YLA::Push(L, player->isDND());
         return 1;
     }
 
@@ -524,7 +524,7 @@ namespace LuaPlayer
      */
     int IsAFK(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->isAFK());
+        YLA::Push(L, player->isAFK());
         return 1;
     }
 
@@ -535,7 +535,7 @@ namespace LuaPlayer
      */
     int IsFalling(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->IsFalling());
+        YLA::Push(L, player->IsFalling());
         return 1;
     }
 
@@ -548,8 +548,8 @@ namespace LuaPlayer
      */
     int IsGroupVisibleFor(lua_State* L, Player* player)
     {
-        Player* target = ALE::CHECKOBJ<Player>(L, 2);
-        ALE::Push(L, player->IsGroupVisibleFor(target));
+        Player* target = YLA::CHECKOBJ<Player>(L, 2);
+        YLA::Push(L, player->IsGroupVisibleFor(target));
         return 1;
     }
 
@@ -561,8 +561,8 @@ namespace LuaPlayer
      */
     int IsInSameRaidWith(lua_State* L, Player* player)
     {
-        Player* target = ALE::CHECKOBJ<Player>(L, 2);
-        ALE::Push(L, player->IsInSameRaidWith(target));
+        Player* target = YLA::CHECKOBJ<Player>(L, 2);
+        YLA::Push(L, player->IsInSameRaidWith(target));
         return 1;
     }
 
@@ -574,8 +574,8 @@ namespace LuaPlayer
      */
     int IsInSameGroupWith(lua_State* L, Player* player)
     {
-        Player* target = ALE::CHECKOBJ<Player>(L, 2);
-        ALE::Push(L, player->IsInSameGroupWith(target));
+        Player* target = YLA::CHECKOBJ<Player>(L, 2);
+        YLA::Push(L, player->IsInSameGroupWith(target));
         return 1;
     }
 
@@ -587,9 +587,9 @@ namespace LuaPlayer
      */
     int IsHonorOrXPTarget(lua_State* L, Player* player)
     {
-        Unit* victim = ALE::CHECKOBJ<Unit>(L, 2);
+        Unit* victim = YLA::CHECKOBJ<Unit>(L, 2);
 
-        ALE::Push(L, player->isHonorOrXPTarget(victim));
+        YLA::Push(L, player->isHonorOrXPTarget(victim));
         return 1;
     }
 
@@ -601,9 +601,9 @@ namespace LuaPlayer
      */
     int IsVisibleForPlayer(lua_State* L, Player* player)
     {
-        Player* target = ALE::CHECKOBJ<Player>(L, 2);
+        Player* target = YLA::CHECKOBJ<Player>(L, 2);
 
-        ALE::Push(L, player->IsVisibleGloballyFor(target));
+        YLA::Push(L, player->IsVisibleGloballyFor(target));
         return 1;
     }
 
@@ -615,7 +615,7 @@ namespace LuaPlayer
      */
     int IsGMVisible(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->isGMVisible());
+        YLA::Push(L, player->isGMVisible());
         return 1;
     }
 
@@ -626,7 +626,7 @@ namespace LuaPlayer
      */
     int IsTaxiCheater(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->isTaxiCheater());
+        YLA::Push(L, player->isTaxiCheater());
         return 1;
     }
 
@@ -638,7 +638,7 @@ namespace LuaPlayer
      */
     int IsGMChat(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->isGMChat());
+        YLA::Push(L, player->isGMChat());
         return 1;
     }
 
@@ -649,7 +649,7 @@ namespace LuaPlayer
      */
     int IsAcceptingWhispers(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->isAcceptWhispers());
+        YLA::Push(L, player->isAcceptWhispers());
         return 1;
     }
 
@@ -660,7 +660,7 @@ namespace LuaPlayer
      */
     int IsRested(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetRestBonus() > 0.0f);
+        YLA::Push(L, player->GetRestBonus() > 0.0f);
         return 1;
     }
 
@@ -671,7 +671,7 @@ namespace LuaPlayer
      */
     int InBattlegroundQueue(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->InBattlegroundQueue());
+        YLA::Push(L, player->InBattlegroundQueue());
         return 1;
     }
 
@@ -682,7 +682,7 @@ namespace LuaPlayer
      */
     int InArena(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->InArena());
+        YLA::Push(L, player->InArena());
         return 1;
     }
 
@@ -693,7 +693,7 @@ namespace LuaPlayer
      */
     int InBattleground(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->InBattleground());
+        YLA::Push(L, player->InBattleground());
         return 1;
     }
 
@@ -704,7 +704,7 @@ namespace LuaPlayer
      */
     int CanBlock(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->CanBlock());
+        YLA::Push(L, player->CanBlock());
         return 1;
     }
 
@@ -715,7 +715,7 @@ namespace LuaPlayer
      */
     int CanParry(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->CanParry());
+        YLA::Push(L, player->CanParry());
         return 1;
     }
 
@@ -726,7 +726,7 @@ namespace LuaPlayer
      */
     int GetSpecsCount(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetSpecsCount());
+        YLA::Push(L, player->GetSpecsCount());
         return 1;
     }
 
@@ -737,7 +737,7 @@ namespace LuaPlayer
      */
     int GetActiveSpec(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetActiveSpec());
+        YLA::Push(L, player->GetActiveSpec());
         return 1;
     }
 
@@ -748,7 +748,7 @@ namespace LuaPlayer
      */
     int GetPhaseMaskForSpawn(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetPhaseMaskForSpawn());
+        YLA::Push(L, player->GetPhaseMaskForSpawn());
         return 1;
     }
 
@@ -770,7 +770,7 @@ namespace LuaPlayer
             }
         }
 
-        ALE::Push(L, count);
+        YLA::Push(L, count);
         return 1;
     }
 
@@ -782,7 +782,7 @@ namespace LuaPlayer
     int GetCompletedAchievementsCount(lua_State* L, Player* player)
     {
         uint32 count = 0;
-        bool countFeatsOfStrength = ALE::CHECKVAL<bool>(L, 2, false);
+        bool countFeatsOfStrength = YLA::CHECKVAL<bool>(L, 2, false);
         const CompletedAchievementMap& completedAchievements = player->GetAchievementMgr()->GetCompletedAchievements();
         for (auto& pair : completedAchievements)
         {
@@ -793,7 +793,7 @@ namespace LuaPlayer
             }
         }
 
-        ALE::Push(L, count);
+        YLA::Push(L, count);
         return 1;
     }
 
@@ -804,7 +804,7 @@ namespace LuaPlayer
      */
     int GetArenaPoints(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetArenaPoints());
+        YLA::Push(L, player->GetArenaPoints());
         return 1;
     }
 
@@ -815,7 +815,7 @@ namespace LuaPlayer
      */
     int GetHonorPoints(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetHonorPoints());
+        YLA::Push(L, player->GetHonorPoints());
         return 1;
     }
 
@@ -826,7 +826,7 @@ namespace LuaPlayer
      */
     int GetShieldBlockValue(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetShieldBlockValue());
+        YLA::Push(L, player->GetShieldBlockValue());
         return 1;
     }
 
@@ -838,9 +838,9 @@ namespace LuaPlayer
      */
     int GetSpellCooldownDelay(lua_State* L, Player* player)
     {
-        uint32 spellId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 spellId = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, uint32(player->GetSpellCooldownDelay(spellId)));
+        YLA::Push(L, uint32(player->GetSpellCooldownDelay(spellId)));
         return 1;
     }
 
@@ -851,7 +851,7 @@ namespace LuaPlayer
      */
     int GetLatency(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetSession()->GetLatency());
+        YLA::Push(L, player->GetSession()->GetLatency());
         return 1;
     }
 
@@ -862,7 +862,7 @@ namespace LuaPlayer
      */
     int GetChampioningFaction(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetChampioningFaction());
+        YLA::Push(L, player->GetChampioningFaction());
         return 1;
     }
 
@@ -873,7 +873,7 @@ namespace LuaPlayer
      */
     int GetOriginalSubGroup(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetOriginalSubGroup());
+        YLA::Push(L, player->GetOriginalSubGroup());
         return 1;
     }
 
@@ -884,7 +884,7 @@ namespace LuaPlayer
      */
     int GetOriginalGroup(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetOriginalGroup());
+        YLA::Push(L, player->GetOriginalGroup());
         return 1;
     }
 
@@ -896,9 +896,9 @@ namespace LuaPlayer
      */
     int GetNextRandomRaidMember(lua_State* L, Player* player)
     {
-        float radius = ALE::CHECKVAL<float>(L, 2);
+        float radius = YLA::CHECKVAL<float>(L, 2);
 
-        ALE::Push(L, player->GetNextRandomRaidMember(radius));
+        YLA::Push(L, player->GetNextRandomRaidMember(radius));
         return 1;
     }
 
@@ -909,7 +909,7 @@ namespace LuaPlayer
      */
     int GetSubGroup(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetSubGroup());
+        YLA::Push(L, player->GetSubGroup());
         return 1;
     }
 
@@ -920,7 +920,7 @@ namespace LuaPlayer
      */
     int GetGroupInvite(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetGroupInvite());
+        YLA::Push(L, player->GetGroupInvite());
         return 1;
     }
 
@@ -931,7 +931,7 @@ namespace LuaPlayer
      */
     int GetXP(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetUInt32Value(PLAYER_XP));
+        YLA::Push(L, player->GetUInt32Value(PLAYER_XP));
         return 1;
     }
 
@@ -943,9 +943,9 @@ namespace LuaPlayer
      */
     int GetXPRestBonus(lua_State* L, Player* player)
     {
-        uint32 xp = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 xp = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->GetXPRestBonus(xp));
+        YLA::Push(L, player->GetXPRestBonus(xp));
         return 1;
     }
 
@@ -956,7 +956,7 @@ namespace LuaPlayer
      */
     int GetBattlegroundTypeId(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetBattlegroundTypeId());
+        YLA::Push(L, player->GetBattlegroundTypeId());
         return 1;
     }
 
@@ -967,7 +967,7 @@ namespace LuaPlayer
      */
     int GetBattlegroundId(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetBattlegroundId());
+        YLA::Push(L, player->GetBattlegroundId());
         return 1;
     }
 
@@ -979,9 +979,9 @@ namespace LuaPlayer
      */
     int GetReputationRank(lua_State* L, Player* player)
     {
-        uint32 faction = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 faction = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->GetReputationRank(faction));
+        YLA::Push(L, player->GetReputationRank(faction));
         return 1;
     }
 
@@ -992,7 +992,7 @@ namespace LuaPlayer
      */
     int GetDrunkValue(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetDrunkValue());
+        YLA::Push(L, player->GetDrunkValue());
         return 1;
     }
 
@@ -1004,9 +1004,9 @@ namespace LuaPlayer
      */
     int GetSkillTempBonusValue(lua_State* L, Player* player)
     {
-        uint32 skill = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 skill = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->GetSkillTempBonusValue(skill));
+        YLA::Push(L, player->GetSkillTempBonusValue(skill));
         return 1;
     }
 
@@ -1018,9 +1018,9 @@ namespace LuaPlayer
      */
     int GetSkillPermBonusValue(lua_State* L, Player* player)
     {
-        uint32 skill = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 skill = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->GetSkillPermBonusValue(skill));
+        YLA::Push(L, player->GetSkillPermBonusValue(skill));
         return 1;
     }
 
@@ -1032,9 +1032,9 @@ namespace LuaPlayer
      */
     int GetPureSkillValue(lua_State* L, Player* player)
     {
-        uint32 skill = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 skill = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->GetPureSkillValue(skill));
+        YLA::Push(L, player->GetPureSkillValue(skill));
         return 1;
     }
 
@@ -1046,9 +1046,9 @@ namespace LuaPlayer
      */
     int GetBaseSkillValue(lua_State* L, Player* player)
     {
-        uint32 skill = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 skill = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->GetBaseSkillValue(skill));
+        YLA::Push(L, player->GetBaseSkillValue(skill));
         return 1;
     }
 
@@ -1060,9 +1060,9 @@ namespace LuaPlayer
      */
     int GetSkillValue(lua_State* L, Player* player)
     {
-        uint32 skill = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 skill = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->GetSkillValue(skill));
+        YLA::Push(L, player->GetSkillValue(skill));
         return 1;
     }
 
@@ -1074,9 +1074,9 @@ namespace LuaPlayer
      */
     int GetPureMaxSkillValue(lua_State* L, Player* player)
     {
-        uint32 skill = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 skill = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->GetPureMaxSkillValue(skill));
+        YLA::Push(L, player->GetPureMaxSkillValue(skill));
         return 1;
     }
 
@@ -1088,9 +1088,9 @@ namespace LuaPlayer
      */
     int GetMaxSkillValue(lua_State* L, Player* player)
     {
-        uint32 skill = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 skill = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->GetMaxSkillValue(skill));
+        YLA::Push(L, player->GetMaxSkillValue(skill));
         return 1;
     }
 
@@ -1101,7 +1101,7 @@ namespace LuaPlayer
      */
     int GetManaBonusFromIntellect(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetManaBonusFromIntellect());
+        YLA::Push(L, player->GetManaBonusFromIntellect());
         return 1;
     }
 
@@ -1112,7 +1112,7 @@ namespace LuaPlayer
      */
     int GetHealthBonusFromStamina(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetHealthBonusFromStamina());
+        YLA::Push(L, player->GetHealthBonusFromStamina());
         return 1;
     }
 
@@ -1124,8 +1124,8 @@ namespace LuaPlayer
      */
     int GetDifficulty(lua_State* L, Player* player)
     {
-        bool isRaid = ALE::CHECKVAL<bool>(L, 2, true);
-        ALE::Push(L, player->GetDifficulty(isRaid));
+        bool isRaid = YLA::CHECKVAL<bool>(L, 2, true);
+        YLA::Push(L, player->GetDifficulty(isRaid));
         return 1;
     }
 
@@ -1136,7 +1136,7 @@ namespace LuaPlayer
      */
     int GetGuildRank(lua_State* L, Player* player) // TODO: Move to Guild Methods
     {
-        ALE::Push(L, player->GetRank());
+        YLA::Push(L, player->GetRank());
         return 1;
     }
 
@@ -1147,7 +1147,7 @@ namespace LuaPlayer
      */
     int GetFreeTalentPoints(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetFreeTalentPoints());
+        YLA::Push(L, player->GetFreeTalentPoints());
         return 1;
     }
 
@@ -1160,7 +1160,7 @@ namespace LuaPlayer
     {
         if (!player->GetGuildId())
             return 1;
-        ALE::Push(L, eGuildMgr->GetGuildNameById(player->GetGuildId()));
+        YLA::Push(L, eGuildMgr->GetGuildNameById(player->GetGuildId()));
         return 1;
     }
 
@@ -1172,9 +1172,9 @@ namespace LuaPlayer
      */
     int GetReputation(lua_State* L, Player* player)
     {
-        uint32 faction = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 faction = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->GetReputationMgr().GetReputation(faction));
+        YLA::Push(L, player->GetReputationMgr().GetReputation(faction));
         return 1;
     }
 
@@ -1185,7 +1185,7 @@ namespace LuaPlayer
      */
     int GetComboTarget(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetComboTarget());
+        YLA::Push(L, player->GetComboTarget());
         return 1;
     }
 
@@ -1196,7 +1196,7 @@ namespace LuaPlayer
      */
     int GetComboPoints(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetComboPoints());
+        YLA::Push(L, player->GetComboPoints());
         return 1;
     }
 
@@ -1207,7 +1207,7 @@ namespace LuaPlayer
      */
     int GetInGameTime(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetInGameTime());
+        YLA::Push(L, player->GetInGameTime());
         return 1;
     }
 
@@ -1219,9 +1219,9 @@ namespace LuaPlayer
      */
     int GetQuestStatus(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->GetQuestStatus(entry));
+        YLA::Push(L, player->GetQuestStatus(entry));
         return 1;
     }
 
@@ -1233,9 +1233,9 @@ namespace LuaPlayer
      */
     int GetQuestRewardStatus(lua_State* L, Player* player)
     {
-        uint32 questId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 questId = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->GetQuestRewardStatus(questId));
+        YLA::Push(L, player->GetQuestRewardStatus(questId));
         return 1;
     }
 
@@ -1248,10 +1248,10 @@ namespace LuaPlayer
      */
     int GetReqKillOrCastCurrentCount(lua_State* L, Player* player)
     {
-        uint32 questId = ALE::CHECKVAL<uint32>(L, 2);
-        int32 entry = ALE::CHECKVAL<int32>(L, 3);
+        uint32 questId = YLA::CHECKVAL<uint32>(L, 2);
+        int32 entry = YLA::CHECKVAL<int32>(L, 3);
 
-        ALE::Push(L, player->GetReqKillOrCastCurrentCount(questId, entry));
+        YLA::Push(L, player->GetReqKillOrCastCurrentCount(questId, entry));
         return 1;
     }
 
@@ -1263,9 +1263,9 @@ namespace LuaPlayer
      */
     int GetQuestLevel(lua_State* L, Player* player)
     {
-        Quest* quest = ALE::CHECKOBJ<Quest>(L, 2);
+        Quest* quest = YLA::CHECKOBJ<Quest>(L, 2);
 
-        ALE::Push(L, player->GetQuestLevel(quest));
+        YLA::Push(L, player->GetQuestLevel(quest));
         return 1;
     }
 
@@ -1277,12 +1277,12 @@ namespace LuaPlayer
      */
     int GetEquippedItemBySlot(lua_State* L, Player* player)
     {
-        uint8 slot = ALE::CHECKVAL<uint8>(L, 2);
+        uint8 slot = YLA::CHECKVAL<uint8>(L, 2);
         if (slot >= EQUIPMENT_SLOT_END)
             return 1;
 
         Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
-        ALE::Push(L, item);
+        YLA::Push(L, item);
         return 1;
     }
 
@@ -1293,7 +1293,7 @@ namespace LuaPlayer
      */
     int GetRestBonus(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetRestBonus());
+        YLA::Push(L, player->GetRestBonus());
         return 1;
     }
 
@@ -1304,7 +1304,7 @@ namespace LuaPlayer
      */
     int GetChatTag(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetChatTag());
+        YLA::Push(L, player->GetChatTag());
         return 1;
     }
 
@@ -1335,10 +1335,10 @@ namespace LuaPlayer
      */
     int GetItemByPos(lua_State* L, Player* player)
     {
-        uint8 bag = ALE::CHECKVAL<uint8>(L, 2);
-        uint8 slot = ALE::CHECKVAL<uint8>(L, 3);
+        uint8 bag = YLA::CHECKVAL<uint8>(L, 2);
+        uint8 slot = YLA::CHECKVAL<uint8>(L, 3);
 
-        ALE::Push(L, player->GetItemByPos(bag, slot));
+        YLA::Push(L, player->GetItemByPos(bag, slot));
         return 1;
     }
 
@@ -1352,9 +1352,9 @@ namespace LuaPlayer
      */
     int GetItemByGUID(lua_State* L, Player* player)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
 
-        ALE::Push(L, player->GetItemByGuid(guid));
+        YLA::Push(L, player->GetItemByGuid(guid));
         return 1;
     }
 
@@ -1368,11 +1368,11 @@ namespace LuaPlayer
         const CharacterCacheEntry* cache = sCharacterCache->GetCharacterCacheByGuid(player->GetGUID());
         if (cache)
         {
-            ALE::Push(L, static_cast<uint32>(cache->MailCount));
+            YLA::Push(L, static_cast<uint32>(cache->MailCount));
         }
         else
         {
-            ALE::Push(L, player->GetMailSize());
+            YLA::Push(L, player->GetMailSize());
         }
 
         return 1;
@@ -1386,9 +1386,9 @@ namespace LuaPlayer
      */
     int GetMailItem(lua_State* L, Player* player)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
 
-        ALE::Push(L, player->GetMItem(guid.GetCounter()));
+        YLA::Push(L, player->GetMItem(guid.GetCounter()));
         return 1;
     }
 
@@ -1402,9 +1402,9 @@ namespace LuaPlayer
      */
     int GetItemByEntry(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, player->GetItemByEntry(entry));
+        YLA::Push(L, player->GetItemByEntry(entry));
         return 1;
     }
     
@@ -1416,8 +1416,8 @@ namespace LuaPlayer
      */
     int GetGossipTextId(lua_State* L, Player* player)
     {
-        WorldObject* obj = ALE::CHECKOBJ<WorldObject>(L, 2);
-        ALE::Push(L, player->GetGossipTextId(obj));
+        WorldObject* obj = YLA::CHECKOBJ<WorldObject>(L, 2);
+        YLA::Push(L, player->GetGossipTextId(obj));
         return 1;
     }
 
@@ -1428,7 +1428,7 @@ namespace LuaPlayer
      */
     int GetSelection(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetSelectedUnit());
+        YLA::Push(L, player->GetSelectedUnit());
         return 1;
     }
 
@@ -1439,7 +1439,7 @@ namespace LuaPlayer
      */
     int GetGMRank(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetSession()->GetSecurity());
+        YLA::Push(L, player->GetSession()->GetSecurity());
         return 1;
     }
 
@@ -1450,7 +1450,7 @@ namespace LuaPlayer
      */
     int GetCoinage(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetMoney());
+        YLA::Push(L, player->GetMoney());
         return 1;
     }
 
@@ -1461,7 +1461,7 @@ namespace LuaPlayer
      */
     int GetGuildId(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetGuildId());
+        YLA::Push(L, player->GetGuildId());
         return 1;
     }
 
@@ -1472,7 +1472,7 @@ namespace LuaPlayer
      */
     int GetTeam(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetTeamId());
+        YLA::Push(L, player->GetTeamId());
         return 1;
     }
     
@@ -1485,9 +1485,9 @@ namespace LuaPlayer
      */
     int GetItemCount(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
-        bool checkinBank = ALE::CHECKVAL<bool>(L, 3, false);
-        ALE::Push(L, player->GetItemCount(entry, checkinBank));
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
+        bool checkinBank = YLA::CHECKVAL<bool>(L, 3, false);
+        YLA::Push(L, player->GetItemCount(entry, checkinBank));
         return 1;
     }
 
@@ -1498,7 +1498,7 @@ namespace LuaPlayer
      */
     int GetLifetimeKills(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));
+        YLA::Push(L, player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));
         return 1;
     }
 
@@ -1509,7 +1509,7 @@ namespace LuaPlayer
      */
     int GetPlayerIP(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetSession()->GetRemoteAddress());
+        YLA::Push(L, player->GetSession()->GetRemoteAddress());
         return 1;
     }
 
@@ -1520,7 +1520,7 @@ namespace LuaPlayer
      */
     int GetLevelPlayedTime(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetLevelPlayedTime());
+        YLA::Push(L, player->GetLevelPlayedTime());
         return 1;
     }
 
@@ -1531,7 +1531,7 @@ namespace LuaPlayer
      */
     int GetTotalPlayedTime(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetTotalPlayedTime());
+        YLA::Push(L, player->GetTotalPlayedTime());
         return 1;
     }
 
@@ -1542,7 +1542,7 @@ namespace LuaPlayer
      */
     int GetGuild(lua_State* L, Player* player)
     {
-        ALE::Push(L, eGuildMgr->GetGuildById(player->GetGuildId()));
+        YLA::Push(L, eGuildMgr->GetGuildById(player->GetGuildId()));
         return 1;
     }
 
@@ -1553,7 +1553,7 @@ namespace LuaPlayer
      */
     int GetGroup(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetGroup());
+        YLA::Push(L, player->GetGroup());
         return 1;
     }
 
@@ -1564,7 +1564,7 @@ namespace LuaPlayer
      */
     int GetAccountId(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetSession()->GetAccountId());
+        YLA::Push(L, player->GetSession()->GetAccountId());
         return 1;
     }
 
@@ -1577,7 +1577,7 @@ namespace LuaPlayer
     {
         std::string accName;
         if (AccountMgr::GetName(player->GetSession()->GetAccountId(), accName))
-            ALE::Push(L, accName);
+            YLA::Push(L, accName);
         return 1;
     }
 
@@ -1590,7 +1590,7 @@ namespace LuaPlayer
     {
         uint32 count = player->GetRewardedQuestCount();
 
-        ALE::Push(L, count);
+        YLA::Push(L, count);
         return 1;
     }
 
@@ -1601,7 +1601,7 @@ namespace LuaPlayer
      */
     int GetCorpse(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetCorpse());
+        YLA::Push(L, player->GetCorpse());
         return 1;
     }
 
@@ -1612,7 +1612,7 @@ namespace LuaPlayer
      */
     int GetDbLocaleIndex(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetSession()->GetSessionDbLocaleIndex());
+        YLA::Push(L, player->GetSession()->GetSessionDbLocaleIndex());
         return 1;
     }
 
@@ -1623,7 +1623,7 @@ namespace LuaPlayer
      */
     int GetDbcLocale(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetSession()->GetSessionDbcLocale());
+        YLA::Push(L, player->GetSession()->GetSessionDbcLocale());
         return 1;
     }
 
@@ -1663,25 +1663,25 @@ namespace LuaPlayer
 
     /*int GetRecruiterId(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetSession()->GetRecruiterId());
+        YLA::Push(L, player->GetSession()->GetRecruiterId());
         return 1;
     }*/
 
     /*int GetSelectedPlayer(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetSelectedPlayer());
+        YLA::Push(L, player->GetSelectedPlayer());
         return 1;
     }*/
 
     /*int GetSelectedUnit(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetSelectedUnit());
+        YLA::Push(L, player->GetSelectedUnit());
         return 1;
     }*/
 
     /*int GetNearbyGameObject(lua_State* L, Player* player)
     {
-        ALE::Push(L, ChatHandler(player->GetSession()).GetNearbyGameObject());
+        YLA::Push(L, ChatHandler(player->GetSession()).GetNearbyGameObject());
         return 1;
     }*/
     
@@ -1692,7 +1692,7 @@ namespace LuaPlayer
      */
     int SetPlayerLock(lua_State* L, Player* player)
     {
-        bool apply = ALE::CHECKVAL<bool>(L, 2, true);
+        bool apply = YLA::CHECKVAL<bool>(L, 2, true);
 
         if (apply)
         {
@@ -1714,7 +1714,7 @@ namespace LuaPlayer
      */
     int SetAtLoginFlag(lua_State* L, Player* player)
     {
-        uint32 flag = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 flag = YLA::CHECKVAL<uint32>(L, 2);
 
         player->SetAtLoginFlag((AtLoginFlags)flag);
         return 0;
@@ -1727,7 +1727,7 @@ namespace LuaPlayer
      */
     int SetSheath(lua_State* L, Player* player)
     {
-        uint32 sheathed = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 sheathed = YLA::CHECKVAL<uint32>(L, 2);
         if (sheathed >= MAX_SHEATH_STATE)
             return 0;
 
@@ -1742,7 +1742,7 @@ namespace LuaPlayer
      */
     int SetDrunkValue(lua_State* L, Player* player)
     {
-        uint8 newDrunkValue = ALE::CHECKVAL<uint8>(L, 2);
+        uint8 newDrunkValue = YLA::CHECKVAL<uint8>(L, 2);
 
         player->SetDrunkValue(newDrunkValue);
         return 0;
@@ -1755,7 +1755,7 @@ namespace LuaPlayer
      */
     int SetFactionForRace(lua_State* L, Player* player)
     {
-        uint8 race = ALE::CHECKVAL<uint8>(L, 2);
+        uint8 race = YLA::CHECKVAL<uint8>(L, 2);
 
         player->SetFactionForRace(race);
         return 0;
@@ -1771,10 +1771,10 @@ namespace LuaPlayer
      */
     int SetSkill(lua_State* L, Player* player)
     {
-        uint16 id = ALE::CHECKVAL<uint16>(L, 2);
-        uint16 step = ALE::CHECKVAL<uint16>(L, 3);
-        uint16 currVal = ALE::CHECKVAL<uint16>(L, 4);
-        uint16 maxVal = ALE::CHECKVAL<uint16>(L, 5);
+        uint16 id = YLA::CHECKVAL<uint16>(L, 2);
+        uint16 step = YLA::CHECKVAL<uint16>(L, 3);
+        uint16 currVal = YLA::CHECKVAL<uint16>(L, 4);
+        uint16 maxVal = YLA::CHECKVAL<uint16>(L, 5);
 
         player->SetSkill(id, currVal, maxVal, step);
         return 0;
@@ -1787,7 +1787,7 @@ namespace LuaPlayer
      */
     int SetGuildRank(lua_State* L, Player* player) // TODO: Move to Guild Methods
     {
-        uint8 rank = ALE::CHECKVAL<uint8>(L, 2);
+        uint8 rank = YLA::CHECKVAL<uint8>(L, 2);
 
         if (!player->GetGuildId())
             return 0;
@@ -1803,7 +1803,7 @@ namespace LuaPlayer
      */
     int SetFreeTalentPoints(lua_State* L, Player* player)
     {
-        uint32 points = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 points = YLA::CHECKVAL<uint32>(L, 2);
 
         player->SetFreeTalentPoints(points);
         player->SendTalentsInfoData(false);
@@ -1818,8 +1818,8 @@ namespace LuaPlayer
      */
     int SetReputation(lua_State* L, Player* player)
     {
-        uint32 faction = ALE::CHECKVAL<uint32>(L, 2);
-        int32 value = ALE::CHECKVAL<int32>(L, 3);
+        uint32 faction = YLA::CHECKVAL<uint32>(L, 2);
+        int32 value = YLA::CHECKVAL<int32>(L, 3);
 
         FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction);
         player->GetReputationMgr().SetReputation(factionEntry, value);
@@ -1834,8 +1834,8 @@ namespace LuaPlayer
      */
     int SetQuestStatus(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
-        uint32 status = ALE::CHECKVAL<uint32>(L, 3);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
+        uint32 status = YLA::CHECKVAL<uint32>(L, 3);
         if (status >= MAX_QUEST_STATUS)
             return 0;
 
@@ -1850,7 +1850,7 @@ namespace LuaPlayer
      */
     int SetRestBonus(lua_State* L, Player* player)
     {
-        float bonus = ALE::CHECKVAL<float>(L, 2);
+        float bonus = YLA::CHECKVAL<float>(L, 2);
 
         player->SetRestBonus(bonus);
         return 0;
@@ -1863,7 +1863,7 @@ namespace LuaPlayer
      */
     int SetAcceptWhispers(lua_State* L, Player* player)
     {
-        bool on = ALE::CHECKVAL<bool>(L, 2, true);
+        bool on = YLA::CHECKVAL<bool>(L, 2, true);
 
         player->SetAcceptWhispers(on);
         return 0;
@@ -1876,7 +1876,7 @@ namespace LuaPlayer
      */
     int SetPvPDeath(lua_State* L, Player* player)
     {
-        bool on = ALE::CHECKVAL<bool>(L, 2, true);
+        bool on = YLA::CHECKVAL<bool>(L, 2, true);
 
         player->SetPvPDeath(on);
         return 0;
@@ -1889,7 +1889,7 @@ namespace LuaPlayer
      */
     int SetGMVisible(lua_State* L, Player* player)
     {
-        bool on = ALE::CHECKVAL<bool>(L, 2, true);
+        bool on = YLA::CHECKVAL<bool>(L, 2, true);
 
         player->SetGMVisible(on);
         return 0;
@@ -1930,7 +1930,7 @@ namespace LuaPlayer
      */
     int SetTaxiCheat(lua_State* L, Player* player)
     {
-        bool on = ALE::CHECKVAL<bool>(L, 2, true);
+        bool on = YLA::CHECKVAL<bool>(L, 2, true);
 
         player->SetTaxiCheater(on);
         return 0;
@@ -1943,7 +1943,7 @@ namespace LuaPlayer
      */
     int SetGMChat(lua_State* L, Player* player)
     {
-        bool on = ALE::CHECKVAL<bool>(L, 2, true);
+        bool on = YLA::CHECKVAL<bool>(L, 2, true);
 
         player->SetGMChat(on);
         return 0;
@@ -1956,7 +1956,7 @@ namespace LuaPlayer
      */
     int SetGameMaster(lua_State* L, Player* player)
     {
-        bool on = ALE::CHECKVAL<bool>(L, 2, true);
+        bool on = YLA::CHECKVAL<bool>(L, 2, true);
 
         player->SetGameMaster(on);
         return 0;
@@ -1972,7 +1972,7 @@ namespace LuaPlayer
      */
     int SetGender(lua_State* L, Player* player)
     {
-        uint32 _gender = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 _gender = YLA::CHECKVAL<uint32>(L, 2);
 
         Gender gender;
         switch (_gender)
@@ -2000,7 +2000,7 @@ namespace LuaPlayer
      */
     int SetArenaPoints(lua_State* L, Player* player)
     {
-        uint32 arenaP = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 arenaP = YLA::CHECKVAL<uint32>(L, 2);
         player->SetArenaPoints(arenaP);
         return 0;
     }
@@ -2012,7 +2012,7 @@ namespace LuaPlayer
      */
     int SetHonorPoints(lua_State* L, Player* player)
     {
-        uint32 honorP = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 honorP = YLA::CHECKVAL<uint32>(L, 2);
         player->SetHonorPoints(honorP);
         return 0;
     }
@@ -2024,7 +2024,7 @@ namespace LuaPlayer
      */
     int SetLifetimeKills(lua_State* L, Player* player)
     {
-        uint32 val = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 val = YLA::CHECKVAL<uint32>(L, 2);
         player->SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, val);
         return 0;
     }
@@ -2036,7 +2036,7 @@ namespace LuaPlayer
      */
     int SetCoinage(lua_State* L, Player* player)
     {
-        uint32 amt = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 amt = YLA::CHECKVAL<uint32>(L, 2);
         player->SetMoney(amt);
         return 0;
     }
@@ -2052,11 +2052,11 @@ namespace LuaPlayer
      */
     int SetBindPoint(lua_State* L, Player* player)
     {
-        float x = ALE::CHECKVAL<float>(L, 2);
-        float y = ALE::CHECKVAL<float>(L, 3);
-        float z = ALE::CHECKVAL<float>(L, 4);
-        uint32 mapId = ALE::CHECKVAL<uint32>(L, 5);
-        uint32 areaId = ALE::CHECKVAL<uint32>(L, 6);
+        float x = YLA::CHECKVAL<float>(L, 2);
+        float y = YLA::CHECKVAL<float>(L, 3);
+        float z = YLA::CHECKVAL<float>(L, 4);
+        uint32 mapId = YLA::CHECKVAL<uint32>(L, 5);
+        uint32 areaId = YLA::CHECKVAL<uint32>(L, 6);
 
         WorldLocation loc(mapId, x, y, z);
         player->SetHomebind(loc, areaId);
@@ -2070,7 +2070,7 @@ namespace LuaPlayer
      */
     int SetKnownTitle(lua_State* L, Player* player)
     {
-        uint32 id = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 id = YLA::CHECKVAL<uint32>(L, 2);
         CharTitlesEntry const* t = sCharTitlesStore.LookupEntry(id);
         if (t)
             player->SetTitle(t, false);
@@ -2084,7 +2084,7 @@ namespace LuaPlayer
      */
     int SetAchievement(lua_State* L, Player* player)
     {
-        uint32 id = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 id = YLA::CHECKVAL<uint32>(L, 2);
         AchievementEntry const* t = sAchievementStore.LookupEntry(id);
         if (t)
             player->CompletedAchievement(t);
@@ -2093,7 +2093,7 @@ namespace LuaPlayer
 
     /*int SetMovement(lua_State* L, Player* player)
     {
-        int32 pType = ALE::CHECKVAL<int32>(L, 2);
+        int32 pType = YLA::CHECKVAL<int32>(L, 2);
 
         player->SetMovement((PlayerMovementType)pType);
         return 0;
@@ -2115,7 +2115,7 @@ namespace LuaPlayer
      */
     int SendShowMailBox(lua_State* L, Player* player)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2, player->GET_GUID());
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2, player->GET_GUID());
 
         player->GetSession()->SendShowMailBox(guid);
         return 0;
@@ -2128,7 +2128,7 @@ namespace LuaPlayer
      */
     int ModifyArenaPoints(lua_State* L, Player* player)
     {
-        int32 amount = ALE::CHECKVAL<int32>(L, 2);
+        int32 amount = YLA::CHECKVAL<int32>(L, 2);
 
         player->ModifyArenaPoints(amount);
         return 0;
@@ -2141,7 +2141,7 @@ namespace LuaPlayer
      */
     int ModifyHonorPoints(lua_State* L, Player* player)
     {
-        int32 amount = ALE::CHECKVAL<int32>(L, 2);
+        int32 amount = YLA::CHECKVAL<int32>(L, 2);
 
         player->ModifyHonorPoints(amount);
         return 0;
@@ -2163,7 +2163,7 @@ namespace LuaPlayer
      */
     int SummonPlayer(lua_State* L, Player* player)
     {
-        Unit* summoner = ALE::CHECKOBJ<Unit>(L, 2);
+        Unit* summoner = YLA::CHECKOBJ<Unit>(L, 2);
 
         float x, y, z;
         summoner->GetPosition(x,y,z);
@@ -2184,7 +2184,7 @@ namespace LuaPlayer
      */
     int Mute(lua_State* L, Player* player)
     {
-        uint32 muteseconds = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 muteseconds = YLA::CHECKVAL<uint32>(L, 2);
         /*const char* reason = luaL_checkstring(E, 2);*/ // Mangos does not have a reason field in database.
 
         time_t muteTime = GameTime::GetGameTime().count() + muteseconds;
@@ -2200,7 +2200,7 @@ namespace LuaPlayer
      */
     int RewardQuest(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
         Quest const* quest = eObjectMgr->GetQuestTemplate(entry);
 
@@ -2219,7 +2219,7 @@ namespace LuaPlayer
      */
     int SendAuctionMenu(lua_State* L, Player* player)
     {
-        Unit* unit = ALE::CHECKOBJ<Unit>(L, 2);
+        Unit* unit = YLA::CHECKOBJ<Unit>(L, 2);
 
         AuctionHouseEntry const* ahEntry = AuctionHouseMgr::GetAuctionHouseEntryFromFactionTemplate(unit->GetFaction());
         if (!ahEntry)
@@ -2240,7 +2240,7 @@ namespace LuaPlayer
      */
     int SendTaxiMenu(lua_State* L, Player* player)
     {
-        Creature* creature = ALE::CHECKOBJ<Creature>(L, 2);
+        Creature* creature = YLA::CHECKOBJ<Creature>(L, 2);
 
         player->GetSession()->SendTaxiMenu(creature);
         return 0;
@@ -2262,7 +2262,7 @@ namespace LuaPlayer
      */
     int SendTabardVendorActivate(lua_State* L, Player* player)
     {
-        WorldObject* obj = ALE::CHECKOBJ<WorldObject>(L, 2);
+        WorldObject* obj = YLA::CHECKOBJ<WorldObject>(L, 2);
 
         player->GetSession()->SendTabardVendorActivate(obj->GET_GUID());
         return 0;
@@ -2275,7 +2275,7 @@ namespace LuaPlayer
      */
     int SendShowBank(lua_State* L, Player* player)
     {
-        WorldObject* obj = ALE::CHECKOBJ<WorldObject>(L, 2);
+        WorldObject* obj = YLA::CHECKOBJ<WorldObject>(L, 2);
 
         player->GetSession()->SendShowBank(obj->GET_GUID());
         return 0;
@@ -2288,8 +2288,8 @@ namespace LuaPlayer
      */
     int SendListInventory(lua_State* L, Player* player)
     {
-        WorldObject* obj = ALE::CHECKOBJ<WorldObject>(L, 2);
-        uint32 vendorId = ALE::CHECKVAL<uint32>(L, 3, 0);
+        WorldObject* obj = YLA::CHECKOBJ<WorldObject>(L, 2);
+        uint32 vendorId = YLA::CHECKVAL<uint32>(L, 3, 0);
 
         player->GetSession()->SendListInventory(obj->GET_GUID(), vendorId);
         return 0;
@@ -2302,7 +2302,7 @@ namespace LuaPlayer
      */
     int SendTrainerList(lua_State* L, Player* player)
     {
-        Creature* obj = ALE::CHECKOBJ<Creature>(L, 2);
+        Creature* obj = YLA::CHECKOBJ<Creature>(L, 2);
 
         player->GetSession()->SendTrainerList(obj->GET_GUID());
         return 0;
@@ -2315,7 +2315,7 @@ namespace LuaPlayer
      */
     int SendGuildInvite(lua_State* L, Player* player)
     {
-        Player* plr = ALE::CHECKOBJ<Player>(L, 2);
+        Player* plr = YLA::CHECKOBJ<Player>(L, 2);
 
         if (Guild* guild = player->GetGuild())
             guild->HandleInviteMember(player->GetSession(), plr->GetName());
@@ -2330,8 +2330,8 @@ namespace LuaPlayer
      */
     int SendUpdateWorldState(lua_State* L, Player* player)
     {
-        uint32 field = ALE::CHECKVAL<uint32>(L, 2);
-        uint32 value = ALE::CHECKVAL<uint32>(L, 3);
+        uint32 field = YLA::CHECKVAL<uint32>(L, 2);
+        uint32 value = YLA::CHECKVAL<uint32>(L, 3);
 
         player->SendUpdateWorldState(field, value);
         return 0;
@@ -2344,7 +2344,7 @@ namespace LuaPlayer
      */
     int LogoutPlayer(lua_State* L, Player* player)
     {
-        bool save = ALE::CHECKVAL<bool>(L, 2, true);
+        bool save = YLA::CHECKVAL<bool>(L, 2, true);
 
         // Bots own their lifetime via PlayerbotMgr (world-thread
         // ScheduleBotLogout). A normal session logout here frees the Player
@@ -2352,7 +2352,7 @@ namespace LuaPlayer
         WorldSession* session = player->GetSession();
         if (!session || session->IsBot())
         {
-            YLA_LOG_ERROR("[ALE]: Player:Logout called on a bot, ignoring. Check your code.");
+            YLA_LOG_ERROR("[YLA]: Player:Logout called on a bot, ignoring. Check your code.");
             return 0;
         }
         YlaDefer::Logout(player, save);
@@ -2378,8 +2378,8 @@ namespace LuaPlayer
      */
     int UnbindInstance(lua_State* L, Player* player)
     {
-        uint32 map = ALE::CHECKVAL<uint32>(L, 2);
-        uint32 difficulty = ALE::CHECKVAL<uint32>(L, 3, 0);
+        uint32 map = YLA::CHECKVAL<uint32>(L, 2);
+        uint32 difficulty = YLA::CHECKVAL<uint32>(L, 3, 0);
 
         if (difficulty < MAX_DIFFICULTY)
             sInstanceSaveMgr->PlayerUnbindInstance(player->GetGUID(), map, Difficulty(difficulty), true, player);
@@ -2432,9 +2432,9 @@ namespace LuaPlayer
      */
     int DurabilityRepair(lua_State* L, Player* player)
     {
-        uint16 position = ALE::CHECKVAL<uint16>(L, 2);
-        bool takeCost = ALE::CHECKVAL<bool>(L, 3, true);
-        float discountMod = ALE::CHECKVAL<float>(L, 4, 1.0f);
+        uint16 position = YLA::CHECKVAL<uint16>(L, 2);
+        bool takeCost = YLA::CHECKVAL<bool>(L, 3, true);
+        float discountMod = YLA::CHECKVAL<float>(L, 4, 1.0f);
 
         player->DurabilityRepair(position, takeCost, discountMod, false);
         return 0;
@@ -2449,9 +2449,9 @@ namespace LuaPlayer
      */
     int DurabilityRepairAll(lua_State* L, Player* player)
     {
-        bool takeCost = ALE::CHECKVAL<bool>(L, 2, true);
-        float discountMod = ALE::CHECKVAL<float>(L, 3, 1.0f);
-        bool guildBank = ALE::CHECKVAL<bool>(L, 4, false);
+        bool takeCost = YLA::CHECKVAL<bool>(L, 2, true);
+        float discountMod = YLA::CHECKVAL<float>(L, 3, 1.0f);
+        bool guildBank = YLA::CHECKVAL<bool>(L, 4, false);
 
         player->DurabilityRepairAll(takeCost, discountMod, guildBank);
         return 0;
@@ -2464,7 +2464,7 @@ namespace LuaPlayer
      */
     int DurabilityPointLossForEquipSlot(lua_State* L, Player* player)
     {
-        int32 slot = ALE::CHECKVAL<int32>(L, 2);
+        int32 slot = YLA::CHECKVAL<int32>(L, 2);
 
         if (slot >= EQUIPMENT_SLOT_START && slot < EQUIPMENT_SLOT_END)
             player->DurabilityPointLossForEquipSlot((EquipmentSlots)slot);
@@ -2481,8 +2481,8 @@ namespace LuaPlayer
      */
     int DurabilityPointsLossAll(lua_State* L, Player* player)
     {
-        int32 points = ALE::CHECKVAL<int32>(L, 2);
-        bool inventory = ALE::CHECKVAL<bool>(L, 3, true);
+        int32 points = YLA::CHECKVAL<int32>(L, 2);
+        bool inventory = YLA::CHECKVAL<bool>(L, 3, true);
 
         player->DurabilityPointsLossAll(points, inventory);
         return 0;
@@ -2496,8 +2496,8 @@ namespace LuaPlayer
      */
     int DurabilityPointsLoss(lua_State* L, Player* player)
     {
-        Item* item = ALE::CHECKOBJ<Item>(L, 2);
-        int32 points = ALE::CHECKVAL<int32>(L, 3);
+        Item* item = YLA::CHECKOBJ<Item>(L, 2);
+        int32 points = YLA::CHECKVAL<int32>(L, 3);
 
         player->DurabilityPointsLoss(item, points);
         return 0;
@@ -2511,8 +2511,8 @@ namespace LuaPlayer
      */
     int DurabilityLoss(lua_State* L, Player* player)
     {
-        Item* item = ALE::CHECKOBJ<Item>(L, 2);
-        double percent = ALE::CHECKVAL<double>(L, 3);
+        Item* item = YLA::CHECKOBJ<Item>(L, 2);
+        double percent = YLA::CHECKVAL<double>(L, 3);
 
         player->DurabilityLoss(item, percent);
         return 0;
@@ -2526,8 +2526,8 @@ namespace LuaPlayer
      */
     int DurabilityLossAll(lua_State* L, Player* player)
     {
-        double percent = ALE::CHECKVAL<double>(L, 2);
-        bool inventory = ALE::CHECKVAL<bool>(L, 3, true);
+        double percent = YLA::CHECKVAL<double>(L, 2);
+        bool inventory = YLA::CHECKVAL<bool>(L, 3, true);
 
         player->DurabilityLossAll(percent, inventory);
         return 0;
@@ -2561,7 +2561,7 @@ namespace LuaPlayer
      */
     int ResetTalentsCost(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->resetTalentsCost());
+        YLA::Push(L, player->resetTalentsCost());
         return 1;
     }
 
@@ -2572,7 +2572,7 @@ namespace LuaPlayer
      */
     int ResetTalents(lua_State* L, Player* player)
     {
-        bool no_cost = ALE::CHECKVAL<bool>(L, 2, true);
+        bool no_cost = YLA::CHECKVAL<bool>(L, 2, true);
 
         player->resetTalents(no_cost);
         player->SendTalentsInfoData(false);
@@ -2586,7 +2586,7 @@ namespace LuaPlayer
      */
     int RemoveSpell(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
         player->removeSpell(entry, SPEC_MASK_ALL, false);
         return 0;
@@ -2609,8 +2609,8 @@ namespace LuaPlayer
      */
     int AddComboPoints(lua_State* L, Player* player)
     {
-        Unit* target = ALE::CHECKOBJ<Unit>(L, 2);
-        int8 count = ALE::CHECKVAL<int8>(L, 3);
+        Unit* target = YLA::CHECKOBJ<Unit>(L, 2);
+        int8 count = YLA::CHECKVAL<int8>(L, 3);
 
         player->AddComboPoints(target, count);
         return 0;
@@ -2624,8 +2624,8 @@ namespace LuaPlayer
      */
     int TalkedToCreature(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
-        Creature* creature = ALE::CHECKOBJ<Creature>(L, 3);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
+        Creature* creature = YLA::CHECKOBJ<Creature>(L, 3);
 
         player->TalkedToCreature(entry, creature->GET_GUID());
         return 0;
@@ -2638,7 +2638,7 @@ namespace LuaPlayer
      */
     int KilledMonsterCredit(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
         player->KilledMonsterCredit(entry, player->GET_GUID());
         return 0;
@@ -2652,8 +2652,8 @@ namespace LuaPlayer
      */
     int GroupEventHappens(lua_State* L, Player* player)
     {
-        uint32 questId = ALE::CHECKVAL<uint32>(L, 2);
-        WorldObject* obj = ALE::CHECKOBJ<WorldObject>(L, 3);
+        uint32 questId = YLA::CHECKVAL<uint32>(L, 2);
+        WorldObject* obj = YLA::CHECKOBJ<WorldObject>(L, 3);
 
         player->GroupEventHappens(questId, obj);
         return 0;
@@ -2666,7 +2666,7 @@ namespace LuaPlayer
      */
     int AreaExploredOrEventHappens(lua_State* L, Player* player)
     {
-        uint32 questId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 questId = YLA::CHECKVAL<uint32>(L, 2);
 
         player->AreaExploredOrEventHappens(questId);
         return 0;
@@ -2679,7 +2679,7 @@ namespace LuaPlayer
      */
     int FailQuest(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
         player->FailQuest(entry);
         return 0;
@@ -2692,7 +2692,7 @@ namespace LuaPlayer
      */
     int IncompleteQuest(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
         player->IncompleteQuest(entry);
         return 0;
@@ -2707,7 +2707,7 @@ namespace LuaPlayer
      */
     int CompleteQuest(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
         Quest const* quest = eObjectMgr->GetQuestTemplate(entry);
 
@@ -2789,7 +2789,7 @@ namespace LuaPlayer
      */
     int AddQuest(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
         Quest const* quest = eObjectMgr->GetQuestTemplate(entry);
         if (!quest)
@@ -2816,7 +2816,7 @@ namespace LuaPlayer
      */
     int RemoveQuest(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
         Quest const* quest = eObjectMgr->GetQuestTemplate(entry);
 
@@ -2857,9 +2857,9 @@ namespace LuaPlayer
      */
     int Whisper(lua_State* L, Player* player)
     {
-        std::string text = ALE::CHECKVAL<std::string>(L, 2);
-        uint32 lang = ALE::CHECKVAL<uint32>(L, 3);
-        Player* receiver = ALE::CHECKOBJ<Player>(L, 4);
+        std::string text = YLA::CHECKVAL<std::string>(L, 2);
+        uint32 lang = YLA::CHECKVAL<uint32>(L, 3);
+        Player* receiver = YLA::CHECKOBJ<Player>(L, 4);
         player->Whisper(text, (Language)lang, receiver);
         return 0;
     }
@@ -2871,7 +2871,7 @@ namespace LuaPlayer
      */
     int TextEmote(lua_State* L, Player* player)
     {
-        std::string text = ALE::CHECKVAL<std::string>(L, 2);
+        std::string text = YLA::CHECKVAL<std::string>(L, 2);
 
         player->TextEmote(text);
         return 0;
@@ -2885,8 +2885,8 @@ namespace LuaPlayer
      */
     int Yell(lua_State* L, Player* player)
     {
-        std::string text = ALE::CHECKVAL<std::string>(L, 2);
-        uint32 lang = ALE::CHECKVAL<uint32>(L, 3);
+        std::string text = YLA::CHECKVAL<std::string>(L, 2);
+        uint32 lang = YLA::CHECKVAL<uint32>(L, 3);
         player->Yell(text, (Language)lang);
         return 0;
     }
@@ -2899,8 +2899,8 @@ namespace LuaPlayer
      */
     int Say(lua_State* L, Player* player)
     {
-        std::string text = ALE::CHECKVAL<std::string>(L, 2);
-        uint32 lang = ALE::CHECKVAL<uint32>(L, 3);
+        std::string text = YLA::CHECKVAL<std::string>(L, 2);
+        uint32 lang = YLA::CHECKVAL<uint32>(L, 3);
         player->Say(text, (Language)lang);
         return 0;
     }
@@ -2913,8 +2913,8 @@ namespace LuaPlayer
      */
     int GiveXP(lua_State* L, Player* player)
     {
-        uint32 xp = ALE::CHECKVAL<uint32>(L, 2);
-        Unit* victim = ALE::CHECKOBJ<Unit>(L, 3, false);
+        uint32 xp = YLA::CHECKVAL<uint32>(L, 2);
+        Unit* victim = YLA::CHECKOBJ<Unit>(L, 3, false);
 
         player->GiveXP(xp, victim);
         return 0;
@@ -2982,15 +2982,15 @@ namespace LuaPlayer
     int EquipItem(lua_State* L, Player* player)
     {
         uint16 dest = 0;
-        Item* item = ALE::CHECKOBJ<Item>(L, 2, false);
-        uint32 slot = ALE::CHECKVAL<uint32>(L, 3);
+        Item* item = YLA::CHECKOBJ<Item>(L, 2, false);
+        uint32 slot = YLA::CHECKVAL<uint32>(L, 3);
 
         if (slot >= INVENTORY_SLOT_BAG_END)
             return 1;
 
         if (!item)
         {
-            uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+            uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
             item = Item::CreateItem(entry, 1, player);
             if (!item)
                 return 1;
@@ -3012,7 +3012,7 @@ namespace LuaPlayer
             player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
         }
 
-        ALE::Push(L, player->EquipItem(dest, item, true));
+        YLA::Push(L, player->EquipItem(dest, item, true));
         player->AutoUnequipOffhandIfNeed();
         return 1;
     }
@@ -3029,22 +3029,22 @@ namespace LuaPlayer
      */
     int CanEquipItem(lua_State* L, Player* player)
     {
-        Item* item = ALE::CHECKOBJ<Item>(L, 2, false);
-        uint32 slot = ALE::CHECKVAL<uint32>(L, 3);
+        Item* item = YLA::CHECKOBJ<Item>(L, 2, false);
+        uint32 slot = YLA::CHECKVAL<uint32>(L, 3);
         if (slot >= EQUIPMENT_SLOT_END)
         {
-            ALE::Push(L, false);
+            YLA::Push(L, false);
             return 1;
         }
 
         if (!item)
         {
-            uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+            uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
             uint16 dest;
             InventoryResult msg = player->CanEquipNewItem(slot, dest, entry, false);
             if (msg != EQUIP_ERR_OK)
             {
-                ALE::Push(L, false);
+                YLA::Push(L, false);
                 return 1;
             }
         }
@@ -3054,11 +3054,11 @@ namespace LuaPlayer
             InventoryResult msg = player->CanEquipItem(slot, dest, item, false);
             if (msg != EQUIP_ERR_OK)
             {
-                ALE::Push(L, false);
+                YLA::Push(L, false);
                 return 1;
             }
         }
-        ALE::Push(L, true);
+        YLA::Push(L, true);
         return 1;
     }
 
@@ -3069,7 +3069,7 @@ namespace LuaPlayer
      */
     int UnsetKnownTitle(lua_State* L, Player* player)
     {
-        uint32 id = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 id = YLA::CHECKVAL<uint32>(L, 2);
         CharTitlesEntry const* t = sCharTitlesStore.LookupEntry(id);
         if (t)
             player->SetTitle(t, true);
@@ -3092,7 +3092,7 @@ namespace LuaPlayer
      */
     int AdvanceAllSkills(lua_State* L, Player* player)
     {
-        uint32 step = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 step = YLA::CHECKVAL<uint32>(L, 2);
 
         if (!step)
             return 0;
@@ -3121,14 +3121,14 @@ namespace LuaPlayer
      */
     int AdvanceSkill(lua_State* L, Player* player)
     {
-        uint32 _skillId = ALE::CHECKVAL<uint32>(L, 2);
-        uint32 _step = ALE::CHECKVAL<uint32>(L, 3);
+        uint32 _skillId = YLA::CHECKVAL<uint32>(L, 2);
+        uint32 _step = YLA::CHECKVAL<uint32>(L, 3);
         bool success = false;
         if (_skillId && _step && player->HasSkill(_skillId))
         {
             success = player->UpdateSkill(_skillId, _step);
         }
-        ALE::Push(L, success);
+        YLA::Push(L, success);
         return 1;
     }
 
@@ -3143,11 +3143,11 @@ namespace LuaPlayer
      */
     int Teleport(lua_State* L, Player* player)
     {
-        uint32 mapId = ALE::CHECKVAL<uint32>(L, 2);
-        float x = ALE::CHECKVAL<float>(L, 3);
-        float y = ALE::CHECKVAL<float>(L, 4);
-        float z = ALE::CHECKVAL<float>(L, 5);
-        float o = ALE::CHECKVAL<float>(L, 6);
+        uint32 mapId = YLA::CHECKVAL<uint32>(L, 2);
+        float x = YLA::CHECKVAL<float>(L, 3);
+        float y = YLA::CHECKVAL<float>(L, 4);
+        float z = YLA::CHECKVAL<float>(L, 5);
+        float o = YLA::CHECKVAL<float>(L, 6);
 
         if (player->IsInFlight())
         {
@@ -3156,7 +3156,7 @@ namespace LuaPlayer
         }
 
         // True = teleported or queued for OnWorldUpdate.
-        ALE::Push(L, YlaDefer::Teleport(player, mapId, x, y, z, o));
+        YLA::Push(L, YlaDefer::Teleport(player, mapId, x, y, z, o));
         return 1;
     }
 
@@ -3168,7 +3168,7 @@ namespace LuaPlayer
      */
     int AddLifetimeKills(lua_State* L, Player* player)
     {
-        uint32 val = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 val = YLA::CHECKVAL<uint32>(L, 2);
         uint32 currentKills = player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS);
         player->SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, currentKills + val);
         return 0;
@@ -3183,8 +3183,8 @@ namespace LuaPlayer
      */
     int AddItem(lua_State* L, Player* player)
     {
-        uint32 itemId = ALE::CHECKVAL<uint32>(L, 2);
-        uint32 itemCount = ALE::CHECKVAL<uint32>(L, 3, 1);
+        uint32 itemId = YLA::CHECKVAL<uint32>(L, 2);
+        uint32 itemCount = YLA::CHECKVAL<uint32>(L, 3, 1);
 
         uint32 noSpaceForCount = 0;
         ItemPosCountVec dest;
@@ -3198,7 +3198,7 @@ namespace LuaPlayer
         Item* item = player->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
         if (item)
             player->SendNewItem(item, itemCount, true, false);
-        ALE::Push(L, item);
+        YLA::Push(L, item);
 
         return 1;
     }
@@ -3214,11 +3214,11 @@ namespace LuaPlayer
      */
     int RemoveItem(lua_State* L, Player* player)
     {
-        Item* item = ALE::CHECKOBJ<Item>(L, 2, false);
-        uint32 itemCount = ALE::CHECKVAL<uint32>(L, 3);
+        Item* item = YLA::CHECKOBJ<Item>(L, 2, false);
+        uint32 itemCount = YLA::CHECKVAL<uint32>(L, 3);
         if (!item)
         {
-            uint32 itemId = ALE::CHECKVAL<uint32>(L, 2);
+            uint32 itemId = YLA::CHECKVAL<uint32>(L, 2);
             player->DestroyItemCount(itemId, itemCount, true);
         }
         else
@@ -3226,7 +3226,7 @@ namespace LuaPlayer
             bool all = itemCount >= item->GetCount();
             player->DestroyItemCount(item, itemCount, true);
             if (all)
-                ALE::CHECKOBJ<ALEObject>(L, 2)->Invalidate();
+                YLA::CHECKOBJ<ALEObject>(L, 2)->Invalidate();
         }
         return 0;
     }
@@ -3238,7 +3238,7 @@ namespace LuaPlayer
      */
     int RemoveLifetimeKills(lua_State* L, Player* player)
     {
-        uint32 val = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 val = YLA::CHECKVAL<uint32>(L, 2);
         uint32 currentKills = player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS);
         if (val > currentKills)
             val = currentKills;
@@ -3254,8 +3254,8 @@ namespace LuaPlayer
      */
     int ResetSpellCooldown(lua_State* L, Player* player)
     {
-        uint32 spellId = ALE::CHECKVAL<uint32>(L, 2);
-        bool update = ALE::CHECKVAL<bool>(L, 3, true);
+        uint32 spellId = YLA::CHECKVAL<uint32>(L, 2);
+        bool update = YLA::CHECKVAL<bool>(L, 3, true);
         player->RemoveSpellCooldown(spellId, update);
         return 0;
     }
@@ -3268,8 +3268,8 @@ namespace LuaPlayer
      */
     int ResetTypeCooldowns(lua_State* L, Player* player)
     {
-        uint32 category = ALE::CHECKVAL<uint32>(L, 2);
-        bool update = ALE::CHECKVAL<bool>(L, 3, true);
+        uint32 category = YLA::CHECKVAL<uint32>(L, 2);
+        bool update = YLA::CHECKVAL<bool>(L, 3, true);
         (void)update; // ensure that the variable is referenced in order to pass compiler checks
 
         player->RemoveCategoryCooldown(category);
@@ -3292,7 +3292,7 @@ namespace LuaPlayer
      */
     int SendBroadcastMessage(lua_State* L, Player* player)
     {
-        const char* message = ALE::CHECKVAL<const char*>(L, 2);
+        const char* message = YLA::CHECKVAL<const char*>(L, 2);
         if (std::string(message).length() > 0)
             ChatHandler(player->GetSession()).SendSysMessage(message);
         return 0;
@@ -3305,7 +3305,7 @@ namespace LuaPlayer
      */
     int SendAreaTriggerMessage(lua_State* L, Player* player)
     {
-        std::string msg = ALE::CHECKVAL<std::string>(L, 2);
+        std::string msg = YLA::CHECKVAL<std::string>(L, 2);
         if (msg.length() > 0)
             player->GetSession()->SendAreaTriggerMessage("{}", msg.c_str());
         return 0;
@@ -3318,7 +3318,7 @@ namespace LuaPlayer
      */
     int SendNotification(lua_State* L, Player* player)
     {
-        std::string msg = ALE::CHECKVAL<std::string>(L, 2);
+        std::string msg = YLA::CHECKVAL<std::string>(L, 2);
         if (msg.length() > 0)
             ChatHandler(player->GetSession()).SendNotification("{}", msg);
         return 0;
@@ -3332,8 +3332,8 @@ namespace LuaPlayer
      */
     int SendPacket(lua_State* L, Player* player)
     {
-        WorldPacket* data = ALE::CHECKOBJ<WorldPacket>(L, 2);
-        bool selfOnly = ALE::CHECKVAL<bool>(L, 3, true);
+        WorldPacket* data = YLA::CHECKOBJ<WorldPacket>(L, 2);
+        bool selfOnly = YLA::CHECKVAL<bool>(L, 3, true);
         if (selfOnly)
             player->GetSession()->SendPacket(data);
         else
@@ -3352,10 +3352,10 @@ namespace LuaPlayer
      */
     int SendAddonMessage(lua_State* L, Player* player)
     {
-        std::string prefix = ALE::CHECKVAL<std::string>(L, 2);
-        std::string message = ALE::CHECKVAL<std::string>(L, 3);
-        uint8 channel = ALE::CHECKVAL<uint8>(L, 4);
-        Player* receiver = ALE::CHECKOBJ<Player>(L, 5);
+        std::string prefix = YLA::CHECKVAL<std::string>(L, 2);
+        std::string message = YLA::CHECKVAL<std::string>(L, 3);
+        uint8 channel = YLA::CHECKVAL<uint8>(L, 4);
+        Player* receiver = YLA::CHECKOBJ<Player>(L, 5);
 
         std::string fullmsg = prefix + "\t" + message;
 
@@ -3389,7 +3389,7 @@ namespace LuaPlayer
      */
     int ModifyMoney(lua_State* L, Player* player)
     {
-        int32 amt = ALE::CHECKVAL<int32>(L, 2);
+        int32 amt = YLA::CHECKVAL<int32>(L, 2);
 
         player->ModifyMoney(amt);
         return 1;
@@ -3402,7 +3402,7 @@ namespace LuaPlayer
      */
     int LearnSpell(lua_State* L, Player* player)
     {
-        uint32 id = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 id = YLA::CHECKVAL<uint32>(L, 2);
         player->learnSpell(id);
         return 0;
     }
@@ -3415,8 +3415,8 @@ namespace LuaPlayer
      */
     int LearnTalent(lua_State* L, Player* player)
     {
-        uint32 id = ALE::CHECKVAL<uint32>(L, 2);
-        uint32 rank = ALE::CHECKVAL<uint32>(L, 3);
+        uint32 id = YLA::CHECKVAL<uint32>(L, 2);
+        uint32 rank = YLA::CHECKVAL<uint32>(L, 3);
 
         player->LearnTalent(id, rank);
         player->SendTalentsInfoData(false);
@@ -3430,7 +3430,7 @@ namespace LuaPlayer
     */
     int RunCommand(lua_State* L, Player* player)
     {
-        auto command = ALE::CHECKVAL<std::string>(L, 2);
+        auto command = YLA::CHECKVAL<std::string>(L, 2);
 
         // In _ParseCommands which is used below no leading . or ! is allowed for the command string.
         if (command[0] == '.' || command[0] == '!') {
@@ -3451,8 +3451,8 @@ namespace LuaPlayer
     */
     int SetGlyph(lua_State* L, Player* player)
     {
-        uint32 glyphId = ALE::CHECKVAL<uint32>(L, 2);
-        uint32 slotIndex = ALE::CHECKVAL<uint32>(L, 3);
+        uint32 glyphId = YLA::CHECKVAL<uint32>(L, 2);
+        uint32 slotIndex = YLA::CHECKVAL<uint32>(L, 3);
 
         player->SetGlyph(slotIndex, glyphId, true);
         player->SendTalentsInfoData(false); // Also handles GlyphData
@@ -3468,8 +3468,8 @@ namespace LuaPlayer
     */
     int GetGlyph(lua_State* L, Player* player)
     {
-        auto slotIndex = ALE::CHECKVAL<uint32>(L, 2);
-        ALE::Push(L,player->GetGlyph(slotIndex));
+        auto slotIndex = YLA::CHECKVAL<uint32>(L, 2);
+        YLA::Push(L,player->GetGlyph(slotIndex));
         return 1;
     }
 
@@ -3490,8 +3490,8 @@ namespace LuaPlayer
      */
     int ResurrectPlayer(lua_State* L, Player* player)
     {
-        float percent = ALE::CHECKVAL<float>(L, 2, 100.0f);
-        bool sickness = ALE::CHECKVAL<bool>(L, 3, false);
+        float percent = YLA::CHECKVAL<float>(L, 2, 100.0f);
+        bool sickness = YLA::CHECKVAL<bool>(L, 3, false);
         player->ResurrectPlayer(percent, sickness);
         player->SpawnCorpseBones();
         return 0;
@@ -3517,13 +3517,13 @@ namespace LuaPlayer
      */
     int GossipMenuAddItem(lua_State* L, Player* player)
     {
-        uint32 _icon = ALE::CHECKVAL<uint32>(L, 2);
-        const char* msg = ALE::CHECKVAL<const char*>(L, 3);
-        uint32 _sender = ALE::CHECKVAL<uint32>(L, 4);
-        uint32 _intid = ALE::CHECKVAL<uint32>(L, 5);
-        bool _code = ALE::CHECKVAL<bool>(L, 6, false);
-        const char* _promptMsg = ALE::CHECKVAL<const char*>(L, 7, "");
-        uint32 _money = ALE::CHECKVAL<uint32>(L, 8, 0);
+        uint32 _icon = YLA::CHECKVAL<uint32>(L, 2);
+        const char* msg = YLA::CHECKVAL<const char*>(L, 3);
+        uint32 _sender = YLA::CHECKVAL<uint32>(L, 4);
+        uint32 _intid = YLA::CHECKVAL<uint32>(L, 5);
+        bool _code = YLA::CHECKVAL<bool>(L, 6, false);
+        const char* _promptMsg = YLA::CHECKVAL<const char*>(L, 7, "");
+        uint32 _money = YLA::CHECKVAL<uint32>(L, 8, 0);
         if (player->PlayerTalkClass->GetGossipMenu().GetMenuItemCount() < GOSSIP_MAX_MENU_ITEMS)
         {
             player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, _icon, msg, _sender, _intid, _promptMsg, _money,
@@ -3563,11 +3563,11 @@ namespace LuaPlayer
      */
     int GossipSendMenu(lua_State* L, Player* player)
     {
-        uint32 npc_text = ALE::CHECKVAL<uint32>(L, 2);
-        Object* sender = ALE::CHECKOBJ<Object>(L, 3);
+        uint32 npc_text = YLA::CHECKVAL<uint32>(L, 2);
+        Object* sender = YLA::CHECKOBJ<Object>(L, 3);
         if (sender->GetTypeId() == TYPEID_PLAYER)
         {
-            uint32 menu_id = ALE::CHECKVAL<uint32>(L, 4);
+            uint32 menu_id = YLA::CHECKVAL<uint32>(L, 4);
             player->PlayerTalkClass->GetGossipMenu().SetMenuId(menu_id);
         }
         player->PlayerTalkClass->SendGossipMenu(npc_text, sender->GET_GUID());
@@ -3595,7 +3595,7 @@ namespace LuaPlayer
      */
     int StartTaxi(lua_State* L, Player* player)
     {
-        uint32 pathId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 pathId = YLA::CHECKVAL<uint32>(L, 2);
 
         player->ActivateTaxiPathTo(pathId);
         return 0;
@@ -3613,12 +3613,12 @@ namespace LuaPlayer
      */
     int GossipSendPOI(lua_State* L, Player* player)
     {
-        float x = ALE::CHECKVAL<float>(L, 2);
-        float y = ALE::CHECKVAL<float>(L, 3);
-        uint32 icon = ALE::CHECKVAL<uint32>(L, 4);
-        uint32 flags = ALE::CHECKVAL<uint32>(L, 5);
-        uint32 data = ALE::CHECKVAL<uint32>(L, 6);
-        std::string iconText = ALE::CHECKVAL<std::string>(L, 7);
+        float x = YLA::CHECKVAL<float>(L, 2);
+        float y = YLA::CHECKVAL<float>(L, 3);
+        uint32 icon = YLA::CHECKVAL<uint32>(L, 4);
+        uint32 flags = YLA::CHECKVAL<uint32>(L, 5);
+        uint32 data = YLA::CHECKVAL<uint32>(L, 6);
+        std::string iconText = YLA::CHECKVAL<std::string>(L, 7);
 
         WorldPacket packet(SMSG_GOSSIP_POI, 4 + 4 + 4 + 4 + 4 + 10);
         packet << flags;
@@ -3638,7 +3638,7 @@ namespace LuaPlayer
      */
     int GossipAddQuests(lua_State* L, Player* player)
     {
-        WorldObject* source = ALE::CHECKOBJ<WorldObject>(L, 2);
+        WorldObject* source = YLA::CHECKOBJ<WorldObject>(L, 2);
 
         if (source->GetTypeId() == TYPEID_UNIT)
         {
@@ -3661,8 +3661,8 @@ namespace LuaPlayer
      */
     int SendQuestTemplate(lua_State* L, Player* player)
     {
-        uint32 questId = ALE::CHECKVAL<uint32>(L, 2);
-        bool activateAccept = ALE::CHECKVAL<bool>(L, 3, true);
+        uint32 questId = YLA::CHECKVAL<uint32>(L, 2);
+        bool activateAccept = YLA::CHECKVAL<bool>(L, 3, true);
 
         Quest const* quest = eObjectMgr->GetQuestTemplate(questId);
         if (!quest)
@@ -3688,7 +3688,7 @@ namespace LuaPlayer
      */
     int RemovedInsignia(lua_State* L, Player* player)
     {
-        Player* looter = ALE::CHECKOBJ<Player>(L, 2);
+        Player* looter = YLA::CHECKOBJ<Player>(L, 2);
         player->RemovedInsignia(looter);
         return 0;
     }
@@ -3701,11 +3701,11 @@ namespace LuaPlayer
      */
     int GroupInvite(lua_State* L, Player* player)
     {
-        Player* invited = ALE::CHECKOBJ<Player>(L, 2);
+        Player* invited = YLA::CHECKOBJ<Player>(L, 2);
 
         if (invited->GetGroup() || invited->GetGroupInvite())
         {
-            ALE::Push(L, false);
+            YLA::Push(L, false);
             return 1;
         }
 
@@ -3739,7 +3739,7 @@ namespace LuaPlayer
             invited->GetSession()->SendPacket(&data);
         }
 
-        ALE::Push(L, success);
+        YLA::Push(L, success);
         return 1;
     }
 
@@ -3751,7 +3751,7 @@ namespace LuaPlayer
      */
     int GroupCreate(lua_State* L, Player* player)
     {
-        Player* invited = ALE::CHECKOBJ<Player>(L, 2);
+        Player* invited = YLA::CHECKOBJ<Player>(L, 2);
 
         if (player->GetGroup() || invited->GetGroup())
             return 0;
@@ -3780,7 +3780,7 @@ namespace LuaPlayer
         if (!group->AddMember(invited))
             return 0;
         group->BroadcastGroupUpdate();
-        ALE::Push(L, group);
+        YLA::Push(L, group);
         return 1;
     }
 
@@ -3791,7 +3791,7 @@ namespace LuaPlayer
      */
     int SendCinematicStart(lua_State* L, Player* player)
     {
-        uint32 CinematicSequenceId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 CinematicSequenceId = YLA::CHECKVAL<uint32>(L, 2);
 
         player->SendCinematicStart(CinematicSequenceId);
         return 0;
@@ -3804,7 +3804,7 @@ namespace LuaPlayer
      */
     int SendMovieStart(lua_State* L, Player* player)
     {
-        uint32 MovieId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 MovieId = YLA::CHECKVAL<uint32>(L, 2);
 
         player->SendMovieStart(MovieId);
         return 0;
@@ -3819,9 +3819,9 @@ namespace LuaPlayer
      */
     int UpdatePlayerSetting(lua_State* L, Player* player)
     {
-        std::string source = ALE::CHECKVAL<std::string>(L, 2);
-        uint32 index = ALE::CHECKVAL<uint32>(L, 3);
-        uint32 value = ALE::CHECKVAL<uint32>(L, 4);
+        std::string source = YLA::CHECKVAL<std::string>(L, 2);
+        uint32 index = YLA::CHECKVAL<uint32>(L, 3);
+        uint32 value = YLA::CHECKVAL<uint32>(L, 4);
         player->UpdatePlayerSetting(source, index, value);
         return 0;
     }
@@ -3834,10 +3834,10 @@ namespace LuaPlayer
      */
     int GetPlayerSettingValue(lua_State* L, Player* player)
     {
-        std::string source = ALE::CHECKVAL<std::string>(L, 2);
-        uint32 index = ALE::CHECKVAL<uint32>(L, 3);
+        std::string source = YLA::CHECKVAL<std::string>(L, 2);
+        uint32 index = YLA::CHECKVAL<uint32>(L, 3);
         uint32 value = player->GetPlayerSetting(source, index).value;
-        ALE::Push(L, value);
+        YLA::Push(L, value);
         return 1;
     }
 
@@ -3848,7 +3848,7 @@ namespace LuaPlayer
      */
     int GetTrader(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetTrader());
+        YLA::Push(L, player->GetTrader());
         return 1;
     }
 
@@ -3860,8 +3860,8 @@ namespace LuaPlayer
      */
     int SetSpellPower(lua_State* L, Player* player)
     {
-        int value  = ALE::CHECKVAL<int>(L, 2);
-        bool apply = ALE::CHECKVAL<bool>(L, 3, false);
+        int value  = YLA::CHECKVAL<int>(L, 2);
+        bool apply = YLA::CHECKVAL<bool>(L, 3, false);
 
         player->ApplySpellPowerBonus(value, apply);
         return 0;
@@ -3875,19 +3875,19 @@ namespace LuaPlayer
 
     /*int AddTalent(lua_State* L, Player* player)
     {
-    uint32 spellId = ALE::CHECKVAL<uint32>(L, 2);
-    uint8 spec = ALE::CHECKVAL<uint8>(L, 3);
-    bool learning = ALE::CHECKVAL<bool>(L, 4, true);
+    uint32 spellId = YLA::CHECKVAL<uint32>(L, 2);
+    uint8 spec = YLA::CHECKVAL<uint8>(L, 3);
+    bool learning = YLA::CHECKVAL<bool>(L, 4, true);
     if (spec >= MAX_TALENT_SPECS)
-    ALE::Push(L, false);
+    YLA::Push(L, false);
     else
-    ALE::Push(L, player->AddTalent(spellId, spec, learning));
+    YLA::Push(L, player->AddTalent(spellId, spec, learning));
     return 1;
     }*/
 
     /*int GainSpellComboPoints(lua_State* L, Player* player)
     {
-    int8 count = ALE::CHECKVAL<int8>(L, 2);
+    int8 count = YLA::CHECKVAL<int8>(L, 2);
 
     player->GainSpellComboPoints(count);
     return 0;
@@ -3895,8 +3895,8 @@ namespace LuaPlayer
 
     /*int KillGOCredit(lua_State* L, Player* player)
     {
-    uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
-    ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 3);
+    uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
+    ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 3);
     player->KillCreditGO(entry, guid);
     return 0;
     }*/
@@ -3909,7 +3909,7 @@ namespace LuaPlayer
 
     /*int RemoveRewardedQuest(lua_State* L, Player* player)
     {
-    uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+    uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
     player->RemoveRewardedQuest(entry);
     return 0;
@@ -3917,7 +3917,7 @@ namespace LuaPlayer
 
     /*int RemoveActiveQuest(lua_State* L, Player* player)
     {
-    uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
+    uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
 
     player->RemoveActiveQuest(entry);
     return 0;
@@ -3925,13 +3925,13 @@ namespace LuaPlayer
 
     /*int SummonPet(lua_State* L, Player* player)
     {
-    uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
-    float x = ALE::CHECKVAL<float>(L, 3);
-    float y = ALE::CHECKVAL<float>(L, 4);
-    float z = ALE::CHECKVAL<float>(L, 5);
-    float o = ALE::CHECKVAL<float>(L, 6);
-    uint32 petType = ALE::CHECKVAL<uint32>(L, 7);
-    uint32 despwtime = ALE::CHECKVAL<uint32>(L, 8);
+    uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
+    float x = YLA::CHECKVAL<float>(L, 3);
+    float y = YLA::CHECKVAL<float>(L, 4);
+    float z = YLA::CHECKVAL<float>(L, 5);
+    float o = YLA::CHECKVAL<float>(L, 6);
+    uint32 petType = YLA::CHECKVAL<uint32>(L, 7);
+    uint32 despwtime = YLA::CHECKVAL<uint32>(L, 8);
 
     if (petType >= MAX_PET_TYPE)
     return 0;
@@ -3942,8 +3942,8 @@ namespace LuaPlayer
 
     /*int RemovePet(lua_State* L, Player* player)
     {
-    int mode = ALE::CHECKVAL<int>(L, 2, PET_SAVE_AS_DELETED);
-    bool returnreagent = ALE::CHECKVAL<bool>(L, 2, false);
+    int mode = YLA::CHECKVAL<int>(L, 2, PET_SAVE_AS_DELETED);
+    bool returnreagent = YLA::CHECKVAL<bool>(L, 2, false);
 
     if (!player->GetPet())
     return 0;
@@ -3959,7 +3959,7 @@ namespace LuaPlayer
      */
     int SetBonusTalentCount(lua_State* L, Player* player)
     {
-        uint32 value = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 value = YLA::CHECKVAL<uint32>(L, 2);
 
         player->SetBonusTalentCount(value);
         return 0;
@@ -3972,7 +3972,7 @@ namespace LuaPlayer
      */
     int GetBonusTalentCount(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetBonusTalentCount());
+        YLA::Push(L, player->GetBonusTalentCount());
         return 1;
     }
   
@@ -3992,7 +3992,7 @@ namespace LuaPlayer
         for (PlayerSpellMap::const_iterator itr = spellMap.begin(); itr != spellMap.end(); ++itr)
         {
             SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
-            ALE::Push(L, spellInfo->Id);
+            YLA::Push(L, spellInfo->Id);
             lua_rawseti(L, tbl, ++i);
         }
 
@@ -4007,7 +4007,7 @@ namespace LuaPlayer
      */
     int AddBonusTalent(lua_State* L, Player* player)
     {
-        uint32 count = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 count = YLA::CHECKVAL<uint32>(L, 2);
 
         player->AddBonusTalent(count);
         return 0;
@@ -4020,7 +4020,7 @@ namespace LuaPlayer
      */
     int RemoveBonusTalent(lua_State* L, Player* player)
     {
-        uint32 count = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 count = YLA::CHECKVAL<uint32>(L, 2);
 
         player->RemoveBonusTalent(count);
         return 0;
@@ -4060,14 +4060,14 @@ namespace LuaPlayer
      */
     int TeleportTo(lua_State* L, Player* player)
     {
-        std::string tele = ALE::CHECKVAL<std::string>(L, 2);
+        std::string tele = YLA::CHECKVAL<std::string>(L, 2);
         const GameTele* game_tele = sObjectMgr->GetGameTele(tele);
 
         // Unknown teleport name: GetGameTele returns null. Fail soft instead
         // of dereferencing it.
         if (!game_tele)
         {
-            YLA_LOG_ERROR("[ALE]: Player:TeleportTo called with unknown teleport '{}'", tele);
+            YLA_LOG_ERROR("[YLA]: Player:TeleportTo called with unknown teleport '{}'", tele);
             return 0;
         }
 
@@ -4090,7 +4090,7 @@ namespace LuaPlayer
      */
     int GetPet(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetPet());
+        YLA::Push(L, player->GetPet());
         return 1;
     }
 
@@ -4101,7 +4101,7 @@ namespace LuaPlayer
      */
     int IsMaxLevel(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->IsMaxLevel());
+        YLA::Push(L, player->IsMaxLevel());
         return 1;
     }
 
@@ -4120,17 +4120,17 @@ namespace LuaPlayer
      */
     int SummonPet(lua_State* L, Player* player)
     {
-        uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
-        float x = ALE::CHECKVAL<float>(L, 3);
-        float y = ALE::CHECKVAL<float>(L, 4);
-        float z = ALE::CHECKVAL<float>(L, 5);
-        float ang = ALE::CHECKVAL<float>(L, 6);
-        uint32 petType = ALE::CHECKVAL<uint32>(L, 7);
-        uint32 duration = ALE::CHECKVAL<uint32>(L, 8, 0);
-        uint32 healthPct = ALE::CHECKVAL<uint32>(L, 9, 0);
+        uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
+        float x = YLA::CHECKVAL<float>(L, 3);
+        float y = YLA::CHECKVAL<float>(L, 4);
+        float z = YLA::CHECKVAL<float>(L, 5);
+        float ang = YLA::CHECKVAL<float>(L, 6);
+        uint32 petType = YLA::CHECKVAL<uint32>(L, 7);
+        uint32 duration = YLA::CHECKVAL<uint32>(L, 8, 0);
+        uint32 healthPct = YLA::CHECKVAL<uint32>(L, 9, 0);
 
         Pet* pet = player->SummonPet(entry, x, y, z, ang, static_cast<PetType>(petType), Milliseconds(duration), healthPct);
-        ALE::Push(L, pet);
+        YLA::Push(L, pet);
         return 1;
     }
 
@@ -4141,7 +4141,7 @@ namespace LuaPlayer
      */
     int GetAverageItemLevel(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetAverageItemLevel());
+        YLA::Push(L, player->GetAverageItemLevel());
         return 1;
     }
 
@@ -4161,16 +4161,16 @@ namespace LuaPlayer
     {
         if (lua_gettop(L) == 2)
         {
-            uint32 creatureEntry = ALE::CHECKVAL<uint32>(L, 2);
+            uint32 creatureEntry = YLA::CHECKVAL<uint32>(L, 2);
             Pet* pet = player->CreatePet(creatureEntry);
-            ALE::Push(L, pet);
+            YLA::Push(L, pet);
         }
         else
         {
-            Creature* creatureTarget = ALE::CHECKOBJ<Creature>(L, 2);
-            uint32 spellID = ALE::CHECKVAL<uint32>(L, 3, 0);
+            Creature* creatureTarget = YLA::CHECKOBJ<Creature>(L, 2);
+            uint32 spellID = YLA::CHECKVAL<uint32>(L, 3, 0);
             Pet* pet = player->CreatePet(creatureTarget, spellID);
-            ALE::Push(L, pet);
+            YLA::Push(L, pet);
         }
         return 1;
     }
@@ -4183,8 +4183,8 @@ namespace LuaPlayer
      */
     int IsDailyQuestDone(lua_State* L, Player* player)
     {
-        uint32 questId = ALE::CHECKVAL<uint32>(L, 2);
-        ALE::Push(L, player->IsDailyQuestDone(questId));
+        uint32 questId = YLA::CHECKVAL<uint32>(L, 2);
+        YLA::Push(L, player->IsDailyQuestDone(questId));
         return 1;
     }
 
@@ -4206,7 +4206,7 @@ namespace LuaPlayer
      */
     int SetPlayerFlag(lua_State* L, Player* player)
     {
-        uint32 flag = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 flag = YLA::CHECKVAL<uint32>(L, 2);
         player->SetPlayerFlag((PlayerFlags)flag);
         return 0;
     }
@@ -4220,9 +4220,9 @@ namespace LuaPlayer
      */
     int RemovePet(lua_State* L, Player* player)
     {
-        Pet* pet = ALE::CHECKOBJ<Pet>(L, 2);
-        uint32 mode = ALE::CHECKVAL<uint32>(L, 3);
-        bool returnReagent = ALE::CHECKVAL<bool>(L, 4, false);
+        Pet* pet = YLA::CHECKOBJ<Pet>(L, 2);
+        uint32 mode = YLA::CHECKVAL<uint32>(L, 3);
+        bool returnReagent = YLA::CHECKVAL<bool>(L, 4, false);
         player->RemovePet(pet, static_cast<PetSaveMode>(mode), returnReagent);
         return 1;
     }
@@ -4234,7 +4234,7 @@ namespace LuaPlayer
      */
     int RemovePlayerFlag(lua_State* L, Player* player)
     {
-        uint32 flag = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 flag = YLA::CHECKVAL<uint32>(L, 2);
         player->RemovePlayerFlag((PlayerFlags)flag);
         return 0;
     }
@@ -4246,7 +4246,7 @@ namespace LuaPlayer
      */
     int CanPetResurrect(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->CanPetResurrect());
+        YLA::Push(L, player->CanPetResurrect());
         return 1;
     }
 
@@ -4259,9 +4259,9 @@ namespace LuaPlayer
      */
     int DoRandomRoll(lua_State* L, Player* player)
     {
-        uint32 minimum = ALE::CHECKVAL<uint32>(L, 2);
-        uint32 maximum = ALE::CHECKVAL<uint32>(L, 3);
-        ALE::Push(L, player->DoRandomRoll(minimum, maximum));
+        uint32 minimum = YLA::CHECKVAL<uint32>(L, 2);
+        uint32 maximum = YLA::CHECKVAL<uint32>(L, 3);
+        YLA::Push(L, player->DoRandomRoll(minimum, maximum));
         return 1;
     }
 
@@ -4272,7 +4272,7 @@ namespace LuaPlayer
      */
     int IsPvP(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->IsPvP());
+        YLA::Push(L, player->IsPvP());
         return 1;
     }
 
@@ -4283,7 +4283,7 @@ namespace LuaPlayer
      */
     int IsFFAPvP(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->IsFFAPvP());
+        YLA::Push(L, player->IsFFAPvP());
         return 1;
     }
 
@@ -4294,7 +4294,7 @@ namespace LuaPlayer
      */
     int IsUsingLfg(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->IsUsingLfg());
+        YLA::Push(L, player->IsUsingLfg());
         return 1;
     }
 
@@ -4305,7 +4305,7 @@ namespace LuaPlayer
      */
     int InRandomLfgDungeon(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->inRandomLfgDungeon());
+        YLA::Push(L, player->inRandomLfgDungeon());
         return 1;
     }
 
@@ -4317,8 +4317,8 @@ namespace LuaPlayer
      */
     int CanInteractWithQuestGiver(lua_State* L, Player* player)
     {
-        Object* questGiver = ALE::CHECKOBJ<Object>(L, 2);
-        ALE::Push(L, player->CanInteractWithQuestGiver(questGiver));
+        Object* questGiver = YLA::CHECKOBJ<Object>(L, 2);
+        YLA::Push(L, player->CanInteractWithQuestGiver(questGiver));
         return 1;
     }
 
@@ -4330,8 +4330,8 @@ namespace LuaPlayer
      */
     int CanSeeStartQuest(lua_State* L, Player* player)
     {
-        Quest const* quest = ALE::CHECKOBJ<Quest>(L, 2);
-        ALE::Push(L, player->CanSeeStartQuest(quest));
+        Quest const* quest = YLA::CHECKOBJ<Quest>(L, 2);
+        YLA::Push(L, player->CanSeeStartQuest(quest));
         return 1;
     }
 
@@ -4342,7 +4342,7 @@ namespace LuaPlayer
      */
     int IsExistPet(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->IsExistPet());
+        YLA::Push(L, player->IsExistPet());
         return 1;
     }
 
@@ -4355,9 +4355,9 @@ namespace LuaPlayer
      */
     int CanTakeQuest(lua_State* L, Player* player)
     {
-        Quest const* quest = ALE::CHECKOBJ<Quest>(L, 2);
-        bool msg = ALE::CHECKVAL<bool>(L, 3, true);
-        ALE::Push(L, player->CanTakeQuest(quest, msg));
+        Quest const* quest = YLA::CHECKOBJ<Quest>(L, 2);
+        bool msg = YLA::CHECKVAL<bool>(L, 3, true);
+        YLA::Push(L, player->CanTakeQuest(quest, msg));
         return 1;
     }
 
@@ -4380,9 +4380,9 @@ namespace LuaPlayer
      */
     int CanAddQuest(lua_State* L, Player* player)
     {
-        Quest const* quest = ALE::CHECKOBJ<Quest>(L, 2);
-        bool msg = ALE::CHECKVAL<bool>(L, 3, true);
-        ALE::Push(L, player->CanAddQuest(quest, msg));
+        Quest const* quest = YLA::CHECKOBJ<Quest>(L, 2);
+        bool msg = YLA::CHECKVAL<bool>(L, 3, true);
+        YLA::Push(L, player->CanAddQuest(quest, msg));
         return 1;
     }
 
@@ -4396,10 +4396,10 @@ namespace LuaPlayer
      */
     int GetBarberShopCost(lua_State* L, Player* player)
     {
-        uint8 newhairstyle = ALE::CHECKVAL<uint8>(L, 2);
-        uint8 newhaircolor = ALE::CHECKVAL<uint8>(L, 3);
-        uint8 newfacialhair = ALE::CHECKVAL<uint8>(L, 4);
-        ALE::Push(L, player->GetBarberShopCost(newhairstyle, newhaircolor, newfacialhair));
+        uint8 newhairstyle = YLA::CHECKVAL<uint8>(L, 2);
+        uint8 newhaircolor = YLA::CHECKVAL<uint8>(L, 3);
+        uint8 newfacialhair = YLA::CHECKVAL<uint8>(L, 4);
+        YLA::Push(L, player->GetBarberShopCost(newhairstyle, newhaircolor, newfacialhair));
         return 1;
     }
 
@@ -4411,8 +4411,8 @@ namespace LuaPlayer
      */
     int GetSightRange(lua_State* L, Player* player)
     {
-        WorldObject* target = ALE::CHECKOBJ<WorldObject>(L, 2, false);
-        ALE::Push(L, player->GetSightRange(target));
+        WorldObject* target = YLA::CHECKOBJ<WorldObject>(L, 2, false);
+        YLA::Push(L, player->GetSightRange(target));
         return 1;
     }
 
@@ -4428,13 +4428,13 @@ namespace LuaPlayer
      */
     int CalculateReputationGain(lua_State* L, Player* player)
     {
-        uint32 source = ALE::CHECKVAL<uint32>(L, 2);
-        uint32 creatureOrQuestLevel = ALE::CHECKVAL<uint32>(L, 3);
-        float rep = ALE::CHECKVAL<float>(L, 4);
-        uint32 faction = ALE::CHECKVAL<uint32>(L, 5);
-        bool noQuestBonus = ALE::CHECKVAL<bool>(L, 6, false);
+        uint32 source = YLA::CHECKVAL<uint32>(L, 2);
+        uint32 creatureOrQuestLevel = YLA::CHECKVAL<uint32>(L, 3);
+        float rep = YLA::CHECKVAL<float>(L, 4);
+        uint32 faction = YLA::CHECKVAL<uint32>(L, 5);
+        bool noQuestBonus = YLA::CHECKVAL<bool>(L, 6, false);
         
-        ALE::Push(L, player->CalculateReputationGain((ReputationSource)source, creatureOrQuestLevel, rep, faction, noQuestBonus));
+        YLA::Push(L, player->CalculateReputationGain((ReputationSource)source, creatureOrQuestLevel, rep, faction, noQuestBonus));
         return 1;
     }
 
@@ -4447,9 +4447,9 @@ namespace LuaPlayer
      */
     int EnvironmentalDamage(lua_State* L, Player* player)
     {
-        uint32 type = ALE::CHECKVAL<uint32>(L, 2);
-        uint32 damage = ALE::CHECKVAL<uint32>(L, 3);
-        ALE::Push(L, player->EnvironmentalDamage((EnviromentalDamage)type, damage));
+        uint32 type = YLA::CHECKVAL<uint32>(L, 2);
+        uint32 damage = YLA::CHECKVAL<uint32>(L, 3);
+        YLA::Push(L, player->EnvironmentalDamage((EnviromentalDamage)type, damage));
         return 1;
     }
 
@@ -4471,9 +4471,9 @@ namespace LuaPlayer
      */
     int LearnPetTalent(lua_State* L, Player* player)
     {
-        ObjectGuid petGuid = ALE::CHECKVAL<ObjectGuid>(L, 2);
-        uint32 talentId = ALE::CHECKVAL<uint32>(L, 3);
-        uint32 talentRank = ALE::CHECKVAL<uint32>(L, 4);
+        ObjectGuid petGuid = YLA::CHECKVAL<ObjectGuid>(L, 2);
+        uint32 talentId = YLA::CHECKVAL<uint32>(L, 3);
+        uint32 talentRank = YLA::CHECKVAL<uint32>(L, 4);
         player->LearnPetTalent(petGuid, talentId, talentRank);
         return 0;
     }
@@ -4486,8 +4486,8 @@ namespace LuaPlayer
      */
     int HasTitleByIndex(lua_State* L, Player* player)
     {
-        uint32 bitIndex = ALE::CHECKVAL<uint32>(L, 2);
-        ALE::Push(L, player->HasTitle(bitIndex));
+        uint32 bitIndex = YLA::CHECKVAL<uint32>(L, 2);
+        YLA::Push(L, player->HasTitle(bitIndex));
         return 1;
     }
 
@@ -4499,8 +4499,8 @@ namespace LuaPlayer
      */
     int IsAtGroupRewardDistance(lua_State* L, Player* player)
     {
-        WorldObject const* target = ALE::CHECKOBJ<WorldObject>(L, 2);
-        ALE::Push(L, player->IsAtGroupRewardDistance(target));
+        WorldObject const* target = YLA::CHECKOBJ<WorldObject>(L, 2);
+        YLA::Push(L, player->IsAtGroupRewardDistance(target));
         return 1;
     }
 
@@ -4512,8 +4512,8 @@ namespace LuaPlayer
      */
     int IsAtLootRewardDistance(lua_State* L, Player* player)
     {
-        WorldObject const* target = ALE::CHECKOBJ<WorldObject>(L, 2);
-        ALE::Push(L, player->IsAtLootRewardDistance(target));
+        WorldObject const* target = YLA::CHECKOBJ<WorldObject>(L, 2);
+        YLA::Push(L, player->IsAtLootRewardDistance(target));
         return 1;
     }
 
@@ -4524,7 +4524,7 @@ namespace LuaPlayer
      */
     int AbandonQuest(lua_State* L, Player* player)
     {
-        uint32 questId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 questId = YLA::CHECKVAL<uint32>(L, 2);
         player->AbandonQuest(questId);
         return 0;
     }
@@ -4536,7 +4536,7 @@ namespace LuaPlayer
      */
     int CanTameExoticPets(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->CanTameExoticPets());
+        YLA::Push(L, player->CanTameExoticPets());
         return 1;
     }
 
@@ -4547,7 +4547,7 @@ namespace LuaPlayer
      */
     int GetWeaponProficiency(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetWeaponProficiency());
+        YLA::Push(L, player->GetWeaponProficiency());
         return 1;
     }
 
@@ -4558,7 +4558,7 @@ namespace LuaPlayer
      */
     int GetTemporaryUnsummonedPetNumber(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetTemporaryUnsummonedPetNumber());
+        YLA::Push(L, player->GetTemporaryUnsummonedPetNumber());
         return 1;
     }
 
@@ -4569,7 +4569,7 @@ namespace LuaPlayer
      */
     int GetArmorProficiency(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetArmorProficiency());
+        YLA::Push(L, player->GetArmorProficiency());
         return 1;
     }
 
@@ -4580,7 +4580,7 @@ namespace LuaPlayer
      */
     int SetTemporaryUnsummonedPetNumber(lua_State* L, Player* player)
     {
-        uint32 petNumber = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 petNumber = YLA::CHECKVAL<uint32>(L, 2);
         player->SetTemporaryUnsummonedPetNumber(petNumber);
         return 0;
     }
@@ -4592,7 +4592,7 @@ namespace LuaPlayer
      */
     int AddWeaponProficiency(lua_State* L, Player* player)
     {
-        uint32 flag = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 flag = YLA::CHECKVAL<uint32>(L, 2);
         player->AddWeaponProficiency(flag);
         return 0;
     }
@@ -4614,7 +4614,7 @@ namespace LuaPlayer
      */
     int AddArmorProficiency(lua_State* L, Player* player)
     {
-        uint32 flag = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 flag = YLA::CHECKVAL<uint32>(L, 2);
         player->AddArmorProficiency(flag);
         return 0;
     }
@@ -4627,7 +4627,7 @@ namespace LuaPlayer
      */
     int IsPetNeedBeTemporaryUnsummoned(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->IsPetNeedBeTemporaryUnsummoned());
+        YLA::Push(L, player->IsPetNeedBeTemporaryUnsummoned());
         return 1;
     }
 
@@ -4638,7 +4638,7 @@ namespace LuaPlayer
      */
     int SetAmmo(lua_State* L, Player* player)
     {
-        uint32 itemEntry = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 itemEntry = YLA::CHECKVAL<uint32>(L, 2);
         player->SetAmmo(itemEntry);
         return 0;
     }
@@ -4659,7 +4659,7 @@ namespace LuaPlayer
      */
     int GetAmmoDPS(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetAmmoDPS());
+        YLA::Push(L, player->GetAmmoDPS());
         return 1;
     }
 
@@ -4671,8 +4671,8 @@ namespace LuaPlayer
      */
     int CanResummonPet(lua_State* L, Player* player)
     {
-        uint32 spellId = ALE::CHECKVAL<uint32>(L, 2);
-        ALE::Push(L, player->CanResummonPet(spellId));
+        uint32 spellId = YLA::CHECKVAL<uint32>(L, 2);
+        YLA::Push(L, player->CanResummonPet(spellId));
         return 1;
     }
 
@@ -4683,7 +4683,7 @@ namespace LuaPlayer
      */
     int GetShield(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetShield());
+        YLA::Push(L, player->GetShield());
         return 1;
     }
 
@@ -4694,7 +4694,7 @@ namespace LuaPlayer
      */
     int GetLastPetNumber(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetLastPetNumber());
+        YLA::Push(L, player->GetLastPetNumber());
         return 1;
     }
 
@@ -4705,7 +4705,7 @@ namespace LuaPlayer
      */
     int CanTeleport(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->CanTeleport());
+        YLA::Push(L, player->CanTeleport());
         return 1;
     }
 
@@ -4716,7 +4716,7 @@ namespace LuaPlayer
      */
     int SetLastPetNumber(lua_State* L, Player* player)
     {
-        uint32 petNumber = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 petNumber = YLA::CHECKVAL<uint32>(L, 2);
         player->SetLastPetNumber(petNumber);
         return 0;
     }
@@ -4728,7 +4728,7 @@ namespace LuaPlayer
      */
     int SetCanTeleport(lua_State* L, Player* player)
     {
-        bool canTeleport = ALE::CHECKVAL<bool>(L, 2);
+        bool canTeleport = YLA::CHECKVAL<bool>(L, 2);
         player->SetCanTeleport(canTeleport);
         return 0;
     }
@@ -4740,7 +4740,7 @@ namespace LuaPlayer
      */
     int GetLastPetSpell(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetLastPetSpell());
+        YLA::Push(L, player->GetLastPetSpell());
         return 1;
     }
 
@@ -4751,7 +4751,7 @@ namespace LuaPlayer
      */
     int GetRunesState(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetRunesState());
+        YLA::Push(L, player->GetRunesState());
         return 1;
     }
 
@@ -4762,7 +4762,7 @@ namespace LuaPlayer
      */
     int SetLastPetSpell(lua_State* L, Player* player)
     {
-        uint32 petSpell = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 petSpell = YLA::CHECKVAL<uint32>(L, 2);
         player->SetLastPetSpell(petSpell);
         return 0;
     }
@@ -4774,7 +4774,7 @@ namespace LuaPlayer
      */
     int IsSpectator(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->IsSpectator());
+        YLA::Push(L, player->IsSpectator());
         return 1;
     }
 
@@ -4785,7 +4785,7 @@ namespace LuaPlayer
      */
     int SetIsSpectator(lua_State* L, Player* player)
     {
-        bool isSpectator = ALE::CHECKVAL<bool>(L, 2);
+        bool isSpectator = YLA::CHECKVAL<bool>(L, 2);
         player->SetIsSpectator(isSpectator);
         return 0;
     }
@@ -4797,7 +4797,7 @@ namespace LuaPlayer
      */
     int CanSeeDKPet(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->CanSeeDKPet());
+        YLA::Push(L, player->CanSeeDKPet());
         return 1;
     }
 
@@ -4808,7 +4808,7 @@ namespace LuaPlayer
      */
     int GetViewpoint(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetViewpoint());
+        YLA::Push(L, player->GetViewpoint());
         return 1;
     }
 
@@ -4819,7 +4819,7 @@ namespace LuaPlayer
      */
     int SetShowDKPet(lua_State* L, Player* player)
     {
-        bool show = ALE::CHECKVAL<bool>(L, 2);
+        bool show = YLA::CHECKVAL<bool>(L, 2);
         player->SetShowDKPet(show);
         return 0;
     }
@@ -4831,8 +4831,8 @@ namespace LuaPlayer
      */
     int SetViewpoint(lua_State* L, Player* player)
     {
-        WorldObject* target = ALE::CHECKOBJ<WorldObject>(L, 2);
-        bool apply = ALE::CHECKVAL<bool>(L, 3, false);
+        WorldObject* target = YLA::CHECKOBJ<WorldObject>(L, 2);
+        bool apply = YLA::CHECKVAL<bool>(L, 3, false);
         player->SetViewpoint(target, apply);
         return 0;
     }
@@ -4853,7 +4853,7 @@ namespace LuaPlayer
      */
     int GetCreationTime(lua_State* L, Player* player)
     {
-        ALE::Push(L, static_cast<uint32>(player->GetCreationTime().count()));
+        YLA::Push(L, static_cast<uint32>(player->GetCreationTime().count()));
         return 1;
     }
 
@@ -4864,7 +4864,7 @@ namespace LuaPlayer
      */
     int SetCreationTime(lua_State* L, Player* player)
     {
-        uint32 creationTime = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 creationTime = YLA::CHECKVAL<uint32>(L, 2);
         player->SetCreationTime(Seconds(creationTime));
         return 0;
     }
@@ -4878,7 +4878,7 @@ namespace LuaPlayer
     {
         float diminishing, nondiminishing;
         player->GetDodgeFromAgility(diminishing, nondiminishing);
-        ALE::Push(L, diminishing + nondiminishing);
+        YLA::Push(L, diminishing + nondiminishing);
         return 1;
     }
 
@@ -4889,7 +4889,7 @@ namespace LuaPlayer
      */
     int GetMeleeCritFromAgility(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetMeleeCritFromAgility());
+        YLA::Push(L, player->GetMeleeCritFromAgility());
         return 1;
     }
 
@@ -4900,7 +4900,7 @@ namespace LuaPlayer
      */
     int GetSpellCritFromIntellect(lua_State* L, Player* player)
     {
-        ALE::Push(L, player->GetSpellCritFromIntellect());
+        YLA::Push(L, player->GetSpellCritFromIntellect());
         return 1;
     }
 
@@ -4912,10 +4912,10 @@ namespace LuaPlayer
      */
     int GetInventoryItem(lua_State* L, Player* player)
     {
-        uint32 slot = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 slot = YLA::CHECKVAL<uint32>(L, 2);
         if (slot >= INVENTORY_SLOT_ITEM_END)
             return 1;
-        ALE::Push(L, player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot));
+        YLA::Push(L, player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot));
         return 1;
     }
 
@@ -4927,10 +4927,10 @@ namespace LuaPlayer
      */
     int GetBankItem(lua_State* L, Player* player)
     {
-        uint32 slot = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 slot = YLA::CHECKVAL<uint32>(L, 2);
         if (slot >= BANK_SLOT_ITEM_END)
             return 1;
-        ALE::Push(L, player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot + BANK_SLOT_ITEM_START));
+        YLA::Push(L, player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot + BANK_SLOT_ITEM_START));
         return 1;
     }
 
@@ -4942,10 +4942,10 @@ namespace LuaPlayer
     int IsBot(lua_State* L, Player* player)
     {
     #if defined(MOD_PLAYERBOTS)
-        ALE::Push(L, player->GetSession()->IsBot());
+        YLA::Push(L, player->GetSession()->IsBot());
     #else
         (void)player;
-        ALE::Push(L, false);
+        YLA::Push(L, false);
     #endif
         return 1;
     }

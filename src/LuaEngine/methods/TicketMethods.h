@@ -21,7 +21,7 @@ namespace LuaTicket
      */
     int IsClosed(lua_State* L, GmTicket* ticket)
     {
-        ALE::Push(L, ticket->IsClosed());
+        YLA::Push(L, ticket->IsClosed());
         return 1;
     }
 
@@ -32,7 +32,7 @@ namespace LuaTicket
      */
     int IsCompleted(lua_State* L, GmTicket* ticket)
     {
-        ALE::Push(L, ticket->IsCompleted());
+        YLA::Push(L, ticket->IsCompleted());
         return 1;
     }
 
@@ -45,9 +45,9 @@ namespace LuaTicket
      */
     int IsFromPlayer(lua_State* L, GmTicket* ticket)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
 
-        ALE::Push(L, ticket->IsFromPlayer(guid));
+        YLA::Push(L, ticket->IsFromPlayer(guid));
         return 1;
     }
 
@@ -58,7 +58,7 @@ namespace LuaTicket
      */
     int IsAssigned(lua_State* L, GmTicket* ticket)
     {
-        ALE::Push(L, ticket->IsAssigned());
+        YLA::Push(L, ticket->IsAssigned());
         return 1;
     }
 
@@ -71,9 +71,9 @@ namespace LuaTicket
      */
     int IsAssignedTo(lua_State* L, GmTicket* ticket)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
 
-        ALE::Push(L, ticket->IsAssignedTo(guid));
+        YLA::Push(L, ticket->IsAssignedTo(guid));
         return 1;
     }
 
@@ -86,9 +86,9 @@ namespace LuaTicket
      */
     int IsAssignedNotTo(lua_State* L, GmTicket* ticket)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
 
-        ALE::Push(L, ticket->IsAssignedNotTo(guid));
+        YLA::Push(L, ticket->IsAssignedNotTo(guid));
         return 1;
     }
 
@@ -99,7 +99,7 @@ namespace LuaTicket
      */
     int GetId(lua_State* L, GmTicket* ticket)
     {
-        ALE::Push(L, ticket->GetId());
+        YLA::Push(L, ticket->GetId());
         return 1;
     }
 
@@ -110,7 +110,7 @@ namespace LuaTicket
      */
     int GetPlayer(lua_State* L, GmTicket* ticket)
     {
-        ALE::Push(L, ticket->GetPlayer());
+        YLA::Push(L, ticket->GetPlayer());
         return 1;
     }
 
@@ -121,7 +121,7 @@ namespace LuaTicket
      */
     int GetPlayerName(lua_State* L, GmTicket* ticket)
     {
-        ALE::Push(L, ticket->GetPlayerName());
+        YLA::Push(L, ticket->GetPlayerName());
         return 1;
     }
 
@@ -132,7 +132,7 @@ namespace LuaTicket
      */
     int GetMessage(lua_State* L, GmTicket* ticket)
     {
-        ALE::Push(L, ticket->GetMessage());
+        YLA::Push(L, ticket->GetMessage());
         return 1;
     }
 
@@ -143,7 +143,7 @@ namespace LuaTicket
      */
     int GetAssignedPlayer(lua_State* L, GmTicket* ticket)
     {
-        ALE::Push(L, ticket->GetAssignedPlayer());
+        YLA::Push(L, ticket->GetAssignedPlayer());
         return 1;
     }
 
@@ -154,7 +154,7 @@ namespace LuaTicket
      */
     int GetAssignedToGUID(lua_State* L, GmTicket* ticket)
     {
-        ALE::Push(L, ticket->GetAssignedToGUID());
+        YLA::Push(L, ticket->GetAssignedToGUID());
         return 1;
     }
 
@@ -165,7 +165,7 @@ namespace LuaTicket
      */
     int GetLastModifiedTime(lua_State* L, GmTicket* ticket)
     {
-        ALE::Push(L, ticket->GetLastModifiedTime());
+        YLA::Push(L, ticket->GetLastModifiedTime());
         return 1;
     }
 
@@ -177,8 +177,8 @@ namespace LuaTicket
      */
     int SetAssignedTo(lua_State* L, GmTicket* ticket)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
-        bool is_admin = ALE::CHECKVAL<bool>(L, 2, false);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
+        bool is_admin = YLA::CHECKVAL<bool>(L, 2, false);
         ticket->SetAssignedTo(guid, is_admin);
         return 0;
     }
@@ -190,7 +190,7 @@ namespace LuaTicket
      */
     int SetResolvedBy(lua_State* L, GmTicket* ticket)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
         ticket->SetResolvedBy(guid);
         return 0;
     }
@@ -213,7 +213,7 @@ namespace LuaTicket
      */
     int SetMessage(lua_State* L, GmTicket* ticket)
     {
-        std::string message = ALE::CHECKVAL<std::string>(L, 2);
+        std::string message = YLA::CHECKVAL<std::string>(L, 2);
 
         ticket->SetMessage(message);
         return 0;
@@ -227,7 +227,7 @@ namespace LuaTicket
      */
     int SetComment(lua_State* L, GmTicket* ticket)
     {
-        std::string comment = ALE::CHECKVAL<std::string>(L, 2);
+        std::string comment = YLA::CHECKVAL<std::string>(L, 2);
 
         ticket->SetComment(comment);
         return 0;
@@ -264,10 +264,10 @@ namespace LuaTicket
      */
     int SetPosition(lua_State* L, GmTicket* ticket)
     {
-        uint32 mapId = ALE::CHECKVAL<uint32>(L, 2);
-        float x = ALE::CHECKVAL<float>(L, 2);
-        float y = ALE::CHECKVAL<float>(L, 2);
-        float z = ALE::CHECKVAL<float>(L, 2);
+        uint32 mapId = YLA::CHECKVAL<uint32>(L, 2);
+        float x = YLA::CHECKVAL<float>(L, 2);
+        float y = YLA::CHECKVAL<float>(L, 2);
+        float z = YLA::CHECKVAL<float>(L, 2);
 
         ticket->SetPosition(mapId, x, y, z);
         return 0;
@@ -281,7 +281,7 @@ namespace LuaTicket
      */
     int AppendResponse(lua_State* L, GmTicket* ticket)
     {
-        std::string response = ALE::CHECKVAL<std::string>(L, 2);
+        std::string response = YLA::CHECKVAL<std::string>(L, 2);
 
         ticket->AppendResponse(response);
         return 0;
@@ -294,7 +294,7 @@ namespace LuaTicket
      */
     int GetResponse(lua_State* L, GmTicket* ticket)
     {
-        ALE::Push(L, ticket->GetResponse());
+        YLA::Push(L, ticket->GetResponse());
         return 1;
     }
 
@@ -315,7 +315,7 @@ namespace LuaTicket
      */
     int GetChatLog(lua_State* L, GmTicket* ticket)
     {
-        ALE::Push(L, ticket->GetChatLog());
+        YLA::Push(L, ticket->GetChatLog());
         return 1;
     }
 };

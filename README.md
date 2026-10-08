@@ -12,11 +12,11 @@ Read more about Yggdrasil WoW and see Yggdrasilcore in action [here](https://ygg
 ## Compatibility
 
 > [!IMPORTANT]
-> Yggdrasil LuA is NOT compatible with AzerothCore, ALE or Eluna. It includes significant performance improvements, including multistate support and thread safety alignments with the Yggdrasilcore core, that are incompatible with stock AzerothCore scripts. Scripts written for stock ALE or Eluna will not work with YLA, and scripts written for YLA will not work with them.
+> Yggdrasil LuA is NOT compatible with AzerothCore, YLA or Eluna. It includes significant performance improvements, including multistate support and thread safety alignments with the Yggdrasilcore core, that are incompatible with stock AzerothCore scripts. Scripts written for stock YLA or Eluna will not work with YLA, and scripts written for YLA will not work with them.
 
 YLA has diverged from mod-yla and from the original Eluna project. Its API, state handling and threading model differ from upstream, so scripts are not interchangeable in either direction. Always refer to YLA specific behavior when developing scripts, and do not expect upstream documentation to be accurate for it.
 
-If you need stock ALE or Eluna compatibility, use the upstream projects instead: [mod-yla](https://github.com/azerothcore/mod-ale) for AzerothCore's ALE or [ElunaTrinityWotlk](https://github.com/ElunaLuaEngine/ElunaTrinityWotlk) for the original Eluna API.
+If you need stock YLA or Eluna compatibility, use the upstream projects instead: [mod-yla](https://github.com/azerothcore/mod-ale) for AzerothCore's YLA or [ElunaTrinityWotlk](https://github.com/ElunaLuaEngine/ElunaTrinityWotlk) for the original Eluna API.
 
 ## Installation
 

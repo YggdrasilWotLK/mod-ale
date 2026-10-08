@@ -1,10 +1,10 @@
 [worldserver]
 
 ###################################################################################################
-#  ALE SETTINGS
+#  YLA SETTINGS
 #
 #   YLA.Enabled
-#       Description: Enable or disable ALE LuaEngine
+#       Description: Enable or disable YLA LuaEngine
 #       Default:    true  - (enabled)
 #                   false - (disabled)
 #
@@ -55,19 +55,19 @@
 #   YLA.BytecodeCache
 #       Description: Enable or disable bytecode caching for improved performance.
 #                    When enabled, Lua/MoonScript files are compiled to bytecode and cached in memory.
-#                    This significantly speeds up script reloading (.reload ALE).
+#                    This significantly speeds up script reloading (.reload YLA).
 #                    Cache is cleared only when files are modified or server restarts.
 #       Default:    true  - (enabled)
 #                   false - (disabled)
 #
 #   YLA.CompatibilityMode
-#       Description: Toggles ALE between compatibility mode (single-threaded) or multistate mode.
+#       Description: Toggles YLA between compatibility mode (single-threaded) or multistate mode.
 #                    Compatibility mode limits the engine to a single global Lua state.
 #       Default:    true  - (enabled)
 #                   false - (disabled)
 #
 #   YLA.OnlyOnMaps
-#       Description: When ALE is enabled, a state will only be created for a list of specified maps.
+#       Description: When YLA is enabled, a state will only be created for a list of specified maps.
 #                    This only works in multistate mode.
 #       Default:    ""  - (enabled on all maps)
 #                   "0,1,2,..." - (enabled on specific maps only)
@@ -170,4 +170,4 @@ Appender.ALEConsole=1,4,0,"0 9 0 3 5 0"
 #                     AppenderList: List of appenders linked to logger
 #                     (Using spaces as separator).
 #
-Logger.ALE=4,ALELog ALEConsole
+Logger.YLA=4,ALELog ALEConsole
