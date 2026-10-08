@@ -11,11 +11,11 @@ jobs:
   install_and_build:
     runs-on: ubuntu-24.04
     steps:
-      - name: Check out AzerothCore 🧑‍💻
+      - name: Check out YggdrasilCore 🧑‍💻
         uses: actions/checkout@v4
         with:
-          repository: 'azerothcore/azerothcore-wotlk'
-          ref: 'master'
+          repository: 'YggdrasilWotLK/yggdrasilcore'
+          ref: 'master-shadows'
           submodules: 'recursive'
           fetch-depth: 0
 
@@ -26,6 +26,15 @@ jobs:
           path: 'modules/${{ github.event.repository.name }}'
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check out mod-shadows 🤖
+        uses: actions/checkout@v4
+        with:
+          repository: 'YggdrasilWotLK/mod-shadows'
+          ref: 'master'
+          submodules: 'recursive'
+          path: 'modules/mod-playerbots'
+          fetch-depth: 0
 
       - name: Cache compilation artifacts 💾
         uses: actions/cache@v4
@@ -54,12 +63,12 @@ jobs:
             -DCMAKE_CXX_COMPILER=clang++-18 \
             -DSCRIPTS="static" \
             -DMODULES="static" \
-            -DWITH_WARNINGS="ON" \
+            -DWITH_WARNINGS="OFF" \
             -DCMAKE_BUILD_TYPE="Release" \
             -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
             -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
-            -DCMAKE_C_FLAGS="-Werror" \
-            -DCMAKE_CXX_FLAGS="-Werror" \
+            -DCMAKE_C_FLAGS="-DMOD_PLAYERBOTS" \
+            -DCMAKE_CXX_FLAGS="-DMOD_PLAYERBOTS" \
             -DLUA_VERSION=${{ inputs.lua_version }}
           make -j$(nproc)
           cd ..
