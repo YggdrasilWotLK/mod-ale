@@ -1855,6 +1855,25 @@ template<> int ALETemplate<Vehicle>::CollectGarbage(lua_State* L)
     return 0;
 }
 
+// Group/Guild are manager-owned zombies; Lua must never destroy them.
+template<> int ALETemplate<Group>::CollectGarbage(lua_State* L)
+{
+    ASSERT(!manageMemory);
+
+    ALEObject* obj = ALE::CHECKOBJ<ALEObject>(L, 1, false);
+    delete obj;
+    return 0;
+}
+
+template<> int ALETemplate<Guild>::CollectGarbage(lua_State* L)
+{
+    ASSERT(!manageMemory);
+
+    ALEObject* obj = ALE::CHECKOBJ<ALEObject>(L, 1, false);
+    delete obj;
+    return 0;
+}
+
 // Template by Mud from http://stackoverflow.com/questions/4484437/lua-integer-type/4485511#4485511
 template<> int ALETemplate<unsigned long long>::Add(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) + ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
 template<> int ALETemplate<unsigned long long>::Substract(lua_State* L) { ALE::Push(L, ALE::CHECKVAL<unsigned long long>(L, 1) - ALE::CHECKVAL<unsigned long long>(L, 2)); return 1; }
