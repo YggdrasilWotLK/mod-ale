@@ -27,6 +27,15 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Check out mod-shadows 🤖
+        uses: actions/checkout@v4
+        with:
+          repository: 'YggdrasilWotLK/mod-shadows'
+          ref: 'master'
+          submodules: 'recursive'
+          path: 'modules/mod-shadows'
+          fetch-depth: 0
+
       - name: Cache compilation artifacts 💾
         uses: actions/cache@v4
         with:
