@@ -166,9 +166,7 @@ void ALEEventProcessor::Update(uint32 diff)
             Guard guard(mutex);
             firing = call.luaEvent;
         }
-        // True when OnTimedEvent refused nested execution below. A skipped
-        // call never ran, so the re-arm path re-schedules it rather than
-        // consuming it.
+        // Set when OnTimedEvent refused nested execution; re-arm below.
         bool callSkipped = false;
 
         // Resolve the owning state into a shared reference that keeps it
@@ -189,9 +187,8 @@ void ALEEventProcessor::Update(uint32 diff)
             // Re-add only when still scheduled to run, nobody tore the
             // processor down meanwhile, and no mass removal swept during
             // the call (sole ownership returns to the containers exactly
-            // once). Anything else is deleted below. A skipped (nested)
-            // call never ran, so it is re-armed with a full delay even
-            // when it was a one-shot: dropping it would lose the action.
+            // once). Anything else is deleted below. Skipped calls never
+            // ran, so one-shots re-arm too.
             firing = nullptr;
             if ((!call.remove || callSkipped) && !dead && call.luaEvent->state == LUAEVENT_STATE_RUN &&
                 massSweep.load(std::memory_order_acquire) == call.sweep)
