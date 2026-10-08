@@ -17,7 +17,7 @@
 
 #include "Chat.h"
 #include "ALEEventMgr.h"
-#include "AleAlive.h"
+#include "YlaAlive.h"
 #include "Log.h"
 #include "LuaEngine.h"
 #include "Pet.h"
@@ -26,10 +26,10 @@
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
 
-class ALE_AllCreatureScript : public AllCreatureScript
+class YLA_AllCreatureScript : public AllCreatureScript
 {
 public:
-    ALE_AllCreatureScript() : AllCreatureScript("ALE_AllCreatureScript") { }
+    YLA_AllCreatureScript() : AllCreatureScript("YLA_AllCreatureScript") { }
 
     bool CanCreatureGossipHello(Player* player, Creature* creature) override
     {
@@ -105,10 +105,10 @@ public:
     }
 };
 
-class ALE_AllGameObjectScript : public AllGameObjectScript
+class YLA_AllGameObjectScript : public AllGameObjectScript
 {
 public:
-    ALE_AllGameObjectScript() : AllGameObjectScript("ALE_AllGameObjectScript") { }
+    YLA_AllGameObjectScript() : AllGameObjectScript("YLA_AllGameObjectScript") { }
 
     void OnGameObjectAddWorld(GameObject* go) override
     {
@@ -196,10 +196,10 @@ public:
     }
 };
 
-class ALE_AllItemScript : public AllItemScript
+class YLA_AllItemScript : public AllItemScript
 {
 public:
-    ALE_AllItemScript() : AllItemScript("ALE_AllItemScript") { }
+    YLA_AllItemScript() : AllItemScript("YLA_AllItemScript") { }
 
     bool CanItemQuestAccept(Player* player, Item* item, Quest const* quest) override
     {
@@ -244,10 +244,10 @@ public:
     }
 };
 
-class ALE_AllMapScript : public AllMapScript
+class YLA_AllMapScript : public AllMapScript
 {
 public:
-    ALE_AllMapScript() : AllMapScript("ALE_AllMapScript", {
+    YLA_AllMapScript() : AllMapScript("YLA_AllMapScript", {
         ALLMAPHOOK_ON_BEFORE_CREATE_INSTANCE_SCRIPT,
         ALLMAPHOOK_ON_DESTROY_INSTANCE,
         ALLMAPHOOK_ON_CREATE_MAP,
@@ -308,10 +308,10 @@ public:
     }
 };
 
-class ALE_AuctionHouseScript : public AuctionHouseScript
+class YLA_AuctionHouseScript : public AuctionHouseScript
 {
 public:
-    ALE_AuctionHouseScript() : AuctionHouseScript("ALE_AuctionHouseScript", {
+    YLA_AuctionHouseScript() : AuctionHouseScript("YLA_AuctionHouseScript", {
         AUCTIONHOUSEHOOK_ON_AUCTION_ADD,
         AUCTIONHOUSEHOOK_ON_AUCTION_REMOVE,
         AUCTIONHOUSEHOOK_ON_AUCTION_SUCCESSFUL,
@@ -339,10 +339,10 @@ public:
     }
 };
 
-class ALE_BGScript : public BGScript
+class YLA_BGScript : public BGScript
 {
 public:
-    ALE_BGScript() : BGScript("ALE_BGScript", {
+    YLA_BGScript() : BGScript("YLA_BGScript", {
         ALLBATTLEGROUNDHOOK_ON_BATTLEGROUND_START,
         ALLBATTLEGROUNDHOOK_ON_BATTLEGROUND_END,
         ALLBATTLEGROUNDHOOK_ON_BATTLEGROUND_DESTROY,
@@ -370,10 +370,10 @@ public:
     }
 };
 
-class ALE_CommandSC : public CommandSC
+class YLA_CommandSC : public CommandSC
 {
 public:
-    ALE_CommandSC() : CommandSC("ALE_CommandSC", {
+    YLA_CommandSC() : CommandSC("YLA_CommandSC", {
         ALLCOMMANDHOOK_ON_TRY_EXECUTE_COMMAND
     }) { }
 
@@ -385,10 +385,10 @@ public:
     }
 };
 
-class ALE_ALEScript : public ALEScript
+class YLA_ALEScript : public ALEScript
 {
 public:
-    ALE_ALEScript() : ALEScript("ALE_ALEScript") { }
+    YLA_ALEScript() : ALEScript("YLA_ALEScript") { }
 
     void OnWeatherChange(Weather* weather, WeatherState state, float grade) override
     {
@@ -403,10 +403,10 @@ public:
     }
 };
 
-class ALE_GameEventScript : public GameEventScript
+class YLA_GameEventScript : public GameEventScript
 {
 public:
-    ALE_GameEventScript() : GameEventScript("ALE_GameEventScript", {
+    YLA_GameEventScript() : GameEventScript("YLA_GameEventScript", {
         GAMEEVENTHOOK_ON_START,
         GAMEEVENTHOOK_ON_STOP
     }) { }
@@ -422,10 +422,10 @@ public:
     }
 };
 
-class ALE_GroupScript : public GroupScript
+class YLA_GroupScript : public GroupScript
 {
 public:
-    ALE_GroupScript() : GroupScript("ALE_GroupScript", {
+    YLA_GroupScript() : GroupScript("YLA_GroupScript", {
         GROUPHOOK_ON_ADD_MEMBER,
         GROUPHOOK_ON_INVITE_MEMBER,
         GROUPHOOK_ON_REMOVE_MEMBER,
@@ -465,10 +465,10 @@ public:
     }
 };
 
-class ALE_GuildScript : public GuildScript
+class YLA_GuildScript : public GuildScript
 {
 public:
-    ALE_GuildScript() : GuildScript("ALE_GuildScript", {
+    YLA_GuildScript() : GuildScript("YLA_GuildScript", {
         GUILDHOOK_ON_ADD_MEMBER,
         GUILDHOOK_ON_REMOVE_MEMBER,
         GUILDHOOK_ON_MOTD_CHANGED,
@@ -539,10 +539,10 @@ public:
     }
 };
 
-class ALE_LootScript : public LootScript
+class YLA_LootScript : public LootScript
 {
 public:
-    ALE_LootScript() : LootScript("ALE_LootScript", {
+    YLA_LootScript() : LootScript("YLA_LootScript", {
         LOOTHOOK_ON_LOOT_MONEY
     }) { }
 
@@ -552,10 +552,10 @@ public:
     }
 };
 
-class ALE_MiscScript : public MiscScript
+class YLA_MiscScript : public MiscScript
 {
 public:
-    ALE_MiscScript() : MiscScript("ALE_MiscScript", {
+    YLA_MiscScript() : MiscScript("YLA_MiscScript", {
         MISCHOOK_GET_DIALOG_STATUS
     }) { }
 
@@ -569,10 +569,10 @@ public:
     }
 };
 
-class ALE_PetScript : public PetScript
+class YLA_PetScript : public PetScript
 {
 public:
-    ALE_PetScript() : PetScript("ALE_PetScript", {
+    YLA_PetScript() : PetScript("YLA_PetScript", {
         PETHOOK_ON_PET_ADD_TO_WORLD
     }) { }
 
@@ -582,10 +582,10 @@ public:
     }
 };
 
-class ALE_PlayerScript : public PlayerScript
+class YLA_PlayerScript : public PlayerScript
 {
 public:
-    ALE_PlayerScript() : PlayerScript("ALE_PlayerScript", {
+    YLA_PlayerScript() : PlayerScript("YLA_PlayerScript", {
         PLAYERHOOK_ON_PLAYER_RESURRECT,
         PLAYERHOOK_CAN_PLAYER_USE_CHAT,
         PLAYERHOOK_CAN_PLAYER_USE_PRIVATE_CHAT,
@@ -1018,10 +1018,10 @@ public:
     }
 };
 
-class ALE_ServerScript : public ServerScript
+class YLA_ServerScript : public ServerScript
 {
 public:
-    ALE_ServerScript() : ServerScript("ALE_ServerScript", {
+    YLA_ServerScript() : ServerScript("YLA_ServerScript", {
         SERVERHOOK_CAN_PACKET_SEND,
         SERVERHOOK_CAN_PACKET_RECEIVE
     }) { }
@@ -1041,10 +1041,10 @@ public:
     }
 };
 
-class ALE_SpellSC : public SpellSC
+class YLA_SpellSC : public SpellSC
 {
 public:
-    ALE_SpellSC() : SpellSC("ALE_SpellSC", {
+    YLA_SpellSC() : SpellSC("YLA_SpellSC", {
         ALLSPELLHOOK_ON_DUMMY_EFFECT_GAMEOBJECT,
         ALLSPELLHOOK_ON_DUMMY_EFFECT_CREATURE,
         ALLSPELLHOOK_ON_DUMMY_EFFECT_ITEM,
@@ -1084,10 +1084,10 @@ public:
     }
 };
 
-class ALE_VehicleScript : public VehicleScript
+class YLA_VehicleScript : public VehicleScript
 {
 public:
-    ALE_VehicleScript() : VehicleScript("ALE_VehicleScript") { }
+    YLA_VehicleScript() : VehicleScript("YLA_VehicleScript") { }
 
     void OnInstall(Vehicle* veh) override
     {
@@ -1115,10 +1115,10 @@ public:
     }
 };
 
-class ALE_WorldObjectScript : public WorldObjectScript
+class YLA_WorldObjectScript : public WorldObjectScript
 {
 public:
-    ALE_WorldObjectScript() : WorldObjectScript("ALE_WorldObjectScript", {
+    YLA_WorldObjectScript() : WorldObjectScript("YLA_WorldObjectScript", {
         WORLDOBJECTHOOK_ON_WORLD_OBJECT_DESTROY,
         WORLDOBJECTHOOK_ON_WORLD_OBJECT_CREATE,
         WORLDOBJECTHOOK_ON_WORLD_OBJECT_SET_MAP,
@@ -1130,7 +1130,7 @@ public:
         ALE::ClearObjectData(object->GetGUID());
         // Players-only: GUID and type are still valid inside ~WorldObject.
         if (object->GetTypeId() == TYPEID_PLAYER)
-            AleAlive::Erase(object->GetGUID(), object);
+            YlaAlive::Erase(object->GetGUID(), object);
         if (object->ALEEvents)
         {
             delete object->ALEEvents;
@@ -1154,7 +1154,7 @@ public:
                 else if (ALE::GALE)
                     object->ALEEvents = new ALEEventProcessor(ALE::GALE->GetSelfRef(), ALE::OwningRef(ALE::GALE), object);
                 else
-                    object->ALEEvents = new ALEEventProcessor(AleStateRef(), nullptr, object);
+                    object->ALEEvents = new ALEEventProcessor(YlaStateRef(), nullptr, object);
             }
             else if (ALE::GALE)
             {
@@ -1162,13 +1162,13 @@ public:
             }
             else
             {
-                object->ALEEvents = new ALEEventProcessor(AleStateRef(), nullptr, object);
+                object->ALEEvents = new ALEEventProcessor(YlaStateRef(), nullptr, object);
             }
         }
         // Players-only: OnWorldObjectCreate fires in the WorldObject base
         // ctor before the type is set, so filter here instead.
         if (object->GetTypeId() == TYPEID_PLAYER)
-            AleAlive::Insert(object->GetGUID(), object);
+            YlaAlive::Insert(object->GetGUID(), object);
     }
 
     void OnWorldObjectUpdate(WorldObject* object, uint32 diff) override
@@ -1178,10 +1178,10 @@ public:
     }
 };
 
-class ALE_WorldScript : public WorldScript
+class YLA_WorldScript : public WorldScript
 {
 public:
-    ALE_WorldScript() : WorldScript("ALE_WorldScript", {
+    YLA_WorldScript() : WorldScript("YLA_WorldScript", {
         WORLDHOOK_ON_OPEN_STATE_CHANGE,
         WORLDHOOK_ON_BEFORE_CONFIG_LOAD,
         WORLDHOOK_ON_AFTER_CONFIG_LOAD,
@@ -1257,10 +1257,10 @@ public:
     }
 };
 
-class ALE_TicketScript : public TicketScript
+class YLA_TicketScript : public TicketScript
 {
 public:
-    ALE_TicketScript() : TicketScript("ALE_TicketScript", {
+    YLA_TicketScript() : TicketScript("YLA_TicketScript", {
         TICKETHOOK_ON_TICKET_CREATE,
         TICKETHOOK_ON_TICKET_UPDATE_LAST_CHANGE,
         TICKETHOOK_ON_TICKET_CLOSE,
@@ -1288,10 +1288,10 @@ public:
     }
 };
 
-class ALE_UnitScript : public UnitScript
+class YLA_UnitScript : public UnitScript
 {
 public:
-    ALE_UnitScript() : UnitScript("ALE_UnitScript") { }
+    YLA_UnitScript() : UnitScript("YLA_UnitScript") { }
 
     void OnAuraApply(Unit* unit, Aura* aura) override
     {
@@ -1326,26 +1326,26 @@ public:
 
 void AddSC_ALE()
 {
-    new ALE_AllCreatureScript();
-    new ALE_AllGameObjectScript();
-    new ALE_AllItemScript();
-    new ALE_AllMapScript();
-    new ALE_AuctionHouseScript();
-    new ALE_BGScript();
-    new ALE_CommandSC();
-    new ALE_ALEScript();
-    new ALE_GameEventScript();
-    new ALE_GroupScript();
-    new ALE_GuildScript();
-    new ALE_LootScript();
-    new ALE_MiscScript();
-    new ALE_PetScript();
-    new ALE_PlayerScript();
-    new ALE_ServerScript();
-    new ALE_SpellSC();
-    new ALE_TicketScript();
-    new ALE_VehicleScript();
-    new ALE_WorldObjectScript();
-    new ALE_WorldScript();
-    new ALE_UnitScript();
+    new YLA_AllCreatureScript();
+    new YLA_AllGameObjectScript();
+    new YLA_AllItemScript();
+    new YLA_AllMapScript();
+    new YLA_AuctionHouseScript();
+    new YLA_BGScript();
+    new YLA_CommandSC();
+    new YLA_ALEScript();
+    new YLA_GameEventScript();
+    new YLA_GroupScript();
+    new YLA_GuildScript();
+    new YLA_LootScript();
+    new YLA_MiscScript();
+    new YLA_PetScript();
+    new YLA_PlayerScript();
+    new YLA_ServerScript();
+    new YLA_SpellSC();
+    new YLA_TicketScript();
+    new YLA_VehicleScript();
+    new YLA_WorldObjectScript();
+    new YLA_WorldScript();
+    new YLA_UnitScript();
 }

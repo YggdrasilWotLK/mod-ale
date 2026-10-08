@@ -4,8 +4,8 @@
  * Please see the included DOCS/LICENSE.md for more information
  */
 
-#ifndef _ALE_ALIVE_H
-#define _ALE_ALIVE_H
+#ifndef _YLA_ALIVE_H
+#define _YLA_ALIVE_H
 
 #include "ObjectGuid.h"
 #include <mutex>
@@ -15,7 +15,7 @@ class WorldObject;
 
 // Live players keyed by GUID. Identity is the GUID, never the address,
 // so address reuse across logout/login cannot validate stale userdata.
-class AleAlive
+class YlaAlive
 {
 public:
     using Guard = std::lock_guard<std::recursive_mutex>;

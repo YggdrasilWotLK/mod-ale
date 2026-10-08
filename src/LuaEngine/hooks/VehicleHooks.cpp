@@ -18,7 +18,7 @@ using namespace Hooks;
     auto key = EventKey<VehicleEvents>(EVENT);\
     if (!VehicleEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
 void ALE::OnInstall(Vehicle* vehicle)
 {

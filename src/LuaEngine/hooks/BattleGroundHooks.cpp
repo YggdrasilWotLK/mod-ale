@@ -18,7 +18,7 @@ using namespace Hooks;
     auto key = EventKey<BGEvents>(EVENT);\
     if (!BGEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
 void ALE::OnBGStart(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId)
 {

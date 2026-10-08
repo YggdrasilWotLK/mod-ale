@@ -18,7 +18,7 @@
 #include "lmarshal.h"
 
 #if AC_PLATFORM == AC_PLATFORM_WINDOWS
-#define ALE_WINDOWS
+#define YLA_WINDOWS
 #endif
 
 // Some dummy includes containing BOOST_VERSION:
@@ -93,8 +93,8 @@ void ALE::Initialize()
 
     // Create global ALE (shared-owned; GALE mirrors it raw)
     {
-        AleStateRef globalRef;
-        GALE_HOLDER = std::shared_ptr<ALE>(new ALE(globalRef, ALE_GLOBAL_STATE));
+        YlaStateRef globalRef;
+        GALE_HOLDER = std::shared_ptr<ALE>(new ALE(globalRef, YLA_GLOBAL_STATE));
         GALE = GALE_HOLDER.get();
     }
 
@@ -156,7 +156,7 @@ void ALE::Uninitialize()
     initialized = false;
 }
 
-std::shared_ptr<ALE> ALE::LockStateRef(const AleStateRef& ref)
+std::shared_ptr<ALE> ALE::LockStateRef(const YlaStateRef& ref)
 {
     if (ref.global)
         return GALE_HOLDER;
@@ -190,7 +190,7 @@ std::shared_ptr<ALE> ALE::CreateMapState(uint32 mapId, uint32 instanceId)
     LOCK_ALE;
     uint64 key = ALEMapStateKey(mapId, instanceId);
     uint64 seq = ++s_stateSeq;
-    AleStateRef ref{ false, mapId, instanceId, seq };
+    YlaStateRef ref{ false, mapId, instanceId, seq };
     std::shared_ptr<ALE> state;
     {
         std::unique_lock lock(g_states_mutex);
@@ -249,12 +249,12 @@ void ALE::LoadScriptPaths()
     const std::string& lua_path_extra = static_cast<std::string>(ALEConfig::GetInstance().GetRequirePath());
     const std::string& lua_cpath_extra = static_cast<std::string>(ALEConfig::GetInstance().GetRequireCPath());
 
-#ifndef ALE_WINDOWS
+#ifndef YLA_WINDOWS
     if (lua_folderpath[0] == '~')
         if (const char* home = getenv("HOME"))
             lua_folderpath.replace(0, 1, home);
 #endif
-    ALE_LOG_INFO("[ALE]: Searching scripts from `{}`", lua_folderpath);
+    YLA_LOG_INFO("[ALE]: Searching scripts from `{}`", lua_folderpath);
 
     // clear all cache variables
     lua_requirepath.clear();
@@ -276,7 +276,7 @@ void ALE::LoadScriptPaths()
     if (!lua_requirecpath.empty())
         lua_requirecpath.erase(lua_requirecpath.end() - 1);
 
-    ALE_LOG_DEBUG("[ALE]: Loaded {} scripts in {} ms", lua_scripts.size() + lua_extensions.size(), ALEUtil::GetTimeDiff(oldMSTime));
+    YLA_LOG_DEBUG("[ALE]: Loaded {} scripts in {} ms", lua_scripts.size() + lua_extensions.size(), ALEUtil::GetTimeDiff(oldMSTime));
 }
 
 void ALE::_ReloadALE()
@@ -334,7 +334,7 @@ std::string ALE::SerializeValue(lua_State* L, int idx)
 
     if (lua_pcall(L, 1, 1, 0) != 0)
     {
-        ALE_LOG_ERROR("[ALE]: SerializeValue failed: {}", lua_tostring(L, -1));
+        YLA_LOG_ERROR("[ALE]: SerializeValue failed: {}", lua_tostring(L, -1));
         lua_pop(L, 1);
         return "";
     }
@@ -359,7 +359,7 @@ bool ALE::DeserializeValue(lua_State* L, const std::string& data)
 
     if (lua_pcall(L, 1, 1, 0) != 0)
     {
-        ALE_LOG_ERROR("[ALE]: DeserializeValue failed: {}", lua_tostring(L, -1));
+        YLA_LOG_ERROR("[ALE]: DeserializeValue failed: {}", lua_tostring(L, -1));
         lua_pop(L, 1);
         lua_pushnil(L);
         return false;
@@ -368,7 +368,7 @@ bool ALE::DeserializeValue(lua_State* L, const std::string& data)
     return true;
 }
 
-ALE::ALE(const AleStateRef& self, uint32 mapId, uint32 instanceId) :
+ALE::ALE(const YlaStateRef& self, uint32 mapId, uint32 instanceId) :
 stateMapId(mapId),
 stateInstanceId(instanceId),
 selfRef(self),
@@ -445,14 +445,14 @@ void ALE::OpenLua()
 {
     if (!ALEConfig::GetInstance().IsALEEnabled())
     {
-        ALE_LOG_INFO("[ALE]: ALE is disabled in config");
+        YLA_LOG_INFO("[ALE]: ALE is disabled in config");
         return;
     }
 
     L = luaL_newstate();
 
     lua_pushlightuserdata(L, this);
-    lua_setfield(L, LUA_REGISTRYINDEX, ALE_STATE_PTR);
+    lua_setfield(L, LUA_REGISTRYINDEX, YLA_STATE_PTR);
 
     CreateBindStores();
 
@@ -559,7 +559,7 @@ void ALE::DestroyBindStores()
 
 void ALE::AddScriptPath(std::string filename, const std::string& fullpath)
 {
-    ALE_LOG_DEBUG("[ALE]: AddScriptPath Checking file `{}`", fullpath);
+    YLA_LOG_DEBUG("[ALE]: AddScriptPath Checking file `{}`", fullpath);
 
     // split file name
     std::size_t extDot = filename.find_last_of('.');
@@ -582,7 +582,7 @@ void ALE::AddScriptPath(std::string filename, const std::string& fullpath)
         lua_extensions.push_back(script);
     else
         lua_scripts.push_back(script);
-    ALE_LOG_DEBUG("[ALE]: AddScriptPath add path `{}`", fullpath);
+    YLA_LOG_DEBUG("[ALE]: AddScriptPath add path `{}`", fullpath);
 }
 
 std::time_t ALE::GetFileModTime(const std::string& filepath)
@@ -775,7 +775,7 @@ void ALE::ClearGlobalCache()
     std::lock_guard<std::mutex> lock(globalCacheMutex);
     globalBytecodeCache.clear();
     timestampCache.clear();
-    ALE_LOG_INFO("[ALE]: Global bytecode cache cleared");
+    YLA_LOG_INFO("[ALE]: Global bytecode cache cleared");
 }
 
 void ALE::ClearTimestampCache()
@@ -810,7 +810,7 @@ int ALE::LoadCompiledScript(lua_State* L, const std::string& filepath)
 // Finds lua script files from given path (including subdirectories) and pushes them to scripts
 void ALE::GetScripts(std::string path, uint32 mapId)
 {
-    ALE_LOG_DEBUG("[ALE]: GetScripts from path `{}`", path);
+    YLA_LOG_DEBUG("[ALE]: GetScripts from path `{}`", path);
 
     boost::filesystem::path someDir(path);
     boost::filesystem::directory_iterator end_iter;
@@ -831,7 +831,7 @@ void ALE::GetScripts(std::string path, uint32 mapId)
             std::string fullpath = dir_iter->path().generic_string();
 
             // Check if file is hidden
-#ifdef ALE_WINDOWS
+#ifdef YLA_WINDOWS
             DWORD dwAttrib = GetFileAttributes(fullpath.c_str());
             if (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_HIDDEN))
                 continue;
@@ -910,7 +910,7 @@ void ALE::RunScriptsLocked()
         // Check that no duplicate names exist
         if (loaded.find(it->filename) != loaded.end())
         {
-            ALE_LOG_ERROR("[ALE]: Error loading `{}`. File with same name already loaded from `{}`, rename either file", it->filepath, loaded[it->filename]);
+            YLA_LOG_ERROR("[ALE]: Error loading `{}`. File with same name already loaded from `{}`, rename either file", it->filepath, loaded[it->filename]);
             continue;
         }
         loaded[it->filename] = it->filepath;
@@ -920,7 +920,7 @@ void ALE::RunScriptsLocked()
         if (!lua_isnoneornil(L, -1))
         {
             lua_pop(L, 1);
-            ALE_LOG_DEBUG("[ALE]: `{}` was already loaded or required", it->filepath);
+            YLA_LOG_DEBUG("[ALE]: `{}` was already loaded or required", it->filepath);
             continue;
         }
         lua_pop(L, 1);
@@ -931,7 +931,7 @@ void ALE::RunScriptsLocked()
             if (LoadScriptWithCache(L, it->filepath, true, &compiledCount, &cachedCount))
             {
                 // Stack: package, modules, errmsg
-                ALE_LOG_ERROR("[ALE]: Error loading MoonScript `{}`", it->filepath);
+                YLA_LOG_ERROR("[ALE]: Error loading MoonScript `{}`", it->filepath);
                 Report(L);
                 // Stack: package, modules
                 continue;
@@ -942,7 +942,7 @@ void ALE::RunScriptsLocked()
             if (LoadCompiledScript(L, it->filepath))
             {
                 // Stack: package, modules, errmsg
-                ALE_LOG_ERROR("[ALE]: Error loading compiled script `{}`", it->filepath);
+                YLA_LOG_ERROR("[ALE]: Error loading compiled script `{}`", it->filepath);
                 Report(L);
                 // Stack: package, modules
                 continue;
@@ -954,7 +954,7 @@ void ALE::RunScriptsLocked()
             if (LoadScriptWithCache(L, it->filepath, false, &compiledCount, &cachedCount))
             {
                 // Stack: package, modules, errmsg
-                ALE_LOG_ERROR("[ALE]: Error loading `{}`", it->filepath);
+                YLA_LOG_ERROR("[ALE]: Error loading `{}`", it->filepath);
                 Report(L);
                 // Stack: package, modules
                 continue;
@@ -965,7 +965,7 @@ void ALE::RunScriptsLocked()
            if (luaL_loadfile(L, it->filepath.c_str()))
            {
                // Stack: package, modules, errmsg
-               ALE_LOG_ERROR("[ALE]: Error loading `{}`", it->filepath);
+               YLA_LOG_ERROR("[ALE]: Error loading `{}`", it->filepath);
                Report(L);
                // Stack: package, modules
                continue;
@@ -986,7 +986,7 @@ void ALE::RunScriptsLocked()
             // Stack: package, modules
 
             // successfully loaded and ran file
-            ALE_LOG_DEBUG("[ALE]: Successfully loaded `{}`", it->filepath);
+            YLA_LOG_DEBUG("[ALE]: Successfully loaded `{}`", it->filepath);
             ++count;
             continue;
         }
@@ -999,7 +999,7 @@ void ALE::RunScriptsLocked()
     {
         details = fmt::format("({} compiled, {} cached, {} pre-compiled)", compiledCount, cachedCount, precompiledCount);
     }
-    ALE_LOG_INFO("[ALE]: Executed {} Lua scripts in {} ms {}", count, ALEUtil::GetTimeDiff(oldMSTime), details);
+    YLA_LOG_INFO("[ALE]: Executed {} Lua scripts in {} ms {}", count, ALEUtil::GetTimeDiff(oldMSTime), details);
 
     OnLuaStateOpen();
 }
@@ -1013,7 +1013,7 @@ void ALE::InvalidateObjects()
 void ALE::Report(lua_State* _L)
 {
     const char* msg = lua_tostring(_L, -1);
-    ALE_LOG_ERROR("{}", msg);
+    YLA_LOG_ERROR("{}", msg);
     lua_pop(_L, 1);
 }
 
@@ -1059,7 +1059,7 @@ bool ALE::ExecuteCall(int params, int res)
     // Check function type
     if (!lua_isfunction(L, base))
     {
-        ALE_LOG_ERROR("[ALE]: Cannot execute call: registered value is {}, not a function.", luaL_tolstring(L, base, NULL));
+        YLA_LOG_ERROR("[ALE]: Cannot execute call: registered value is {}, not a function.", luaL_tolstring(L, base, NULL));
         ASSERT(false); // stack probably corrupt
     }
 

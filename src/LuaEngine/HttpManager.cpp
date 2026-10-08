@@ -11,7 +11,7 @@ extern "C"
 #include "HttpManager.h"
 #include "LuaEngine.h"
 
-HttpWorkItem::HttpWorkItem(int funcRef, const AleStateRef& owner, uint64 gen, const std::string& httpVerb, const std::string& url, const std::string& body, const std::string& contentType, const httplib::Headers& headers)
+HttpWorkItem::HttpWorkItem(int funcRef, const YlaStateRef& owner, uint64 gen, const std::string& httpVerb, const std::string& url, const std::string& body, const std::string& contentType, const httplib::Headers& headers)
     : funcRef(funcRef),
     owner(owner),
     gen(gen),
@@ -22,7 +22,7 @@ HttpWorkItem::HttpWorkItem(int funcRef, const AleStateRef& owner, uint64 gen, co
     headers(headers)
 { }
 
-HttpResponse::HttpResponse(int funcRef, const AleStateRef& owner, uint64 gen, int statusCode, const std::string& body, const httplib::Headers& headers)
+HttpResponse::HttpResponse(int funcRef, const YlaStateRef& owner, uint64 gen, int statusCode, const std::string& body, const httplib::Headers& headers)
     : funcRef(funcRef),
     owner(owner),
     gen(gen),
@@ -149,7 +149,7 @@ void HttpManager::HttpWorkerThread()
             std::string path;
 
             if (!ParseUrl(req->url, host, path)) {
-                ALE_LOG_ERROR("[ALE]: Could not parse URL {}", req->url);
+                YLA_LOG_ERROR("[ALE]: Could not parse URL {}", req->url);
                 delete req;
                 continue;
             }
@@ -163,7 +163,7 @@ void HttpManager::HttpWorkerThread()
             httplib::Error err = res.error();
             if (err != httplib::Error::Success)
             {
-                ALE_LOG_ERROR("[ALE]: HTTP request error: {}", httplib::to_string(err));
+                YLA_LOG_ERROR("[ALE]: HTTP request error: {}", httplib::to_string(err));
                 delete req;
                 continue;
             }
@@ -176,7 +176,7 @@ void HttpManager::HttpWorkerThread()
 
                 if (!ParseUrl(location, host, path))
                 {
-                    ALE_LOG_ERROR("[ALE]: Could not parse URL after redirect: {}", location);
+                    YLA_LOG_ERROR("[ALE]: Could not parse URL after redirect: {}", location);
                     delete req;
                     continue;
                 }
@@ -194,7 +194,7 @@ void HttpManager::HttpWorkerThread()
         }
         catch (const std::exception& ex)
         {
-            ALE_LOG_ERROR("[ALE]: HTTP request error: {}", ex.what());
+            YLA_LOG_ERROR("[ALE]: HTTP request error: {}", ex.what());
         }
 
         delete req;
@@ -233,7 +233,7 @@ httplib::Result HttpManager::DoRequest(httplib::Client& client, HttpWorkItem* re
         return client.Options(path, req->headers);
     }
 
-    ALE_LOG_ERROR("[ALE]: HTTP request error: invalid HTTP verb {}", req->httpVerb);
+    YLA_LOG_ERROR("[ALE]: HTTP request error: invalid HTTP verb {}", req->httpVerb);
     return client.Get(path, req->headers);
 }
 

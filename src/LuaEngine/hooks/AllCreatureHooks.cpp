@@ -19,7 +19,7 @@ using namespace Hooks;
     auto key = EventKey<AllCreatureEvents>(EVENT);\
     if (!AllCreatureEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
 #define START_HOOK_WITH_RETVAL(EVENT, RETVAL) \
     if (!ALEConfig::GetInstance().IsALEEnabled())\
@@ -27,7 +27,7 @@ using namespace Hooks;
     auto key = EventKey<AllCreatureEvents>(EVENT);\
     if (!AllCreatureEventBindings->HasBindingsFor(key))\
         return RETVAL;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
 void ALE::OnAllCreatureAddToWorld(Creature* creature)
 {

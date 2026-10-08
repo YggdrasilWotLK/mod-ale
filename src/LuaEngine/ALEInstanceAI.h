@@ -4,8 +4,8 @@
 * Please see the included DOCS/LICENSE.md for more information
 */
 
-#ifndef _ALE_INSTANCE_DATA_H
-#define _ALE_INSTANCE_DATA_H
+#ifndef _YLA_INSTANCE_DATA_H
+#define _YLA_INSTANCE_DATA_H
 
 #include "LuaEngine.h"
 #include "InstanceScript.h"
@@ -134,4 +134,4 @@ public:
     }
 };
 
-#endif // _ALE_INSTANCE_DATA_H
+#endif // _YLA_INSTANCE_DATA_H

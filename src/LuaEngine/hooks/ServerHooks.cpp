@@ -11,7 +11,7 @@
 #include "ALEEventMgr.h"
 #include "ALEIncludes.h"
 #include "ALETemplate.h"
-#include "AleDefer.h"
+#include "YlaDefer.h"
 
 using namespace Hooks;
 
@@ -37,7 +37,7 @@ using namespace Hooks;
     auto key = EventKey<ServerEvents>(EVENT);\
     if (!ServerEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
 #define START_HOOK_MAP_WITH_RETVAL(EVENT, RETVAL) \
     if (!ALEConfig::GetInstance().IsALEEnabled())\
@@ -45,7 +45,7 @@ using namespace Hooks;
     auto key = EventKey<ServerEvents>(EVENT);\
     if (!ServerEventBindings->HasBindingsFor(key))\
         return RETVAL;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
 // WORLD
 bool ALE::OnAddonMessage(Player* sender, uint32 type, std::string& msg, Player* receiver, Guild* guild, Group* group, Channel* channel)
@@ -84,7 +84,7 @@ bool ALE::OnAddonMessage(Player* sender, uint32 type, std::string& msg, Player* 
 
 void ALE::OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj)
 {
-    LOCK_ALE_STATE;
+    LOCK_YLA_STATE;
     ASSERT(!event_level);
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, funcRef);
@@ -118,13 +118,13 @@ void ALE::OnGameEventStop(uint32 eventid)
 
 void ALE::OnLuaStateClose()
 {
-    START_HOOK_WORLD(ALE_EVENT_ON_LUA_STATE_CLOSE);
+    START_HOOK_WORLD(YLA_EVENT_ON_LUA_STATE_CLOSE);
     CallAllFunctions(ServerEventBindings, key);
 }
 
 void ALE::OnLuaStateOpen()
 {
-    START_HOOK_WORLD(ALE_EVENT_ON_LUA_STATE_OPEN);
+    START_HOOK_WORLD(YLA_EVENT_ON_LUA_STATE_OPEN);
     CallAllFunctions(ServerEventBindings, key);
 }
 
@@ -281,7 +281,7 @@ void ALE::OnWorldUpdate(uint32 diff)
     // LOCK_ALE: the queue has its own mutex, and holding global across the
     // hooks below would invert the lock order (global -> state here vs
     // state-first on Lua entry paths).
-    AleDefer::Drain();
+    YlaDefer::Drain();
 
     eventMgr->globalProcessor->Update(diff);
     {

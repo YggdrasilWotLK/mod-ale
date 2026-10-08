@@ -4,8 +4,8 @@
 * Please see the included DOCS/LICENSE.md for more information
 */
 
-#ifndef ALE_FILE_WATCHER_H
-#define ALE_FILE_WATCHER_H
+#ifndef YLA_FILE_WATCHER_H
+#define YLA_FILE_WATCHER_H
 
 #include <thread>
 #include <atomic>

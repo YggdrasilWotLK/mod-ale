@@ -123,7 +123,7 @@ namespace Hooks
         WORLD_EVENT_ON_SHUTDOWN                 =     15,       // (event)
 
         // ALE
-        ALE_EVENT_ON_LUA_STATE_CLOSE          =     16,       // (event) - triggers just before shutting down ALE (on shutdown and restart)
+        YLA_EVENT_ON_LUA_STATE_CLOSE          =     16,       // (event) - triggers just before shutting down ALE (on shutdown and restart)
 
         // Map
         MAP_EVENT_ON_CREATE                     =     17,       // (event, map)
@@ -153,7 +153,7 @@ namespace Hooks
         WORLD_EVENT_ON_DELETE_GAMEOBJECT        =     32,       // (event, gameobject)
 
         // ALE
-        ALE_EVENT_ON_LUA_STATE_OPEN           =     33,       // (event) - triggers after all scripts are loaded
+        YLA_EVENT_ON_LUA_STATE_OPEN           =     33,       // (event) - triggers after all scripts are loaded
 
         GAME_EVENT_START                        =     34,       // (event, gameeventid)
         GAME_EVENT_STOP                         =     35,       // (event, gameeventid)

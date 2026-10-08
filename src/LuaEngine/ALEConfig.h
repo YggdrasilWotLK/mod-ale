@@ -1,5 +1,5 @@
-#ifndef ALE_CONFIG_HPP
-#define ALE_CONFIG_HPP
+#ifndef YLA_CONFIG_HPP
+#define YLA_CONFIG_HPP
 
 #include "ConfigValueCache.h"
 #include <unordered_set>
@@ -61,4 +61,4 @@ class ALEConfig final : public ConfigValueCache<ALEConfigValues>
         std::unordered_set<uint32> m_allowedMaps;
 };
 
-#endif // ALE_CONFIG_H
+#endif // YLA_CONFIG_H

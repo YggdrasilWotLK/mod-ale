@@ -102,20 +102,20 @@ struct LuaScript
     LuaScript() {}
 };
 
-#define ALE_STATE_PTR "ALE State Ptr"
+#define YLA_STATE_PTR "ALE State Ptr"
 #define LOCK_ALE ALE::Guard __guard(ALE::GetLock())
-#define LOCK_ALE_STATE \
+#define LOCK_YLA_STATE \
     ALE::Guard __ale_guard(ALEConfig::GetInstance().IsCompatibilityModeEnabled() ? ALE::GetLock() : ALE::GetNoopLock()); \
     ALE::Guard __ale_state_guard(this->GetStateLock())
-#define ALE_GLOBAL_STATE (uint32)(-1)
+#define YLA_GLOBAL_STATE (uint32)(-1)
 
 #include "ALEEventMgr.h"
 
 inline uint64 ALEMapStateKey(uint32 mapId, uint32 instanceId) { return (static_cast<uint64>(mapId) << 32) | instanceId; }
 
-#define ALE_GAME_API AC_GAME_API
+#define YLA_GAME_API AC_GAME_API
 
-class ALE_GAME_API ALE
+class YLA_GAME_API ALE
 {
 public:
     void IncrementCallbacks() { pendingCallbacks++; }
@@ -141,13 +141,13 @@ public:
     static LockType& GetNoopLock() { thread_local LockType noop; return noop; }
     uint32 GetStateMapId() const { return stateMapId; }
     uint32 GetStateInstanceId() const { return stateInstanceId; }
-    const AleStateRef& GetSelfRef() const { return selfRef; }
+    const YlaStateRef& GetSelfRef() const { return selfRef; }
     uint64 GetStateSeq() const { return stateSeq; }
     uint64 GetCallstackId() const { return callstackid; }
 
     // Resolves a state ref into an owning reference (null when the state
     // is gone or was recreated). Global refs resolve via the GALE holder.
-    static std::shared_ptr<ALE> LockStateRef(const AleStateRef& ref);
+    static std::shared_ptr<ALE> LockStateRef(const YlaStateRef& ref);
     // Owning reference for a raw state pointer (scan under g_states shared).
     // Null when the pointer is not a live state.
     static std::shared_ptr<ALE> OwningRef(ALE* raw);
@@ -220,7 +220,7 @@ private:
     LockType stateLock;
     uint32 stateMapId;
     uint32 stateInstanceId;
-    AleStateRef selfRef;
+    YlaStateRef selfRef;
     uint64 stateSeq = 0;
 
     std::atomic<int> pendingCallbacks{0};
@@ -252,7 +252,7 @@ private:
     std::unordered_map<uint32, int> continentDataRefs;
 
 public:
-    ALE(const AleStateRef& self, uint32 mapId = ALE_GLOBAL_STATE, uint32 instanceId = 0);
+    ALE(const YlaStateRef& self, uint32 mapId = YLA_GLOBAL_STATE, uint32 instanceId = 0);
     ~ALE();
 
 private:
@@ -385,7 +385,7 @@ public:
 
     static ALE* GetALE(lua_State* L)
     {
-        lua_pushstring(L, ALE_STATE_PTR);
+        lua_pushstring(L, YLA_STATE_PTR);
         lua_rawget(L, LUA_REGISTRYINDEX);
         ASSERT(lua_islightuserdata(L, -1));
         ALE* E = static_cast<ALE*>(lua_touserdata(L, -1));

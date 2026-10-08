@@ -6,7 +6,7 @@
 
 #include "ALEEventMgr.h"
 #include "LuaEngine.h"
-#include "AleAlive.h"
+#include "YlaAlive.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include <vector>
@@ -17,7 +17,7 @@ extern "C"
 #include "lauxlib.h"
 };
 
-ALEEventProcessor::ALEEventProcessor(const AleStateRef& _owner, std::shared_ptr<ALE> ownerLock, WorldObject* _obj) : m_time(0), obj(_obj), guidCaptured(false), owner(_owner)
+ALEEventProcessor::ALEEventProcessor(const YlaStateRef& _owner, std::shared_ptr<ALE> ownerLock, WorldObject* _obj) : m_time(0), obj(_obj), guidCaptured(false), owner(_owner)
 {
     // can be called from multiple threads
     if (obj && ownerLock && ownerLock->eventMgr)
@@ -78,7 +78,7 @@ void ALEEventProcessor::Update(uint32 diff)
         bool remove;
         WorldObject* liveObj;
         bool deadTarget;
-        AleStateRef owner;
+        YlaStateRef owner;
         uint64 sweep;
     };
 
@@ -123,16 +123,16 @@ void ALEEventProcessor::Update(uint32 diff)
                 Player* found = ObjectAccessor::FindPlayer(objGuid);
                 if (found)
                 {
-                    AleAlive::Guard aliveGuard{ AleAlive::Mutex() };
+                    YlaAlive::Guard aliveGuard{ YlaAlive::Mutex() };
                     WorldObject* wo = static_cast<WorldObject*>(found);
-                    if (AleAlive::MatchesLocked(objGuid, wo) && wo->IsInWorld() &&
+                    if (YlaAlive::MatchesLocked(objGuid, wo) && wo->IsInWorld() &&
                         !found->IsDuringRemoveFromWorld())
                         liveObj = wo;
                 }
                 else
                 {
-                    AleAlive::Guard aliveGuard{ AleAlive::Mutex() };
-                    if (AleAlive::MatchesLocked(objGuid, obj))
+                    YlaAlive::Guard aliveGuard{ YlaAlive::Mutex() };
+                    if (YlaAlive::MatchesLocked(objGuid, obj))
                         liveObj = obj;
                 }
             }
@@ -170,7 +170,7 @@ void ALEEventProcessor::Update(uint32 diff)
         // Resolve the owning state into a shared reference that keeps it
         // alive for the whole call. Destroyed/recreated states resolve to
         // null and are skipped: no raw slot is ever dereferenced. Locking
-        // mirrors LOCK_ALE_STATE for the resolved state (global -> state
+        // mirrors LOCK_YLA_STATE for the resolved state (global -> state
         // in compat, state-only in multistate).
         if (auto state = ALE::LockStateRef(call.owner))
         {
@@ -244,7 +244,7 @@ void ALEEventProcessor::AddEvent(LuaEvent* luaEvent)
     eventMap[luaEvent->funcRef] = luaEvent;
 }
 
-void ALEEventProcessor::AddEvent(int funcRef, uint32 min, uint32 max, uint32 repeats, const AleStateRef& owner)
+void ALEEventProcessor::AddEvent(int funcRef, uint32 min, uint32 max, uint32 repeats, const YlaStateRef& owner)
 {
     AddEvent(new LuaEvent(funcRef, min, max, repeats, owner));
 }
@@ -257,7 +257,7 @@ void ALEEventProcessor::RemoveEvent(LuaEvent* luaEvent)
     // resolved into a shared reference: dead/recreated states (or a dead
     // registry after CloseLua, whose refs lua_close reclaimed) skip the
     // unref instead of touching freed memory.
-    AleStateRef owner;
+    YlaStateRef owner;
     int funcRef = 0;
     bool erase = false;
     {
@@ -272,7 +272,7 @@ void ALEEventProcessor::RemoveEvent(LuaEvent* luaEvent)
         if (auto state = ALE::LockStateRef(owner))
         {
             // Unreference using the event's own state, mirroring
-            // LOCK_ALE_STATE (global -> state in compat, state-only in
+            // LOCK_YLA_STATE (global -> state in compat, state-only in
             // multistate) so the unref cannot race Lua execution on L.
             ALE::Guard globalGuard(ALEConfig::GetInstance().IsCompatibilityModeEnabled() ? ALE::GetLock() : ALE::GetNoopLock());
             ALE::Guard stateGuard(state->GetStateLock());
@@ -282,7 +282,7 @@ void ALEEventProcessor::RemoveEvent(LuaEvent* luaEvent)
     }
 }
 
-EventMgr::EventMgr(const AleStateRef& _owner) : globalProcessor(new ALEEventProcessor(_owner, nullptr, NULL)), owner(_owner)
+EventMgr::EventMgr(const YlaStateRef& _owner) : globalProcessor(new ALEEventProcessor(_owner, nullptr, NULL)), owner(_owner)
 {
 }
 

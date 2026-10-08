@@ -24,7 +24,7 @@ namespace LuaMap
     static bool IsOwnMap(lua_State* L, Map* map)
     {
         ALE* callingE = ALE::GetALE(L);
-        return callingE->GetStateMapId() == ALE_GLOBAL_STATE ||
+        return callingE->GetStateMapId() == YLA_GLOBAL_STATE ||
             (map->GetId() == callingE->GetStateMapId() && map->GetInstanceId() == callingE->GetStateInstanceId());
     }
 

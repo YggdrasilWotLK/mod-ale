@@ -1,5 +1,5 @@
-#ifndef ALE_HTTP_MANAGER_H
-#define ALE_HTTP_MANAGER_H
+#ifndef YLA_HTTP_MANAGER_H
+#define YLA_HTTP_MANAGER_H
 
 #include <regex>
 
@@ -10,12 +10,12 @@
 struct HttpWorkItem
 {
 public:
-    HttpWorkItem(int funcRef, const AleStateRef& owner, uint64 gen, const std::string& httpVerb, const std::string& url, const std::string& body, const std::string &contentType, const httplib::Headers& headers);
+    HttpWorkItem(int funcRef, const YlaStateRef& owner, uint64 gen, const std::string& httpVerb, const std::string& url, const std::string& body, const std::string &contentType, const httplib::Headers& headers);
 
     int funcRef;
     // Owning-state identity + registry generation: the callback must run
     // on the state whose registry owns funcRef, never blindly on GALE.
-    AleStateRef owner;
+    YlaStateRef owner;
     uint64 gen = 0;
     std::string httpVerb;
     std::string url;
@@ -27,10 +27,10 @@ public:
 struct HttpResponse
 {
 public:
-    HttpResponse(int funcRef, const AleStateRef& owner, uint64 gen, int statusCode, const std::string& body, const httplib::Headers& headers);
+    HttpResponse(int funcRef, const YlaStateRef& owner, uint64 gen, int statusCode, const std::string& body, const httplib::Headers& headers);
 
     int funcRef;
-    AleStateRef owner;
+    YlaStateRef owner;
     uint64 gen = 0;
     int statusCode;
     std::string body;
@@ -74,4 +74,4 @@ private:
     std::regex parseUrlRegex;
 };
 
-#endif // #ifndef ALE_HTTP_MANAGER_H
+#endif // #ifndef YLA_HTTP_MANAGER_H

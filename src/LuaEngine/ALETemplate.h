@@ -4,8 +4,8 @@
 * Please see the included DOCS/LICENSE.md for more information
 */
 
-#ifndef _ALE_TEMPLATE_H
-#define _ALE_TEMPLATE_H
+#ifndef _YLA_TEMPLATE_H
+#define _YLA_TEMPLATE_H
 
 extern "C"
 {
@@ -16,7 +16,7 @@ extern "C"
 #include "LuaEngine.h"
 #include "ALECompat.h"
 #include "ALEUtility.h"
-#include "AleAlive.h"
+#include "YlaAlive.h"
 #include "ObjectAccessor.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
@@ -52,7 +52,7 @@ public:
         int args = lua_gettop(L) - top;
         if (args < 0 || args > expected)
         {
-            ALE_LOG_ERROR("[ALE]: {} returned unexpected amount of arguments {} out of {}. Report to devs", l->name, args, expected);
+            YLA_LOG_ERROR("[ALE]: {} returned unexpected amount of arguments {} out of {}. Report to devs", l->name, args, expected);
             ASSERT(false);
         }
         lua_settop(L, top + expected);
@@ -76,7 +76,7 @@ public:
         {
             if (methodTable->regState != METHOD_REG_ALL)
             {
-                bool isMapState = (E->GetStateMapId() != ALE_GLOBAL_STATE);
+                bool isMapState = (E->GetStateMapId() != YLA_GLOBAL_STATE);
                 if ((!isMapState && methodTable->regState == METHOD_REG_MAP) ||
                     (isMapState && methodTable->regState == METHOD_REG_WORLD))
                 {
@@ -303,7 +303,7 @@ public:
         {
             if (methodTable->regState != METHOD_REG_ALL)
             {
-                bool isMapState = (E->GetStateMapId() != ALE_GLOBAL_STATE);
+                bool isMapState = (E->GetStateMapId() != YLA_GLOBAL_STATE);
                 if ((!isMapState && methodTable->regState == METHOD_REG_MAP) ||
                     (isMapState && methodTable->regState == METHOD_REG_WORLD))
                 {
@@ -339,7 +339,7 @@ public:
         ALEObject** ptrHold = static_cast<ALEObject**>(lua_newuserdata(L, sizeof(ALEObject*)));
         if (!ptrHold)
         {
-            ALE_LOG_ERROR("{} could not create new userdata", tname);
+            YLA_LOG_ERROR("{} could not create new userdata", tname);
             lua_pushnil(L);
             return 1;
         }
@@ -350,7 +350,7 @@ public:
         lua_rawget(L, LUA_REGISTRYINDEX);
         if (!lua_istable(L, -1))
         {
-            ALE_LOG_ERROR("{} missing metatable", tname);
+            YLA_LOG_ERROR("{} missing metatable", tname);
             lua_pop(L, 2);
             lua_pushnil(L);
             return 1;
@@ -362,11 +362,11 @@ public:
     // Snapshot of the creating state's incarnation id. Stored per Push,
     // so validity is always judged against the state whose Lua owns this
     // userdata (multistate-safe, unlike a single global counter).
-    static uint64 AleSnapId(lua_State* L) { return ALE::GetALE(L)->GetCallstackId(); }
+    static uint64 YlaSnapId(lua_State* L) { return ALE::GetALE(L)->GetCallstackId(); }
 
     // GUID-checked at Push time; destroyed/relogged players are Lua errors.
     // Not-in-world players pass through (normal during login hooks).
-    static Player* AleResolvePlayer(lua_State* L, int narg, ALEObject* ALEObj, Player* raw, bool error)
+    static Player* YlaResolvePlayer(lua_State* L, int narg, ALEObject* ALEObj, Player* raw, bool error)
     {
         auto fail = [&](const char* reason) -> Player*
         {
@@ -378,7 +378,7 @@ public:
             }
             else
             {
-                ALE_LOG_ERROR("{}", buff);
+                YLA_LOG_ERROR("{}", buff);
             }
             return nullptr;
         };
@@ -395,14 +395,14 @@ public:
                 return fail("pointer to stale (relogged) object");
             return live;
         }
-        AleAlive::Guard guard{ AleAlive::Mutex() };
-        if (!AleAlive::MatchesLocked(guid, static_cast<WorldObject*>(raw)))
+        YlaAlive::Guard guard{ YlaAlive::Mutex() };
+        if (!YlaAlive::MatchesLocked(guid, static_cast<WorldObject*>(raw)))
             return fail("pointer to destroyed (logged out) object");
         return raw;
     }
 
     template<typename U>
-    static U* AleResolvePlayer(lua_State*, int, ALEObject*, U* raw, bool) { return raw; }
+    static U* YlaResolvePlayer(lua_State*, int, ALEObject*, U* raw, bool) { return raw; }
 
     static T* Check(lua_State* L, int narg, bool error = true)
     {
@@ -410,7 +410,7 @@ public:
         if (!ALEObj)
             return NULL;
 
-        if (!ALEObj->IsValid(AleSnapId(L)))
+        if (!ALEObj->IsValid(YlaSnapId(L)))
         {
             char buff[256];
             snprintf(buff, 256, "%s expected, got pointer to nonexisting (invalidated) object (%s). Check your code.", tname, luaL_typename(L, narg));
@@ -420,12 +420,12 @@ public:
             }
             else
             {
-                ALE_LOG_ERROR("{}", buff);
+                YLA_LOG_ERROR("{}", buff);
             }
             return NULL;
         }
         T* raw = static_cast<T*>(ALEObj->GetObj());
-        return AleResolvePlayer(L, narg, ALEObj, raw, error);
+        return YlaResolvePlayer(L, narg, ALEObj, raw, error);
     }
 
     static int GetType(lua_State* L)
@@ -451,7 +451,7 @@ public:
 
     static int CallMethod(lua_State* L)
     {
-        // NOTE: no AleAlive lock is held across CHECKOBJ/mfunc here on
+        // NOTE: no YlaAlive lock is held across CHECKOBJ/mfunc here on
         // purpose (Lua errors longjmp past C++ destructors). Liveness is
         // enforced by GUID resolution inside Check, so a destroyed object
         // becomes a Lua error, not a SIGSEGV.
@@ -464,7 +464,7 @@ public:
         int args = lua_gettop(L) - top;
         if (args < 0 || args > expected)
         {
-            ALE_LOG_ERROR("[ALE]: {} returned unexpected amount of arguments {} out of {}. Report to devs", l->name, args, expected);
+            YLA_LOG_ERROR("[ALE]: {} returned unexpected amount of arguments {} out of {}. Report to devs", l->name, args, expected);
             ASSERT(false);
         }
         lua_settop(L, top + expected);

@@ -3,7 +3,7 @@ import shutil
 import typing
 from jinja2 import Environment, FileSystemLoader
 from typedecorator import params, returns
-from ALEDoc.parser import ClassParser, MethodDoc
+from YLADoc.parser import ClassParser, MethodDoc
 import glob
 import time
 
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     if os.path.exists('build'):
         shutil.rmtree('build')
     os.mkdir('build')
-    shutil.copytree('ALEDoc/static', 'build/static')
+    shutil.copytree('YLADoc/static', 'build/static')
 
     # Load up all files with methods we need to parse.
     print('Finding ALE method files...')
@@ -140,7 +140,7 @@ if __name__ == '__main__':
         return link_parser, data_type_parser
 
     # Create the render function with the template path and parser maker.
-    render = make_renderer('ALEDoc/templates', make_parsers)
+    render = make_renderer('YLADoc/templates', make_parsers)
 
     # Render the index.
     render('index.html', 'index.html', level=0, classes=classes)

@@ -35,7 +35,7 @@ using namespace Hooks;
     auto key = EventKey<PlayerEvents>(EVENT);\
     if (!PlayerEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
 #define START_HOOK_MAP_WITH_RETVAL(EVENT, RETVAL) \
     if (!ALEConfig::GetInstance().IsALEEnabled())\
@@ -43,7 +43,7 @@ using namespace Hooks;
     auto key = EventKey<PlayerEvents>(EVENT);\
     if (!PlayerEventBindings->HasBindingsFor(key))\
         return RETVAL;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
 // MAP
 void ALE::OnLearnTalents(Player* pPlayer, uint32 talentId, uint32 talentRank, uint32 spellid)

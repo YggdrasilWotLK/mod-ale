@@ -22,13 +22,13 @@ void ALEFileWatcher::StartWatching(const std::string& scriptPath, uint32 interva
 {
     if (running.load())
     {
-        ALE_LOG_DEBUG("[ALEFileWatcher]: Already watching files");
+        YLA_LOG_DEBUG("[ALEFileWatcher]: Already watching files");
         return;
     }
 
     if (scriptPath.empty())
     {
-        ALE_LOG_ERROR("[ALEFileWatcher]: Cannot start watching - script path is empty");
+        YLA_LOG_ERROR("[ALEFileWatcher]: Cannot start watching - script path is empty");
         return;
     }
 
@@ -40,7 +40,7 @@ void ALEFileWatcher::StartWatching(const std::string& scriptPath, uint32 interva
 
     watcherThread = std::thread(&ALEFileWatcher::WatchLoop, this);
     
-    ALE_LOG_INFO("[ALEFileWatcher]: Started watching '{}' (interval: {}s)", watchPath, checkInterval);
+    YLA_LOG_INFO("[ALEFileWatcher]: Started watching '{}' (interval: {}s)", watchPath, checkInterval);
 }
 
 void ALEFileWatcher::StopWatching()
@@ -55,7 +55,7 @@ void ALEFileWatcher::StopWatching()
 
     fileTimestamps.clear();
     
-    ALE_LOG_INFO("[ALEFileWatcher]: Stopped watching files");
+    YLA_LOG_INFO("[ALEFileWatcher]: Stopped watching files");
 }
 
 void ALEFileWatcher::WatchLoop()
@@ -68,7 +68,7 @@ void ALEFileWatcher::WatchLoop()
         }
         catch (const std::exception& e)
         {
-            ALE_LOG_ERROR("[ALEFileWatcher]: Error during file watching: {}", e.what());
+            YLA_LOG_ERROR("[ALEFileWatcher]: Error during file watching: {}", e.what());
         }
 
         std::this_thread::sleep_for(std::chrono::seconds(checkInterval));
@@ -113,7 +113,7 @@ void ALEFileWatcher::ScanDirectory(const std::string& path)
     }
     catch (const std::exception& e)
     {
-        ALE_LOG_ERROR("[ALEFileWatcher]: Error scanning directory '{}': {}", path, e.what());
+        YLA_LOG_ERROR("[ALEFileWatcher]: Error scanning directory '{}': {}", path, e.what());
     }
 }
 
@@ -140,7 +140,7 @@ void ALEFileWatcher::CheckForChanges()
         {
             if (!boost::filesystem::exists(it->first))
             {
-                ALE_LOG_DEBUG("[ALEFileWatcher]: File deleted: {}", it->first);
+                YLA_LOG_DEBUG("[ALEFileWatcher]: File deleted: {}", it->first);
                 it = fileTimestamps.erase(it);
                 hasChanges = true;
             }
@@ -152,13 +152,13 @@ void ALEFileWatcher::CheckForChanges()
     }
     catch (const std::exception& e)
     {
-        ALE_LOG_ERROR("[ALEFileWatcher]: Error checking for changes: {}", e.what());
+        YLA_LOG_ERROR("[ALEFileWatcher]: Error checking for changes: {}", e.what());
         return;
     }
 
     if (hasChanges)
     {
-        ALE_LOG_INFO("[ALEFileWatcher]: Lua script changes detected - triggering reload");
+        YLA_LOG_INFO("[ALEFileWatcher]: Lua script changes detected - triggering reload");
         ALE::ReloadALE();
         
         ScanDirectory(watchPath);
@@ -195,21 +195,21 @@ bool ALEFileWatcher::ShouldReloadFile(const std::string& filepath)
         
         if (it == fileTimestamps.end())
         {
-            ALE_LOG_DEBUG("[ALEFileWatcher]: New file detected: {}", filepath);
+            YLA_LOG_DEBUG("[ALEFileWatcher]: New file detected: {}", filepath);
             fileTimestamps[filepath] = currentTime;
             return true;
         }
         
         if (it->second != currentTime)
         {
-            ALE_LOG_DEBUG("[ALEFileWatcher]: File modified: {}", filepath);
+            YLA_LOG_DEBUG("[ALEFileWatcher]: File modified: {}", filepath);
             it->second = currentTime;
             return true;
         }
     }
     catch (const std::exception& e)
     {
-        ALE_LOG_ERROR("[ALEFileWatcher]: Error checking file '{}': {}", filepath, e.what());
+        YLA_LOG_ERROR("[ALEFileWatcher]: Error checking file '{}': {}", filepath, e.what());
     }
     
     return false;

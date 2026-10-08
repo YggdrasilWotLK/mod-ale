@@ -1,4 +1,4 @@
-name: Build mod-eluna base 🛠️
+name: Build mod-yla base 🛠️
 
 on:
   workflow_call:
@@ -33,7 +33,7 @@ jobs:
           repository: 'YggdrasilWotLK/mod-shadows'
           ref: 'master'
           submodules: 'recursive'
-          path: 'modules/mod-playerbots'
+          path: 'modules/mod-shadows'
           fetch-depth: 0
 
       - name: Cache compilation artifacts 💾
@@ -54,7 +54,7 @@ jobs:
             libboost-all-dev libbz2-dev libncurses5-dev libmysql++-dev \
             libreadline6-dev libssl-dev libtool openssl zlib1g-dev
 
-      - name: Build mod-eluna with ${{ inputs.lua_version }} 🏗️
+      - name: Build mod-yla with ${{ inputs.lua_version }} 🏗️
         run: |
           rm -rf build
           mkdir build && cd build

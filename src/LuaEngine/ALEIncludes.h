@@ -4,8 +4,8 @@
 * Please see the included DOCS/LICENSE.md for more information
 */
 
-#ifndef _ALE_INCLUDES_H
-#define _ALE_INCLUDES_H
+#ifndef _YLA_INCLUDES_H
+#define _YLA_INCLUDES_H
 
 // Required
 #include "AccountMgr.h"
@@ -74,4 +74,4 @@ typedef Opcodes                 OpcodesList;
 #define eGameEventMgr           (sGameEventMgr)
 #define eObjectAccessor()       ObjectAccessor::
 
-#endif // _ALE_INCLUDES_H
+#endif // _YLA_INCLUDES_H

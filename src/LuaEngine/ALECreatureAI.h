@@ -4,8 +4,8 @@
  * Please see the included DOCS/LICENSE.md for more information
  */
 
-#ifndef _ALE_CREATURE_AI_H
-#define _ALE_CREATURE_AI_H
+#ifndef _YLA_CREATURE_AI_H
+#define _YLA_CREATURE_AI_H
 
 #include "LuaEngine.h"
 

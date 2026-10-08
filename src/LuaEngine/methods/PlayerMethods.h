@@ -10,7 +10,7 @@
 #include "Chat.h"
 #include "GameTime.h"
 #include "GossipDef.h"
-#include "AleDefer.h"
+#include "YlaDefer.h"
 
 /***
  * Inherits all methods from: [Object], [WorldObject], [Unit]
@@ -2352,10 +2352,10 @@ namespace LuaPlayer
         WorldSession* session = player->GetSession();
         if (!session || session->IsBot())
         {
-            ALE_LOG_ERROR("[ALE]: Player:Logout called on a bot, ignoring. Check your code.");
+            YLA_LOG_ERROR("[ALE]: Player:Logout called on a bot, ignoring. Check your code.");
             return 0;
         }
-        AleDefer::Logout(player, save);
+        YlaDefer::Logout(player, save);
         return 0;
     }
 
@@ -3156,7 +3156,7 @@ namespace LuaPlayer
         }
 
         // True = teleported or queued for OnWorldUpdate.
-        ALE::Push(L, AleDefer::Teleport(player, mapId, x, y, z, o));
+        ALE::Push(L, YlaDefer::Teleport(player, mapId, x, y, z, o));
         return 1;
     }
 
@@ -4067,7 +4067,7 @@ namespace LuaPlayer
         // of dereferencing it.
         if (!game_tele)
         {
-            ALE_LOG_ERROR("[ALE]: Player:TeleportTo called with unknown teleport '{}'", tele);
+            YLA_LOG_ERROR("[ALE]: Player:TeleportTo called with unknown teleport '{}'", tele);
             return 0;
         }
 
@@ -4079,7 +4079,7 @@ namespace LuaPlayer
 
         // Same rule as Teleport above: same-map inline, cross-map deferred
         // to OnWorldUpdate so the old-map unlink never runs mid-iteration.
-        AleDefer::Teleport(player, game_tele->mapId, game_tele->position_x, game_tele->position_y, game_tele->position_z, game_tele->orientation);
+        YlaDefer::Teleport(player, game_tele->mapId, game_tele->position_x, game_tele->position_y, game_tele->position_z, game_tele->orientation);
         return 0;
     }
 

@@ -90,7 +90,7 @@ void ALEConfig::TokenizeAllowedMaps()
         }
         catch (std::exception&)
         {
-            ALE_LOG_ERROR("[ALEConfig]: Invalid map ID in ALE.OnlyOnMaps: '{}'", mapIdStr);
+            YLA_LOG_ERROR("[ALEConfig]: Invalid map ID in ALE.OnlyOnMaps: '{}'", mapIdStr);
         }
     }
 }

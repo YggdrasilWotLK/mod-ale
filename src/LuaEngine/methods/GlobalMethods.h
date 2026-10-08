@@ -149,7 +149,7 @@ namespace LuaGlobalFunctions
     int GetStateMap(lua_State* L)
     {
         ALE* E = ALE::GetALE(L);
-        if (E->GetStateMapId() == ALE_GLOBAL_STATE)
+        if (E->GetStateMapId() == YLA_GLOBAL_STATE)
         {
             ALE::Push(L);
             return 1;
@@ -168,7 +168,7 @@ namespace LuaGlobalFunctions
     int GetStateMapId(lua_State* L)
     {
         ALE* E = ALE::GetALE(L);
-        if (E->GetStateMapId() == ALE_GLOBAL_STATE)
+        if (E->GetStateMapId() == YLA_GLOBAL_STATE)
         {
             ALE::Push(L, -1);
             return 1;
@@ -185,7 +185,7 @@ namespace LuaGlobalFunctions
     int GetStateInstanceId(lua_State* L)
     {
         ALE* E = ALE::GetALE(L);
-        if (E->GetStateMapId() == ALE_GLOBAL_STATE)
+        if (E->GetStateMapId() == YLA_GLOBAL_STATE)
         {
             ALE::Push(L, 0);
             return 1;
@@ -683,7 +683,7 @@ namespace LuaGlobalFunctions
      * @values [13, WORLD_EVENT_ON_UPDATE, "WORLD", <event: number, diff: number>, ""]
      * @values [14, WORLD_EVENT_ON_STARTUP, "WORLD", <event: number>, ""]
      * @values [15, WORLD_EVENT_ON_SHUTDOWN, "WORLD", <event: number>, ""]
-     * @values [16, ALE_EVENT_ON_LUA_STATE_CLOSE, "ALL", <event: number>, "Triggers just before shutting down ALE (on shutdown and restart)"]
+     * @values [16, YLA_EVENT_ON_LUA_STATE_CLOSE, "ALL", <event: number>, "Triggers just before shutting down ALE (on shutdown and restart)"]
      * @values [17, MAP_EVENT_ON_CREATE, "MAP", <event: number, map: Map>, ""]
      * @values [18, MAP_EVENT_ON_DESTROY, "MAP", <event: number, map: Map>, ""]
      * @values [19, MAP_EVENT_ON_GRID_LOAD, "", "", "Not Implemented"]
@@ -700,7 +700,7 @@ namespace LuaGlobalFunctions
      * @values [30, ADDON_EVENT_ON_MESSAGE, "WORLD", <event: number, sender: Player, type: number, prefix: string, msg: string, target: nil|Player|Guild|Group|number>, "Target can be nil/whisper_target/guild/group/channel. Can return false"]
      * @values [31, WORLD_EVENT_ON_DELETE_CREATURE, "MAP", <event: number, creature: Creature>, ""]
      * @values [32, WORLD_EVENT_ON_DELETE_GAMEOBJECT, "MAP", <event: number, gameobject: GameObject>, ""]
-     * @values [33, ALE_EVENT_ON_LUA_STATE_OPEN, "ALL", <event: number>, "Triggers after all scripts are loaded"]
+     * @values [33, YLA_EVENT_ON_LUA_STATE_OPEN, "ALL", <event: number>, "Triggers after all scripts are loaded"]
      * @values [34, GAME_EVENT_START, "WORLD", <event: number, gameeventid: number>, ""]
      * @values [35, GAME_EVENT_STOP, "WORLD", <event: number, gameeventid: number>, ""]
      *
@@ -1364,7 +1364,7 @@ namespace LuaGlobalFunctions
         {
             std::string str = { view.begin(), view.end() };
             str.erase(std::find_if(str.rbegin(), str.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), str.end()); // Remove trailing spaces and line breaks
-            ALE_LOG_INFO("{}", str);
+            YLA_LOG_INFO("{}", str);
         }, nullptr));
 
         return 0;
@@ -1405,7 +1405,7 @@ namespace LuaGlobalFunctions
         // at fire time and drops itself when the state is gone or its
         // registry was recycled by CloseLua (reload). Add vs
         // ProcessReadyCallbacks is serialized by queryMutex.
-        AleStateRef owner = E->GetSelfRef();
+        YlaStateRef owner = E->GetSelfRef();
         uint64 gen = E->luaGen.load(std::memory_order_acquire);
         {
             std::lock_guard<std::recursive_mutex> qguard(E->queryMutex);
@@ -1802,7 +1802,7 @@ namespace LuaGlobalFunctions
         // else inserts objects into a map owned by another worker.
         // Global-state callers keep existing behavior either way.
         ALE* callingE = ALE::GetALE(L);
-        if (callingE->GetStateMapId() != ALE_GLOBAL_STATE &&
+        if (callingE->GetStateMapId() != YLA_GLOBAL_STATE &&
             (mapID != callingE->GetStateMapId() || instanceID != callingE->GetStateInstanceId()))
         {
             ALE::Push(L);
@@ -2575,7 +2575,7 @@ namespace LuaGlobalFunctions
      */
     int PrintInfo(lua_State* L)
     {
-        ALE_LOG_INFO("{}", GetStackAsString(L));
+        YLA_LOG_INFO("{}", GetStackAsString(L));
         return 0;
     }
 
@@ -2586,7 +2586,7 @@ namespace LuaGlobalFunctions
      */
     int PrintError(lua_State* L)
     {
-        ALE_LOG_ERROR("{}", GetStackAsString(L));
+        YLA_LOG_ERROR("{}", GetStackAsString(L));
         return 0;
     }
 
@@ -2597,7 +2597,7 @@ namespace LuaGlobalFunctions
      */
     int PrintDebug(lua_State* L)
     {
-        ALE_LOG_DEBUG("{}", GetStackAsString(L));
+        YLA_LOG_DEBUG("{}", GetStackAsString(L));
         return 0;
     }
 

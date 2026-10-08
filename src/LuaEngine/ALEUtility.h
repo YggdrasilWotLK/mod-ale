@@ -4,8 +4,8 @@
 * Please see the included DOCS/LICENSE.md for more information
 */
 
-#ifndef _ALE_UTIL_H
-#define _ALE_UTIL_H
+#ifndef _YLA_UTIL_H
+#define _YLA_UTIL_H
 
 #include <unordered_map>
 #include <unordered_set>
@@ -33,9 +33,9 @@ typedef QueryResult ALEQuery;
 #define HIGHGUID_INSTANCE       HighGuid::Instance
 #define HIGHGUID_GROUP          HighGuid::Group
 
-#define ALE_LOG_INFO(...)     LOG_INFO("ALE", __VA_ARGS__);
-#define ALE_LOG_ERROR(...)    LOG_ERROR("ALE", __VA_ARGS__);
-#define ALE_LOG_DEBUG(...)    LOG_DEBUG("ALE", __VA_ARGS__);
+#define YLA_LOG_INFO(...)     LOG_INFO("ALE", __VA_ARGS__);
+#define YLA_LOG_ERROR(...)    LOG_ERROR("ALE", __VA_ARGS__);
+#define YLA_LOG_DEBUG(...)    LOG_DEBUG("ALE", __VA_ARGS__);
 
 #ifndef MAKE_NEW_GUID
 #define MAKE_NEW_GUID(l, e, h)  ObjectGuid(h, e, l)

@@ -4,8 +4,8 @@
  * Please see the included DOCS/LICENSE.md for more information
  */
 
-#ifndef _ALE_DEFER_H
-#define _ALE_DEFER_H
+#ifndef _YLA_DEFER_H
+#define _YLA_DEFER_H
 
 #include "MapMgr.h"
 #include "ObjectAccessor.h"
@@ -17,7 +17,7 @@
 // Far teleports and logouts from Lua run in OnWorldUpdate (maps idle).
 // Running them inline would unlink the player from a map mid-iteration.
 // Same-map teleports only relocate and stay inline.
-class AleDefer
+class YlaDefer
 {
 public:
     // False = bad destination. Same-map runs inline, cross-map is queued.

@@ -19,7 +19,7 @@ using namespace Hooks;
     auto key = EntryKey<GossipEvents>(EVENT, ENTRY);\
     if (!BINDINGS->HasBindingsFor(key))\
         return;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
 #define START_HOOK_WITH_RETVAL(BINDINGS, EVENT, ENTRY, RETVAL) \
     if (!ALEConfig::GetInstance().IsALEEnabled())\
@@ -27,7 +27,7 @@ using namespace Hooks;
     auto key = EntryKey<GossipEvents>(EVENT, ENTRY);\
     if (!BINDINGS->HasBindingsFor(key))\
         return RETVAL;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
 bool ALE::OnGossipHello(Player* pPlayer, GameObject* pGameObject)
 {

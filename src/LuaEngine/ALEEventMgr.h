@@ -4,8 +4,8 @@
 * Please see the included DOCS/LICENSE.md for more information
 */
 
-#ifndef _ALE_EVENT_MGR_H
-#define _ALE_EVENT_MGR_H
+#ifndef _YLA_EVENT_MGR_H
+#define _YLA_EVENT_MGR_H
 
 #include "ALEUtility.h"
 #include "Common.h"
@@ -28,7 +28,7 @@ class WorldObject;
 // that keeps the state alive for the duration of use. Recreating a map
 // state yields a new seq, so stale refs resolve to null instead of a new
 // state. (Global states resolve via the GALE holder.)
-struct AleStateRef
+struct YlaStateRef
 {
     bool global = true;
     uint32 mapId = (uint32)(-1);
@@ -45,7 +45,7 @@ enum LuaEventState
 
 struct LuaEvent
 {
-    LuaEvent(int _funcRef, uint32 _min, uint32 _max, uint32 _repeats, const AleStateRef& _owner) :
+    LuaEvent(int _funcRef, uint32 _min, uint32 _max, uint32 _repeats, const YlaStateRef& _owner) :
         min(_min), max(_max), delay(0), repeats(_repeats), funcRef(_funcRef), state(LUAEVENT_STATE_RUN), owner(_owner)
     {
     }
@@ -70,7 +70,7 @@ struct LuaEvent
     // Owning-state identity (never a raw slot): resolved via
     // ALE::LockStateRef at fire/unref time, so destroy/reload can never
     // leave a dangling reference behind, including for due-local events.
-    AleStateRef owner;
+    YlaStateRef owner;
 };
 
 class ALEEventProcessor
@@ -83,7 +83,7 @@ public:
 
     // ownerLock keeps the owning state alive for registry insert/erase;
     // owner is the long-term identity used to resolve at fire/unref time.
-    ALEEventProcessor(const AleStateRef& owner, std::shared_ptr<ALE> ownerLock, WorldObject* _obj);
+    ALEEventProcessor(const YlaStateRef& owner, std::shared_ptr<ALE> ownerLock, WorldObject* _obj);
     ~ALEEventProcessor();
 
     void CaptureGuid();
@@ -92,7 +92,7 @@ public:
     void SetStates(LuaEventState state);
     // set the event to be removed when executing
     void SetState(int eventId, LuaEventState state);
-    void AddEvent(int funcRef, uint32 min, uint32 max, uint32 repeats, const AleStateRef& owner);
+    void AddEvent(int funcRef, uint32 min, uint32 max, uint32 repeats, const YlaStateRef& owner);
     EventMap eventMap;
 
 private:
@@ -115,7 +115,7 @@ private:
     WorldObject* obj;
     ObjectGuid objGuid;
     bool guidCaptured;
-    AleStateRef owner;
+    YlaStateRef owner;
     // Set under proc lock at destruction start; Update consults it before
     // re-adding a repeating event instead of resurrecting it.
     std::atomic<bool> dead{false};
@@ -135,9 +135,9 @@ public:
     typedef std::unordered_set<ALEEventProcessor*> ProcessorSet;
     ProcessorSet processors;
     ALEEventProcessor* globalProcessor;
-    AleStateRef owner;
+    YlaStateRef owner;
 
-    EventMgr(const AleStateRef& owner);
+    EventMgr(const YlaStateRef& owner);
     ~EventMgr();
 
     // Set the state of all timed events

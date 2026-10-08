@@ -19,7 +19,7 @@
 void AddSC_ALE();
 
 // Add all
-void Addmod_aleScripts()
+void Addmod_ylaScripts()
 {
     AddSC_ALE();
 }
