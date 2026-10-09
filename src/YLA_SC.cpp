@@ -25,6 +25,7 @@
 #include "Vehicle.h"
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
+#include "SpellAuras.h"
 
 class YLA_AllCreatureScript : public AllCreatureScript
 {
