@@ -150,8 +150,8 @@ YLA.BytecodeCache = true
 #                         NOTE: Does not work with dynamic filenames.
 #                         Example:  536870912 (512 MB)
 #
-Appender.ALELog=2,5,0,YLA.log,w
-Appender.ALEConsole=1,4,0,"0 9 0 3 5 0"
+Appender.YLALog=2,5,0,YLA.log,w
+Appender.YLAConsole=1,4,0,"0 9 0 3 5 0"
 
 #  Logger config values: Given a logger "name"
 #    Logger.name
@@ -170,4 +170,4 @@ Appender.ALEConsole=1,4,0,"0 9 0 3 5 0"
 #                     AppenderList: List of appenders linked to logger
 #                     (Using spaces as separator).
 #
-Logger.YLA=4,ALELog ALEConsole
+Logger.YLA=4,YLALog YLAConsole
