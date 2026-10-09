@@ -2233,6 +2233,501 @@ namespace LuaPlayer
         return 0;
     }
 
+    static void PushAuctionInfo(lua_State* L, AuctionEntry const* auction)
+    {
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        lua_pushstring(L, "id");
+        YLA::Push(L, auction->Id);
+        lua_settable(L, tbl);
+        lua_pushstring(L, "itemEntry");
+        YLA::Push(L, auction->item_template);
+        lua_settable(L, tbl);
+        lua_pushstring(L, "itemGUID");
+        YLA::Push(L, auction->item_guid);
+        lua_settable(L, tbl);
+        lua_pushstring(L, "itemCount");
+        YLA::Push(L, auction->itemCount);
+        lua_settable(L, tbl);
+        lua_pushstring(L, "ownerGUID");
+        YLA::Push(L, auction->owner);
+        lua_settable(L, tbl);
+        lua_pushstring(L, "startBid");
+        YLA::Push(L, auction->startbid);
+        lua_settable(L, tbl);
+        lua_pushstring(L, "bid");
+        YLA::Push(L, auction->bid);
+        lua_settable(L, tbl);
+        lua_pushstring(L, "buyout");
+        YLA::Push(L, auction->buyout);
+        lua_settable(L, tbl);
+        lua_pushstring(L, "bidderGUID");
+        YLA::Push(L, auction->bidder);
+        lua_settable(L, tbl);
+        lua_pushstring(L, "expireTime");
+        YLA::Push(L, static_cast<long long>(auction->expire_time));
+        lua_settable(L, tbl);
+        lua_pushstring(L, "deposit");
+        YLA::Push(L, auction->deposit);
+        lua_settable(L, tbl);
+    }
+
+    /**
+     * Creates an auction for an [Item] from the [Player]'s inventory
+     *
+     * Mirrors the client sell flow exactly, including the auctioneer
+     * proximity check: the player must be able to interact with the
+     * auctioneer, same as selling through the dialog.
+     *
+     * @param [Creature] auctioneer : the auctioneer to sell through
+     * @param [Item] item : the item to auction, must be in the player's inventory
+     * @param uint32 startBid : starting bid in copper
+     * @param uint32 buyout : buyout in copper, 0 for none
+     * @param uint32 hours : duration, one of 12, 24 or 48
+     * @param uint32 count = 0 : stack size to sell, 0 sells the whole stack
+     * @return uint32 auctionId : the new auction ID, nil on failure
+     */
+    int CreateAuction(lua_State* L, Player* player)
+    {
+        Creature* auctioneer = YLA::CHECKOBJ<Creature>(L, 2);
+        Item* item = YLA::CHECKOBJ<Item>(L, 3);
+        uint32 startBid = YLA::CHECKVAL<uint32>(L, 4);
+        uint32 buyout = YLA::CHECKVAL<uint32>(L, 5);
+        uint32 hours = YLA::CHECKVAL<uint32>(L, 6);
+        uint32 count = YLA::CHECKVAL<uint32>(L, 7, 0);
+
+        if (!startBid || (hours != 12 && hours != 24 && hours != 48) ||
+            startBid > MAX_MONEY_AMOUNT || buyout > MAX_MONEY_AMOUNT)
+        {
+            YLA::Push(L);
+            return 1;
+        }
+
+        Creature* creature = player->GetNPCIfCanInteractWith(auctioneer->GET_GUID(), UNIT_NPC_FLAG_AUCTIONEER);
+        if (!creature)
+        {
+            YLA::Push(L);
+            return 1;
+        }
+
+        AuctionHouseEntry const* auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntryFromFactionTemplate(creature->GetFaction());
+        if (!auctionHouseEntry)
+        {
+            YLA::Push(L);
+            return 1;
+        }
+
+        if (player->HasUnitState(UNIT_STATE_DIED))
+            player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+        if (player->GetItemByGuid(item->GetGUID()) != item)
+        {
+            player->GetSession()->SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_ITEM_NOT_FOUND);
+            YLA::Push(L);
+            return 1;
+        }
+
+        if (count == 0)
+            count = item->GetCount();
+        if (!count || count > 1000 || item->GetCount() < count)
+        {
+            YLA::Push(L);
+            return 1;
+        }
+
+        if (sAuctionMgr->GetAItem(item->GetGUID()) || !item->CanBeTraded() || item->IsNotEmptyBag() ||
+            item->GetTemplate()->HasFlag(ITEM_FLAG_CONJURED) || item->GetUInt32Value(ITEM_FIELD_DURATION))
+        {
+            player->GetSession()->SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+            YLA::Push(L);
+            return 1;
+        }
+
+        uint32 etime = hours * 60 * MINUTE;
+        uint32 auctionTime = uint32(etime * sWorld->getRate(RATE_AUCTION_TIME));
+        AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->GetFaction());
+
+        uint32 deposit = sAuctionMgr->GetAuctionDeposit(auctionHouseEntry, etime, item, count);
+        if (!player->HasEnoughMoney(deposit))
+        {
+            player->GetSession()->SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
+            YLA::Push(L);
+            return 1;
+        }
+
+        player->ModifyMoney(-int32(deposit));
+
+        AuctionEntry* AH = new AuctionEntry;
+        AH->Id = sObjectMgr->GenerateAuctionID();
+
+        if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
+            AH->houseId = AuctionHouseId::Neutral;
+        else
+        {
+            CreatureData const* auctioneerData = sObjectMgr->GetCreatureData(creature->GetSpawnId());
+            if (!auctioneerData)
+            {
+                delete AH;
+                player->ModifyMoney(deposit);
+                YLA::Push(L);
+                return 1;
+            }
+
+            CreatureTemplate const* auctioneerInfo = sObjectMgr->GetCreatureTemplate(auctioneerData->id1);
+            if (!auctioneerInfo)
+            {
+                delete AH;
+                player->ModifyMoney(deposit);
+                YLA::Push(L);
+                return 1;
+            }
+
+            AuctionHouseEntry const* AHEntry = sAuctionMgr->GetAuctionHouseEntryFromFactionTemplate(auctioneerInfo->faction);
+            AH->houseId = AuctionHouseId(AHEntry->houseId);
+        }
+
+        AH->owner = player->GetGUID();
+        AH->startbid = startBid;
+        AH->bidder = ObjectGuid::Empty;
+        AH->bid = 0;
+        AH->buyout = buyout;
+        AH->expire_time = GameTime::GetGameTime().count() + auctionTime;
+        AH->deposit = deposit;
+        AH->auctionHouseEntry = auctionHouseEntry;
+
+        if (item->GetCount() == count)
+        {
+            AH->item_guid = item->GetGUID();
+            AH->item_template = item->GetEntry();
+            AH->itemCount = item->GetCount();
+
+            sAuctionMgr->AddAItem(item);
+            auctionHouse->AddAuction(AH);
+
+            player->MoveItemFromInventory(item->GetBagSlot(), item->GetSlot(), true);
+
+            CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+            item->DeleteFromInventoryDB(trans);
+            item->SaveToDB(trans);
+            AH->SaveToDB(trans);
+            player->SaveInventoryAndGoldToDB(trans);
+            CharacterDatabase.CommitTransaction(trans);
+        }
+        else
+        {
+            Item* newItem = item->CloneItem(count, player);
+            if (!newItem)
+            {
+                delete AH;
+                player->ModifyMoney(deposit);
+                player->GetSession()->SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+                YLA::Push(L);
+                return 1;
+            }
+
+            AH->item_guid = newItem->GetGUID();
+            AH->item_template = newItem->GetEntry();
+            AH->itemCount = newItem->GetCount();
+
+            sAuctionMgr->AddAItem(newItem);
+            auctionHouse->AddAuction(AH);
+
+            item->SetCount(item->GetCount() - count);
+            item->SetState(ITEM_CHANGED, player);
+            player->ItemRemovedQuestCheck(item->GetEntry(), count);
+            item->SendUpdateToPlayer(player);
+
+            CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+            newItem->SaveToDB(trans);
+            AH->SaveToDB(trans);
+            player->SaveInventoryAndGoldToDB(trans);
+            CharacterDatabase.CommitTransaction(trans);
+        }
+
+        player->GetSession()->SendAuctionCommandResult(AH->Id, AUCTION_SELL_ITEM, ERR_AUCTION_OK);
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CREATE_AUCTION, 1);
+        YLA::Push(L, AH->Id);
+        return 1;
+    }
+
+    /**
+     * Cancels one of the [Player]'s auctions, returning the item by mail
+     *
+     * Mirrors the client cancel flow exactly: bidder refund plus cut,
+     * item mailed back, deposit lost.
+     *
+     * @param [Creature] auctioneer : the auctioneer of that auction house
+     * @param uint32 auctionId : the auction ID
+     * @return bool cancelled
+     */
+    int CancelAuction(lua_State* L, Player* player)
+    {
+        Creature* auctioneer = YLA::CHECKOBJ<Creature>(L, 2);
+        uint32 auctionId = YLA::CHECKVAL<uint32>(L, 3);
+
+        Creature* creature = player->GetNPCIfCanInteractWith(auctioneer->GET_GUID(), UNIT_NPC_FLAG_AUCTIONEER);
+        if (!creature)
+        {
+            YLA::Push(L, false);
+            return 1;
+        }
+
+        if (player->HasUnitState(UNIT_STATE_DIED))
+            player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+        AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->GetFaction());
+        AuctionEntry* auction = auctionHouse->GetAuction(auctionId);
+
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+        if (auction && auction->owner == player->GetGUID())
+        {
+            Item* pItem = sAuctionMgr->GetAItem(auction->item_guid);
+            if (!pItem)
+            {
+                YLA::Push(L, false);
+                return 1;
+            }
+
+            if (auction->bidder)
+            {
+                uint32 auctionCut = auction->GetAuctionCut();
+                if (!player->HasEnoughMoney(auctionCut))
+                {
+                    YLA::Push(L, false);
+                    return 1;
+                }
+                sAuctionMgr->SendAuctionCancelledToBidderMail(auction, trans);
+                player->ModifyMoney(-int32(auctionCut));
+            }
+
+            MailDraft(auction->BuildAuctionMailSubject(AUCTION_CANCELED), AuctionEntry::BuildAuctionMailBody(ObjectGuid::Empty, 0, auction->buyout, auction->deposit))
+                .AddItem(pItem)
+                .SendMailTo(trans, player, auction, MAIL_CHECK_MASK_COPIED);
+        }
+        else
+        {
+            player->GetSession()->SendAuctionCommandResult(0, AUCTION_CANCEL, ERR_AUCTION_DATABASE_ERROR);
+            YLA::Push(L, false);
+            return 1;
+        }
+
+        player->GetSession()->SendAuctionCommandResult(auction->Id, AUCTION_CANCEL, ERR_AUCTION_OK);
+
+        player->SaveInventoryAndGoldToDB(trans);
+        auction->DeleteFromDB(trans);
+        CharacterDatabase.CommitTransaction(trans);
+
+        sAuctionMgr->RemoveAItem(auction->item_guid);
+        auctionHouse->RemoveAuction(auction);
+
+        YLA::Push(L, true);
+        return 1;
+    }
+
+    /**
+     * Bids on an auction, or buys it out when the price reaches buyout
+     *
+     * Mirrors the client bid flow exactly, including own-auction and
+     * same-account checks, minimum increment, outbid mails and the
+     * successful-sale mails plus events on buyout.
+     *
+     * @param [Creature] auctioneer : the auctioneer of that auction house
+     * @param uint32 auctionId : the auction ID
+     * @param uint32 price : bid in copper
+     * @return bool placed
+     */
+    int BidAuction(lua_State* L, Player* player)
+    {
+        Creature* auctioneer = YLA::CHECKOBJ<Creature>(L, 2);
+        uint32 auctionId = YLA::CHECKVAL<uint32>(L, 3);
+        uint32 price = YLA::CHECKVAL<uint32>(L, 4);
+
+        if (!auctionId || !price)
+        {
+            YLA::Push(L, false);
+            return 1;
+        }
+
+        Creature* creature = player->GetNPCIfCanInteractWith(auctioneer->GET_GUID(), UNIT_NPC_FLAG_AUCTIONEER);
+        if (!creature)
+        {
+            YLA::Push(L, false);
+            return 1;
+        }
+
+        if (player->HasUnitState(UNIT_STATE_DIED))
+            player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+        AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->GetFaction());
+        AuctionEntry* auction = auctionHouse->GetAuction(auctionId);
+
+        if (!sScriptMgr->OnPlayerCanPlaceAuctionBid(player, auction))
+        {
+            player->GetSession()->SendAuctionCommandResult(0, AUCTION_PLACE_BID, ERR_AUCTION_RESTRICTED_ACCOUNT);
+            YLA::Push(L, false);
+            return 1;
+        }
+
+        if (!auction || auction->owner == player->GetGUID())
+        {
+            player->GetSession()->SendAuctionCommandResult(0, AUCTION_PLACE_BID, ERR_AUCTION_BID_OWN);
+            YLA::Push(L, false);
+            return 1;
+        }
+
+        Player* auction_owner = ObjectAccessor::FindConnectedPlayer(auction->owner);
+        if (!auction_owner && sCharacterCache->GetCharacterAccountIdByGuid(auction->owner) == player->GetSession()->GetAccountId())
+        {
+            player->GetSession()->SendAuctionCommandResult(0, AUCTION_PLACE_BID, ERR_AUCTION_BID_OWN);
+            YLA::Push(L, false);
+            return 1;
+        }
+
+        if (price <= auction->bid || price < auction->startbid)
+        {
+            YLA::Push(L, false);
+            return 1;
+        }
+
+        if ((price < auction->buyout || auction->buyout == 0) &&
+            price < auction->bid + AuctionEntry::CalculateAuctionOutBid(auction->bid))
+        {
+            YLA::Push(L, false);
+            return 1;
+        }
+
+        if (!player->HasEnoughMoney(price))
+        {
+            YLA::Push(L, false);
+            return 1;
+        }
+
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+
+        if (price < auction->buyout || auction->buyout == 0)
+        {
+            if (auction->bidder)
+            {
+                if (auction->bidder == player->GetGUID())
+                    player->ModifyMoney(-int32(price - auction->bid));
+                else
+                {
+                    sAuctionMgr->SendAuctionOutbiddedMail(auction, price, player, trans);
+                    player->ModifyMoney(-int32(price));
+                }
+            }
+            else
+                player->ModifyMoney(-int32(price));
+
+            auction->bidder = player->GetGUID();
+            auction->bid = price;
+
+            sAuctionMgr->GetAuctionHouseSearcher()->UpdateBid(auction);
+
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, price);
+
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
+            stmt->SetData(0, auction->bidder.GetCounter());
+            stmt->SetData(1, auction->bid);
+            stmt->SetData(2, auction->Id);
+            trans->Append(stmt);
+
+            player->GetSession()->SendAuctionCommandResult(auction->Id, AUCTION_PLACE_BID, ERR_AUCTION_OK, 0);
+        }
+        else
+        {
+            if (player->GetGUID() == auction->bidder)
+                player->ModifyMoney(-int32(auction->buyout - auction->bid));
+            else
+            {
+                player->ModifyMoney(-int32(auction->buyout));
+                if (auction->bidder)
+                    sAuctionMgr->SendAuctionOutbiddedMail(auction, auction->buyout, player, trans);
+            }
+            auction->bidder = player->GetGUID();
+            auction->bid = auction->buyout;
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, auction->buyout);
+
+            sAuctionMgr->SendAuctionSalePendingMail(auction, trans);
+            sAuctionMgr->SendAuctionSuccessfulMail(auction, trans);
+            sAuctionMgr->SendAuctionWonMail(auction, trans);
+            sScriptMgr->OnAuctionSuccessful(auctionHouse, auction);
+
+            player->GetSession()->SendAuctionCommandResult(auction->Id, AUCTION_PLACE_BID, ERR_AUCTION_OK);
+
+            auction->DeleteFromDB(trans);
+
+            sAuctionMgr->RemoveAItem(auction->item_guid);
+            auctionHouse->RemoveAuction(auction);
+        }
+        player->SaveInventoryAndGoldToDB(trans);
+        CharacterDatabase.CommitTransaction(trans);
+
+        YLA::Push(L, true);
+        return 1;
+    }
+
+    /**
+     * Returns all auctions at an auction house as a table keyed by auction ID
+     *
+     * Each entry holds id, itemEntry, itemGUID, itemCount, ownerGUID,
+     * startBid, bid, buyout, bidderGUID, expireTime and deposit.
+     *
+     * @param [Creature] auctioneer : the auctioneer of that auction house
+     * @return table auctions : auction info keyed by auction ID
+     */
+    int GetAuctions(lua_State* L, Player* player)
+    {
+        (void)player;
+        Creature* auctioneer = YLA::CHECKOBJ<Creature>(L, 2);
+
+        AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(auctioneer->GetFaction());
+        if (!auctionHouse)
+        {
+            YLA::Push(L);
+            return 1;
+        }
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+
+        for (auto const& [auctionId, auction] : auctionHouse->GetAuctions())
+        {
+            if (!auction)
+                continue;
+            PushAuctionInfo(L, auction);
+            lua_rawseti(L, tbl, auctionId);
+        }
+
+        lua_settop(L, tbl); // push table to top of stack
+        return 1;
+    }
+
+    /**
+     * Returns one auction's info table, or nil
+     *
+     * @param [Creature] auctioneer : the auctioneer of that auction house
+     * @param uint32 auctionId : the auction ID
+     * @return table auction : auction info, nil when not found
+     */
+    int GetAuctionInfo(lua_State* L, Player* player)
+    {
+        (void)player;
+        Creature* auctioneer = YLA::CHECKOBJ<Creature>(L, 2);
+        uint32 auctionId = YLA::CHECKVAL<uint32>(L, 3);
+
+        AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(auctioneer->GetFaction());
+        AuctionEntry* auction = auctionHouse ? auctionHouse->GetAuction(auctionId) : nullptr;
+        if (!auction)
+        {
+            YLA::Push(L);
+            return 1;
+        }
+
+        PushAuctionInfo(L, auction);
+        return 1;
+    }
+
     /**
      * Sends a flightmaster window to the [Player] from the [Creature] specified
      *
