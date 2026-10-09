@@ -61,7 +61,7 @@ The upstream [mod-ale API Documentation](https://www.azerothcore.org/eluna/) is 
 
 ## Support
 
-YLA is a downstream fork and we do not provide public support for it. Upstream channels do not support YLA specific behavior. However, if you do decide to use YLA in your server and find any issues, feel free to report bugs and/or open PRs here. You may also find help in the AzerothCore Discord community's mod-yla channel due to the similar nature of these code bases.
+YLA is a downstream fork and we do not provide public support for it. Upstream channels do not support YLA specific behavior. However, if you do decide to use YLA in your server and find any issues, feel free to report bugs and/or open PRs here. You may also find help in the AzerothCore Discord community's mod-ale channel due to the similar nature of these code bases.
 
 - [YLA GitHub Issues](https://github.com/YggdrasilWotLK/mod-yla/issues)
 - [Discord Community](https://discord.com/invite/bx3y5Qmy)
