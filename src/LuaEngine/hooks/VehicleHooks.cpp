@@ -8,33 +8,33 @@
 #include "HookHelpers.h"
 #include "LuaEngine.h"
 #include "BindingMap.h"
-#include "ALETemplate.h"
+#include "YLATemplate.h"
 
 using namespace Hooks;
 
 #define START_HOOK(EVENT) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
     auto key = EventKey<VehicleEvents>(EVENT);\
     if (!VehicleEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
-void ALE::OnInstall(Vehicle* vehicle)
+void YLA::OnInstall(Vehicle* vehicle)
 {
     START_HOOK(VEHICLE_EVENT_ON_INSTALL);
     Push(vehicle);
     CallAllFunctions(VehicleEventBindings, key);
 }
 
-void ALE::OnUninstall(Vehicle* vehicle)
+void YLA::OnUninstall(Vehicle* vehicle)
 {
     START_HOOK(VEHICLE_EVENT_ON_UNINSTALL);
     Push(vehicle);
     CallAllFunctions(VehicleEventBindings, key);
 }
 
-void ALE::OnInstallAccessory(Vehicle* vehicle, Creature* accessory)
+void YLA::OnInstallAccessory(Vehicle* vehicle, Creature* accessory)
 {
     START_HOOK(VEHICLE_EVENT_ON_INSTALL_ACCESSORY);
     Push(vehicle);
@@ -42,7 +42,7 @@ void ALE::OnInstallAccessory(Vehicle* vehicle, Creature* accessory)
     CallAllFunctions(VehicleEventBindings, key);
 }
 
-void ALE::OnAddPassenger(Vehicle* vehicle, Unit* passenger, int8 seatId)
+void YLA::OnAddPassenger(Vehicle* vehicle, Unit* passenger, int8 seatId)
 {
     START_HOOK(VEHICLE_EVENT_ON_ADD_PASSENGER);
     Push(vehicle);
@@ -51,7 +51,7 @@ void ALE::OnAddPassenger(Vehicle* vehicle, Unit* passenger, int8 seatId)
     CallAllFunctions(VehicleEventBindings, key);
 }
 
-void ALE::OnRemovePassenger(Vehicle* vehicle, Unit* passenger)
+void YLA::OnRemovePassenger(Vehicle* vehicle, Unit* passenger)
 {
     START_HOOK(VEHICLE_EVENT_ON_REMOVE_PASSENGER);
     Push(vehicle);

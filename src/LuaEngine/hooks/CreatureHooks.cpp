@@ -8,32 +8,32 @@
 #include "HookHelpers.h"
 #include "LuaEngine.h"
 #include "BindingMap.h"
-#include "ALEIncludes.h"
-#include "ALETemplate.h"
+#include "YLAIncludes.h"
+#include "YLATemplate.h"
 
 using namespace Hooks;
 
 #define START_HOOK(EVENT, CREATURE) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
     auto entry_key = EntryKey<CreatureEvents>(EVENT, CREATURE->GetEntry());\
     auto unique_key = UniqueObjectKey<CreatureEvents>(EVENT, CREATURE->GET_GUID(), CREATURE->GetInstanceId());\
     if (!CreatureEventBindings->HasBindingsFor(entry_key))\
         if (!CreatureUniqueBindings->HasBindingsFor(unique_key))\
             return;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
 #define START_HOOK_WITH_RETVAL(EVENT, CREATURE, RETVAL) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return RETVAL;\
     auto entry_key = EntryKey<CreatureEvents>(EVENT, CREATURE->GetEntry());\
     auto unique_key = UniqueObjectKey<CreatureEvents>(EVENT, CREATURE->GET_GUID(), CREATURE->GetInstanceId());\
     if (!CreatureEventBindings->HasBindingsFor(entry_key))\
         if (!CreatureUniqueBindings->HasBindingsFor(unique_key))\
             return RETVAL;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
-void ALE::OnDummyEffect(WorldObject* pCaster, uint32 spellId, SpellEffIndex effIndex, Creature* pTarget)
+void YLA::OnDummyEffect(WorldObject* pCaster, uint32 spellId, SpellEffIndex effIndex, Creature* pTarget)
 {
     START_HOOK(CREATURE_EVENT_ON_DUMMY_EFFECT, pTarget);
     Push(pCaster);
@@ -43,7 +43,7 @@ void ALE::OnDummyEffect(WorldObject* pCaster, uint32 spellId, SpellEffIndex effI
     CallAllFunctions(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
+bool YLA::OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_QUEST_ACCEPT, pCreature, false);
     Push(pPlayer);
@@ -52,7 +52,7 @@ bool ALE::OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQues
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::OnQuestReward(Player* pPlayer, Creature* pCreature, Quest const* pQuest, uint32 opt)
+bool YLA::OnQuestReward(Player* pPlayer, Creature* pCreature, Quest const* pQuest, uint32 opt)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_QUEST_REWARD, pCreature, false);
     Push(pPlayer);
@@ -62,7 +62,7 @@ bool ALE::OnQuestReward(Player* pPlayer, Creature* pCreature, Quest const* pQues
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-void ALE::GetDialogStatus(const Player* pPlayer, const Creature* pCreature)
+void YLA::GetDialogStatus(const Player* pPlayer, const Creature* pCreature)
 {
     START_HOOK(CREATURE_EVENT_ON_DIALOG_STATUS, pCreature);
     Push(pPlayer);
@@ -70,21 +70,21 @@ void ALE::GetDialogStatus(const Player* pPlayer, const Creature* pCreature)
     CallAllFunctions(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-void ALE::OnAddToWorld(Creature* pCreature)
+void YLA::OnAddToWorld(Creature* pCreature)
 {
     START_HOOK(CREATURE_EVENT_ON_ADD, pCreature);
     Push(pCreature);
     CallAllFunctions(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-void ALE::OnRemoveFromWorld(Creature* pCreature)
+void YLA::OnRemoveFromWorld(Creature* pCreature)
 {
     START_HOOK(CREATURE_EVENT_ON_REMOVE, pCreature);
     Push(pCreature);
     CallAllFunctions(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::OnSummoned(Creature* pCreature, Unit* pSummoner)
+bool YLA::OnSummoned(Creature* pCreature, Unit* pSummoner)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_SUMMONED, pCreature, false);
     Push(pCreature);
@@ -92,7 +92,7 @@ bool ALE::OnSummoned(Creature* pCreature, Unit* pSummoner)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::UpdateAI(Creature* me, const uint32 diff)
+bool YLA::UpdateAI(Creature* me, const uint32 diff)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_AIUPDATE, me, false);
     Push(me);
@@ -100,7 +100,7 @@ bool ALE::UpdateAI(Creature* me, const uint32 diff)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::EnterCombat(Creature* me, Unit* target)
+bool YLA::EnterCombat(Creature* me, Unit* target)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_ENTER_COMBAT, me, false);
     Push(me);
@@ -108,7 +108,7 @@ bool ALE::EnterCombat(Creature* me, Unit* target)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::DamageTaken(Creature* me, Unit* attacker, uint32& damage)
+bool YLA::DamageTaken(Creature* me, Unit* attacker, uint32& damage)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_DAMAGE_TAKEN, me, false);
     bool result = false;
@@ -127,7 +127,7 @@ bool ALE::DamageTaken(Creature* me, Unit* attacker, uint32& damage)
 
         if (lua_isnumber(L, r + 1))
         {
-            damage = ALE::CHECKVAL<uint32>(L, r + 1);
+            damage = YLA::CHECKVAL<uint32>(L, r + 1);
             ReplaceArgument(damage, damageIndex);
         }
 
@@ -138,7 +138,7 @@ bool ALE::DamageTaken(Creature* me, Unit* attacker, uint32& damage)
     return result;
 }
 
-bool ALE::JustDied(Creature* me, Unit* killer)
+bool YLA::JustDied(Creature* me, Unit* killer)
 {
     On_Reset(me);
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_DIED, me, false);
@@ -147,7 +147,7 @@ bool ALE::JustDied(Creature* me, Unit* killer)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::KilledUnit(Creature* me, Unit* victim)
+bool YLA::KilledUnit(Creature* me, Unit* victim)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_TARGET_DIED, me, false);
     Push(me);
@@ -155,7 +155,7 @@ bool ALE::KilledUnit(Creature* me, Unit* victim)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::JustSummoned(Creature* me, Creature* summon)
+bool YLA::JustSummoned(Creature* me, Creature* summon)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_JUST_SUMMONED_CREATURE, me, false);
     Push(me);
@@ -163,7 +163,7 @@ bool ALE::JustSummoned(Creature* me, Creature* summon)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::SummonedCreatureDespawn(Creature* me, Creature* summon)
+bool YLA::SummonedCreatureDespawn(Creature* me, Creature* summon)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_SUMMONED_CREATURE_DESPAWN, me, false);
     Push(me);
@@ -171,7 +171,7 @@ bool ALE::SummonedCreatureDespawn(Creature* me, Creature* summon)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::MovementInform(Creature* me, uint32 type, uint32 id)
+bool YLA::MovementInform(Creature* me, uint32 type, uint32 id)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_REACH_WP, me, false);
     Push(me);
@@ -180,7 +180,7 @@ bool ALE::MovementInform(Creature* me, uint32 type, uint32 id)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::AttackStart(Creature* me, Unit* target)
+bool YLA::AttackStart(Creature* me, Unit* target)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_PRE_COMBAT, me, false);
     Push(me);
@@ -188,7 +188,7 @@ bool ALE::AttackStart(Creature* me, Unit* target)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::EnterEvadeMode(Creature* me)
+bool YLA::EnterEvadeMode(Creature* me)
 {
     On_Reset(me);
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_LEAVE_COMBAT, me, false);
@@ -196,7 +196,7 @@ bool ALE::EnterEvadeMode(Creature* me)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::JustRespawned(Creature* me)
+bool YLA::JustRespawned(Creature* me)
 {
     On_Reset(me);
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_SPAWN, me, false);
@@ -204,14 +204,14 @@ bool ALE::JustRespawned(Creature* me)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::JustReachedHome(Creature* me)
+bool YLA::JustReachedHome(Creature* me)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_REACH_HOME, me, false);
     Push(me);
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::ReceiveEmote(Creature* me, Player* player, uint32 emoteId)
+bool YLA::ReceiveEmote(Creature* me, Player* player, uint32 emoteId)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_RECEIVE_EMOTE, me, false);
     Push(me);
@@ -220,7 +220,7 @@ bool ALE::ReceiveEmote(Creature* me, Player* player, uint32 emoteId)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::CorpseRemoved(Creature* me, uint32& respawnDelay)
+bool YLA::CorpseRemoved(Creature* me, uint32& respawnDelay)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_CORPSE_REMOVED, me, false);
     bool result = false;
@@ -238,7 +238,7 @@ bool ALE::CorpseRemoved(Creature* me, uint32& respawnDelay)
 
         if (lua_isnumber(L, r + 1))
         {
-            respawnDelay = ALE::CHECKVAL<uint32>(L, r + 1);
+            respawnDelay = YLA::CHECKVAL<uint32>(L, r + 1);
             ReplaceArgument(respawnDelay, respawnDelayIndex);
         }
 
@@ -249,7 +249,7 @@ bool ALE::CorpseRemoved(Creature* me, uint32& respawnDelay)
     return result;
 }
 
-bool ALE::MoveInLineOfSight(Creature* me, Unit* who)
+bool YLA::MoveInLineOfSight(Creature* me, Unit* who)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_MOVE_IN_LOS, me, false);
     Push(me);
@@ -257,14 +257,14 @@ bool ALE::MoveInLineOfSight(Creature* me, Unit* who)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-void ALE::On_Reset(Creature* me)
+void YLA::On_Reset(Creature* me)
 {
     START_HOOK(CREATURE_EVENT_ON_RESET, me);
     Push(me);
     CallAllFunctions(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::SpellHit(Creature* me, WorldObject* caster, SpellInfo const* spell)
+bool YLA::SpellHit(Creature* me, WorldObject* caster, SpellInfo const* spell)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_HIT_BY_SPELL, me, false);
     Push(me);
@@ -273,7 +273,7 @@ bool ALE::SpellHit(Creature* me, WorldObject* caster, SpellInfo const* spell)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::SpellHitTarget(Creature* me, WorldObject* target, SpellInfo const* spell)
+bool YLA::SpellHitTarget(Creature* me, WorldObject* target, SpellInfo const* spell)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_SPELL_HIT_TARGET, me, false);
     Push(me);
@@ -282,7 +282,7 @@ bool ALE::SpellHitTarget(Creature* me, WorldObject* target, SpellInfo const* spe
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::SummonedCreatureDies(Creature* me, Creature* summon, Unit* killer)
+bool YLA::SummonedCreatureDies(Creature* me, Creature* summon, Unit* killer)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_SUMMONED_CREATURE_DIED, me, false);
     Push(me);
@@ -291,7 +291,7 @@ bool ALE::SummonedCreatureDies(Creature* me, Creature* summon, Unit* killer)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::OwnerAttackedBy(Creature* me, Unit* attacker)
+bool YLA::OwnerAttackedBy(Creature* me, Unit* attacker)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_OWNER_ATTACKED_AT, me, false);
     Push(me);
@@ -299,7 +299,7 @@ bool ALE::OwnerAttackedBy(Creature* me, Unit* attacker)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-bool ALE::OwnerAttacked(Creature* me, Unit* target)
+bool YLA::OwnerAttacked(Creature* me, Unit* target)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_OWNER_ATTACKED, me, false);
     Push(me);
@@ -307,7 +307,7 @@ bool ALE::OwnerAttacked(Creature* me, Unit* target)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-void ALE::OnCreatureAuraApply(Creature* me, Aura* aura)
+void YLA::OnCreatureAuraApply(Creature* me, Aura* aura)
 {
     START_HOOK(CREATURE_EVENT_ON_AURA_APPLY, me);
     Push(me);
@@ -315,7 +315,7 @@ void ALE::OnCreatureAuraApply(Creature* me, Aura* aura)
     CallAllFunctions(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-void ALE::OnCreatureHeal(Creature* me, Unit* target, uint32& gain)
+void YLA::OnCreatureHeal(Creature* me, Unit* target, uint32& gain)
 {
     START_HOOK(CREATURE_EVENT_ON_HEAL, me);
     Push(me);
@@ -338,7 +338,7 @@ void ALE::OnCreatureHeal(Creature* me, Unit* target, uint32& gain)
     CleanUpStack(3);
 }
 
-void ALE::OnCreatureDamage(Creature* me, Unit* target, uint32& damage)
+void YLA::OnCreatureDamage(Creature* me, Unit* target, uint32& damage)
 {
     START_HOOK(CREATURE_EVENT_ON_DAMAGE, me);
     Push(me);

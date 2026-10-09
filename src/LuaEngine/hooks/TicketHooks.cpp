@@ -8,41 +8,41 @@
 #include "HookHelpers.h"
 #include "LuaEngine.h"
 #include "BindingMap.h"
-#include "ALEIncludes.h"
-#include "ALETemplate.h"
+#include "YLAIncludes.h"
+#include "YLATemplate.h"
 
 using namespace Hooks;
 
 #define START_HOOK(EVENT) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
     auto key = EventKey<TicketEvents>(EVENT);\
     if (!TicketEventBindings->HasBindingsFor(key))\
         return;\
     LOCK_ALE
 
-void ALE::OnTicketCreate(GmTicket* ticket)
+void YLA::OnTicketCreate(GmTicket* ticket)
 {
     START_HOOK(TICKET_EVENT_ON_CREATE);
     Push(ticket);
     CallAllFunctions(TicketEventBindings, key);
 }
 
-void ALE::OnTicketUpdateLastChange(GmTicket* ticket)
+void YLA::OnTicketUpdateLastChange(GmTicket* ticket)
 {
     START_HOOK(TICKET_EVENT_UPDATE_LAST_CHANGE);
     Push(ticket);
     CallAllFunctions(TicketEventBindings, key);
 }
 
-void ALE::OnTicketClose(GmTicket* ticket)
+void YLA::OnTicketClose(GmTicket* ticket)
 {
     START_HOOK(TICKET_EVENT_ON_CLOSE);
     Push(ticket);
     CallAllFunctions(TicketEventBindings, key);
 }
 
-void ALE::OnTicketResolve(GmTicket* ticket)
+void YLA::OnTicketResolve(GmTicket* ticket)
 {
     START_HOOK(TICKET_EVENT_ON_RESOLVE);
     Push(ticket);

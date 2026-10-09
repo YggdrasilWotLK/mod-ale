@@ -8,7 +8,7 @@
 #define _HOOK_HELPERS_H
 
 #include "LuaEngine.h"
-#include "ALEUtility.h"
+#include "YLAUtility.h"
 
 /*
  * Sets up the stack so that event handlers can be called.
@@ -16,7 +16,7 @@
  * Returns the number of functions that were pushed onto the stack.
  */
 template<typename K1, typename K2>
-int ALE::SetupStack(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const K1& key1, const K2& key2, int number_of_arguments)
+int YLA::SetupStack(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const K1& key1, const K2& key2, int number_of_arguments)
 {
     ASSERT(number_of_arguments == this->push_counter);
     ASSERT(key1.event_id == key2.event_id);
@@ -47,12 +47,12 @@ int ALE::SetupStack(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const 
  * Replace one of the arguments pushed before `SetupStack` with a new value.
  */
 template<typename T>
-void ALE::ReplaceArgument(T value, uint8 index)
+void YLA::ReplaceArgument(T value, uint8 index)
 {
     ASSERT(index < lua_gettop(L) && index > 0);
     // Stack: event_id, [arguments], [functions], [results]
 
-    ALE::Push(L, value);
+    YLA::Push(L, value);
     // Stack: event_id, [arguments], [functions], [results], value
 
     lua_replace(L, index + 1);
@@ -63,7 +63,7 @@ void ALE::ReplaceArgument(T value, uint8 index)
  * Call all event handlers registered to the event ID/entry combination and ignore any results.
  */
 template<typename K1, typename K2>
-void ALE::CallAllFunctions(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const K1& key1, const K2& key2)
+void YLA::CallAllFunctions(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const K1& key1, const K2& key2)
 {
     int number_of_arguments = this->push_counter;
     // Stack: [arguments]
@@ -89,7 +89,7 @@ void ALE::CallAllFunctions(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2,
  *   otherwise returns the opposite of `default_value`.
  */
 template<typename K1, typename K2>
-bool ALE::CallAllFunctionsBool(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const K1& key1, const K2& key2, bool default_value/* = false*/)
+bool YLA::CallAllFunctionsBool(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const K1& key1, const K2& key2, bool default_value/* = false*/)
 {
     bool result = default_value;
     // Note: number_of_arguments here does not count in eventID, which is pushed in SetupStack

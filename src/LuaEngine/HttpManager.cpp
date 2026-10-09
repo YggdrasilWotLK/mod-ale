@@ -11,7 +11,7 @@ extern "C"
 #include "HttpManager.h"
 #include "LuaEngine.h"
 
-HttpWorkItem::HttpWorkItem(int funcRef, const AleStateRef& owner, uint64 gen, const std::string& httpVerb, const std::string& url, const std::string& body, const std::string& contentType, const httplib::Headers& headers)
+HttpWorkItem::HttpWorkItem(int funcRef, const YlaStateRef& owner, uint64 gen, const std::string& httpVerb, const std::string& url, const std::string& body, const std::string& contentType, const httplib::Headers& headers)
     : funcRef(funcRef),
     owner(owner),
     gen(gen),
@@ -22,7 +22,7 @@ HttpWorkItem::HttpWorkItem(int funcRef, const AleStateRef& owner, uint64 gen, co
     headers(headers)
 { }
 
-HttpResponse::HttpResponse(int funcRef, const AleStateRef& owner, uint64 gen, int statusCode, const std::string& body, const httplib::Headers& headers)
+HttpResponse::HttpResponse(int funcRef, const YlaStateRef& owner, uint64 gen, int statusCode, const std::string& body, const httplib::Headers& headers)
     : funcRef(funcRef),
     owner(owner),
     gen(gen),
@@ -149,7 +149,7 @@ void HttpManager::HttpWorkerThread()
             std::string path;
 
             if (!ParseUrl(req->url, host, path)) {
-                ALE_LOG_ERROR("[ALE]: Could not parse URL {}", req->url);
+                YLA_LOG_ERROR("[YLA]: Could not parse URL {}", req->url);
                 delete req;
                 continue;
             }
@@ -163,7 +163,7 @@ void HttpManager::HttpWorkerThread()
             httplib::Error err = res.error();
             if (err != httplib::Error::Success)
             {
-                ALE_LOG_ERROR("[ALE]: HTTP request error: {}", httplib::to_string(err));
+                YLA_LOG_ERROR("[YLA]: HTTP request error: {}", httplib::to_string(err));
                 delete req;
                 continue;
             }
@@ -176,7 +176,7 @@ void HttpManager::HttpWorkerThread()
 
                 if (!ParseUrl(location, host, path))
                 {
-                    ALE_LOG_ERROR("[ALE]: Could not parse URL after redirect: {}", location);
+                    YLA_LOG_ERROR("[YLA]: Could not parse URL after redirect: {}", location);
                     delete req;
                     continue;
                 }
@@ -194,7 +194,7 @@ void HttpManager::HttpWorkerThread()
         }
         catch (const std::exception& ex)
         {
-            ALE_LOG_ERROR("[ALE]: HTTP request error: {}", ex.what());
+            YLA_LOG_ERROR("[YLA]: HTTP request error: {}", ex.what());
         }
 
         delete req;
@@ -233,7 +233,7 @@ httplib::Result HttpManager::DoRequest(httplib::Client& client, HttpWorkItem* re
         return client.Options(path, req->headers);
     }
 
-    ALE_LOG_ERROR("[ALE]: HTTP request error: invalid HTTP verb {}", req->httpVerb);
+    YLA_LOG_ERROR("[YLA]: HTTP request error: invalid HTTP verb {}", req->httpVerb);
     return client.Get(path, req->headers);
 }
 
@@ -260,7 +260,7 @@ bool HttpManager::ParseUrl(const std::string& url, std::string& host, std::strin
     return true;
 }
 
-void HttpManager::HandleHttpResponses(ALE* owner, bool isGlobal)
+void HttpManager::HandleHttpResponses(YLA* owner, bool isGlobal)
 {
     while (true)
     {
@@ -283,14 +283,14 @@ void HttpManager::HandleHttpResponses(ALE* owner, bool isGlobal)
         // global -> state order (this drain holds the same nesting).
         // Stale generations (reload recycled the registry while the
         // worker was in flight) are dropped, never unref'd on the new one.
-        auto state = ALE::LockStateRef(res->owner);
+        auto state = YLA::LockStateRef(res->owner);
         if (!state || state.get() != owner || state->luaGen.load(std::memory_order_acquire) != res->gen || !state->HasLuaState())
         {
             delete res;
             continue;
         }
 
-        ALE::Guard stateGuard(state->GetStateLock());
+        YLA::Guard stateGuard(state->GetStateLock());
         if (!state->HasLuaState())
         {
             delete res;
@@ -303,12 +303,12 @@ void HttpManager::HandleHttpResponses(ALE* owner, bool isGlobal)
         lua_rawgeti(L, LUA_REGISTRYINDEX, res->funcRef);
 
         // Push parameters
-        ALE::Push(L, res->statusCode);
-        ALE::Push(L, res->body);
+        YLA::Push(L, res->statusCode);
+        YLA::Push(L, res->body);
         lua_newtable(L);
         for (const auto& item : res->headers) {
-            ALE::Push(L, item.first);
-            ALE::Push(L, item.second);
+            YLA::Push(L, item.first);
+            YLA::Push(L, item.second);
             lua_settable(L, -3);
         }
 

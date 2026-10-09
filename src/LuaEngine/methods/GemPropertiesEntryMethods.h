@@ -27,7 +27,7 @@ namespace LuaGemPropertiesEntry
      */
     int GetId(lua_State* L, GemPropertiesEntry* gemProperties)
     {
-        ALE::Push(L, gemProperties->ID);
+        YLA::Push(L, gemProperties->ID);
         return 1;
     }
 
@@ -40,7 +40,7 @@ namespace LuaGemPropertiesEntry
      */
     int GetSpellItemEnchantement(lua_State* L, GemPropertiesEntry* entry)
     {
-        ALE::Push(L, entry->spellitemenchantement);
+        YLA::Push(L, entry->spellitemenchantement);
         return 1;
     }
 }

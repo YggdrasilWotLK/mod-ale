@@ -21,7 +21,7 @@ namespace LuaBattleGround
      */
     int GetName(lua_State* L, BattleGround* bg)
     {
-        ALE::Push(L, bg->GetName());
+        YLA::Push(L, bg->GetName());
         return 1;
     }
 
@@ -33,9 +33,9 @@ namespace LuaBattleGround
      */
     int GetAlivePlayersCountByTeam(lua_State* L, BattleGround* bg)
     {
-        uint32 team = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 team = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, bg->GetAlivePlayersCountByTeam((TeamId)team));
+        YLA::Push(L, bg->GetAlivePlayersCountByTeam((TeamId)team));
         return 1;
     }
 
@@ -46,7 +46,7 @@ namespace LuaBattleGround
      */
     int GetMap(lua_State* L, BattleGround* bg)
     {
-        ALE::Push(L, bg->GetBgMap());
+        YLA::Push(L, bg->GetBgMap());
         return 1;
     }
 
@@ -58,9 +58,9 @@ namespace LuaBattleGround
      */
     int GetBonusHonorFromKillCount(lua_State* L, BattleGround* bg)
     {
-        uint32 kills = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 kills = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, bg->GetBonusHonorFromKill(kills));
+        YLA::Push(L, bg->GetBonusHonorFromKill(kills));
         return 1;
     }
 
@@ -71,7 +71,7 @@ namespace LuaBattleGround
      */
     int GetEndTime(lua_State* L, BattleGround* bg)
     {
-        ALE::Push(L, bg->GetEndTime());
+        YLA::Push(L, bg->GetEndTime());
         return 1;
     }
 
@@ -83,9 +83,9 @@ namespace LuaBattleGround
      */
     int GetFreeSlotsForTeam(lua_State* L, BattleGround* bg)
     {
-        uint32 team = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 team = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, bg->GetFreeSlotsForTeam((TeamId)team));
+        YLA::Push(L, bg->GetFreeSlotsForTeam((TeamId)team));
         return 1;
     }
 
@@ -96,7 +96,7 @@ namespace LuaBattleGround
      */
     int GetInstanceId(lua_State* L, BattleGround* bg)
     {
-        ALE::Push(L, bg->GetInstanceID());
+        YLA::Push(L, bg->GetInstanceID());
         return 1;
     }
 
@@ -107,7 +107,7 @@ namespace LuaBattleGround
      */
     int GetMapId(lua_State* L, BattleGround* bg)
     {
-        ALE::Push(L, bg->GetMapId());
+        YLA::Push(L, bg->GetMapId());
         return 1;
     }
 
@@ -118,7 +118,7 @@ namespace LuaBattleGround
      */
     int GetTypeId(lua_State* L, BattleGround* bg)
     {
-        ALE::Push(L, bg->GetBgTypeID());
+        YLA::Push(L, bg->GetBgTypeID());
         return 1;
     }
 
@@ -129,7 +129,7 @@ namespace LuaBattleGround
      */
     int GetMaxLevel(lua_State* L, BattleGround* bg)
     {
-        ALE::Push(L, bg->GetMaxLevel());
+        YLA::Push(L, bg->GetMaxLevel());
         return 1;
     }
 
@@ -140,7 +140,7 @@ namespace LuaBattleGround
      */
     int GetMinLevel(lua_State* L, BattleGround* bg)
     {
-        ALE::Push(L, bg->GetMinLevel());
+        YLA::Push(L, bg->GetMinLevel());
         return 1;
     }
 
@@ -151,7 +151,7 @@ namespace LuaBattleGround
      */
     int GetMaxPlayers(lua_State* L, BattleGround* bg)
     {
-        ALE::Push(L, bg->GetMaxPlayersPerTeam() * 2);
+        YLA::Push(L, bg->GetMaxPlayersPerTeam() * 2);
         return 1;
     }
 
@@ -162,7 +162,7 @@ namespace LuaBattleGround
      */
     int GetMinPlayers(lua_State* L, BattleGround* bg)
     {
-        ALE::Push(L, bg->GetMaxPlayersPerTeam() * 2);
+        YLA::Push(L, bg->GetMaxPlayersPerTeam() * 2);
         return 1;
     }
 
@@ -173,7 +173,7 @@ namespace LuaBattleGround
      */
     int GetMaxPlayersPerTeam(lua_State* L, BattleGround* bg)
     {
-        ALE::Push(L, bg->GetMaxPlayersPerTeam());
+        YLA::Push(L, bg->GetMaxPlayersPerTeam());
         return 1;
     }
 
@@ -184,7 +184,7 @@ namespace LuaBattleGround
      */
     int GetMinPlayersPerTeam(lua_State* L, BattleGround* bg)
     {
-        ALE::Push(L, bg->GetMinPlayersPerTeam());
+        YLA::Push(L, bg->GetMinPlayersPerTeam());
         return 1;
     }
 
@@ -195,7 +195,7 @@ namespace LuaBattleGround
      */
     int GetWinner(lua_State* L, BattleGround* bg)
     {
-        ALE::Push(L, bg->GetWinner());
+        YLA::Push(L, bg->GetWinner());
         return 1;
     }
 
@@ -206,7 +206,7 @@ namespace LuaBattleGround
      */
     int GetStatus(lua_State* L, BattleGround* bg)
     {
-        ALE::Push(L, bg->GetStatus());
+        YLA::Push(L, bg->GetStatus());
         return 1;
     }
 };

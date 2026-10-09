@@ -53,8 +53,8 @@ namespace LuaQuest
      */
     int HasFlag(lua_State* L, Quest* quest)
     {
-        uint32 flag = ALE::CHECKVAL<uint32>(L, 2);
-        ALE::Push(L, quest->HasFlag(flag));
+        uint32 flag = YLA::CHECKVAL<uint32>(L, 2);
+        YLA::Push(L, quest->HasFlag(flag));
         return 1;
     }
 
@@ -65,7 +65,7 @@ namespace LuaQuest
      */
     int IsDaily(lua_State* L, Quest* quest)
     {
-        ALE::Push(L, quest->IsDaily());
+        YLA::Push(L, quest->IsDaily());
         return 1;
     }
 
@@ -76,7 +76,7 @@ namespace LuaQuest
      */
     int IsRepeatable(lua_State* L, Quest* quest)
     {
-        ALE::Push(L, quest->IsRepeatable());
+        YLA::Push(L, quest->IsRepeatable());
         return 1;
     }
 
@@ -87,7 +87,7 @@ namespace LuaQuest
      */
     int GetId(lua_State* L, Quest* quest)
     {
-        ALE::Push(L, quest->GetQuestId());
+        YLA::Push(L, quest->GetQuestId());
         return 1;
     }
 
@@ -98,7 +98,7 @@ namespace LuaQuest
      */
     int GetLevel(lua_State* L, Quest* quest)
     {
-        ALE::Push(L, quest->GetQuestLevel());
+        YLA::Push(L, quest->GetQuestLevel());
         return 1;
     }
 
@@ -109,7 +109,7 @@ namespace LuaQuest
      */
     int GetMinLevel(lua_State* L, Quest* quest)
     {
-        ALE::Push(L, quest->GetMinLevel());
+        YLA::Push(L, quest->GetMinLevel());
         return 1;
     }
 
@@ -120,7 +120,7 @@ namespace LuaQuest
      */
     int GetNextQuestId(lua_State* L, Quest* quest)
     {
-        ALE::Push(L, quest->GetNextQuestId());
+        YLA::Push(L, quest->GetNextQuestId());
         return 1;
     }
 
@@ -131,7 +131,7 @@ namespace LuaQuest
      */
     int GetPrevQuestId(lua_State* L, Quest* quest)
     {
-        ALE::Push(L, quest->GetPrevQuestId());
+        YLA::Push(L, quest->GetPrevQuestId());
         return 1;
     }
 
@@ -142,7 +142,7 @@ namespace LuaQuest
      */
     int GetNextQuestInChain(lua_State* L, Quest* quest)
     {
-        ALE::Push(L, quest->GetNextQuestInChain());
+        YLA::Push(L, quest->GetNextQuestInChain());
         return 1;
     }
 
@@ -153,7 +153,7 @@ namespace LuaQuest
      */
     int GetFlags(lua_State* L, Quest* quest)
     {
-        ALE::Push(L, quest->GetFlags());
+        YLA::Push(L, quest->GetFlags());
         return 1;
     }
 
@@ -166,13 +166,13 @@ namespace LuaQuest
      */
     int GetType(lua_State* L, Quest* quest)
     {
-        ALE::Push(L, quest->GetType());
+        YLA::Push(L, quest->GetType());
         return 1;
     }
 
     /*int GetMaxLevel(lua_State* L, Quest* quest)
     {
-        ALE::Push(L, quest->GetMaxLevel());
+        YLA::Push(L, quest->GetMaxLevel());
         return 1;
     }*/
 };

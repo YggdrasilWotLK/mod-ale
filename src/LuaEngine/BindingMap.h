@@ -9,7 +9,7 @@
 
 #include <memory>
 #include "Common.h"
-#include "ALEUtility.h"
+#include "YLAUtility.h"
 #include <type_traits>
 
 extern "C"
@@ -23,7 +23,7 @@ extern "C"
  * A set of bindings from keys of type `K` to Lua references.
  */
 template<typename K>
-class BindingMap : public ALEUtil::Lockable
+class BindingMap : public YLAUtil::Lockable
 {
 private:
     lua_State* L;

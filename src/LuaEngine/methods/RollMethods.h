@@ -25,7 +25,7 @@ namespace LuaRoll
      */
     int GetItemGUID(lua_State* L, Roll* roll)
     {
-        ALE::Push(L, roll->itemGUID.GetCounter());
+        YLA::Push(L, roll->itemGUID.GetCounter());
         return 1;
     }
 
@@ -36,7 +36,7 @@ namespace LuaRoll
      */
     int GetItemId(lua_State* L, Roll* roll)
     {
-        ALE::Push(L, roll->itemid);
+        YLA::Push(L, roll->itemid);
         return 1;
     }
 
@@ -47,7 +47,7 @@ namespace LuaRoll
      */
     int GetItemRandomPropId(lua_State* L, Roll* roll)
     {
-        ALE::Push(L, roll->itemRandomPropId);
+        YLA::Push(L, roll->itemRandomPropId);
         return 1;
     }
 
@@ -58,7 +58,7 @@ namespace LuaRoll
      */
     int GetItemRandomSuffix(lua_State* L, Roll* roll)
     {
-        ALE::Push(L, roll->itemRandomSuffix);
+        YLA::Push(L, roll->itemRandomSuffix);
         return 1;
     }
 
@@ -69,7 +69,7 @@ namespace LuaRoll
      */
     int GetItemCount(lua_State* L, Roll* roll)
     {
-        ALE::Push(L, roll->itemCount);
+        YLA::Push(L, roll->itemCount);
         return 1;
     }
 
@@ -94,21 +94,21 @@ namespace LuaRoll
      */
     int GetPlayerVote(lua_State* L, Roll* roll)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
 
         bool found = false;
         for (std::pair<const ObjectGuid, RollVote>& pair : roll->playerVote)
         {
             if (pair.first == guid)
             {
-                ALE::Push(L, pair.second);
+                YLA::Push(L, pair.second);
                 found = true;
             }
         }
 
         if (!found)
         {
-            ALE::Push(L);
+            YLA::Push(L);
         }
 
         return 1;
@@ -127,7 +127,7 @@ namespace LuaRoll
         uint32 i = 1;
         for (std::pair<const ObjectGuid, RollVote>& pair : roll->playerVote)
         {
-            ALE::Push(L, pair.first);
+            YLA::Push(L, pair.first);
             lua_rawseti(L, table, i);
             ++i;
         }
@@ -143,7 +143,7 @@ namespace LuaRoll
      */
     int GetTotalPlayersRolling(lua_State* L, Roll* roll)
     {
-        ALE::Push(L, roll->totalPlayersRolling);
+        YLA::Push(L, roll->totalPlayersRolling);
         return 1;
     }
 
@@ -154,7 +154,7 @@ namespace LuaRoll
      */
     int GetTotalNeed(lua_State* L, Roll* roll)
     {
-        ALE::Push(L, roll->totalNeed);
+        YLA::Push(L, roll->totalNeed);
         return 1;
     }
 
@@ -165,7 +165,7 @@ namespace LuaRoll
      */
     int GetTotalGreed(lua_State* L, Roll* roll)
     {
-        ALE::Push(L, roll->totalGreed);
+        YLA::Push(L, roll->totalGreed);
         return 1;
     }
 
@@ -176,7 +176,7 @@ namespace LuaRoll
      */
     int GetTotalPass(lua_State* L, Roll* roll)
     {
-        ALE::Push(L, roll->totalPass);
+        YLA::Push(L, roll->totalPass);
         return 1;
     }
 
@@ -187,7 +187,7 @@ namespace LuaRoll
      */
     int GetItemSlot(lua_State* L, Roll* roll)
     {
-        ALE::Push(L, roll->itemSlot);
+        YLA::Push(L, roll->itemSlot);
         return 1;
     }
 
@@ -211,7 +211,7 @@ namespace LuaRoll
      */
     int GetRollVoteMask(lua_State* L, Roll* roll)
     {
-        ALE::Push(L, roll->rollVoteMask);
+        YLA::Push(L, roll->rollVoteMask);
         return 1;
     }
 }

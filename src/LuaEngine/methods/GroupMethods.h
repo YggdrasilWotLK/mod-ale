@@ -22,8 +22,8 @@ namespace LuaGroup
      */
     int IsLeader(lua_State* L, Group* group)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
-        ALE::Push(L, group->IsLeader(guid));
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
+        YLA::Push(L, group->IsLeader(guid));
         return 1;
     }
 
@@ -34,7 +34,7 @@ namespace LuaGroup
      */
     int IsFull(lua_State* L, Group* group)
     {
-        ALE::Push(L, group->IsFull());
+        YLA::Push(L, group->IsFull());
         return 1;
     }
 
@@ -45,7 +45,7 @@ namespace LuaGroup
      */
     int IsLFGGroup(lua_State* L, Group* group)
     {
-        ALE::Push(L, group->isLFGGroup());
+        YLA::Push(L, group->isLFGGroup());
         return 1;
     }
 
@@ -56,7 +56,7 @@ namespace LuaGroup
      */
     int IsRaidGroup(lua_State* L, Group* group)
     {
-        ALE::Push(L, group->isRaidGroup());
+        YLA::Push(L, group->isRaidGroup());
         return 1;
     }
 
@@ -67,7 +67,7 @@ namespace LuaGroup
      */
     int IsBGGroup(lua_State* L, Group* group)
     {
-        ALE::Push(L, group->isBGGroup());
+        YLA::Push(L, group->isBGGroup());
         return 1;
     }
 
@@ -79,8 +79,8 @@ namespace LuaGroup
      */
     int IsMember(lua_State* L, Group* group)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
-        ALE::Push(L, group->IsMember(guid));
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
+        YLA::Push(L, group->IsMember(guid));
         return 1;
     }
 
@@ -92,8 +92,8 @@ namespace LuaGroup
      */
     int IsAssistant(lua_State* L, Group* group)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
-        ALE::Push(L, group->IsAssistant(guid));
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
+        YLA::Push(L, group->IsAssistant(guid));
         return 1;
     }
 
@@ -106,9 +106,9 @@ namespace LuaGroup
      */
     int SameSubGroup(lua_State* L, Group* group)
     {
-        Player* player1 = ALE::CHECKOBJ<Player>(L, 2);
-        Player* player2 = ALE::CHECKOBJ<Player>(L, 3);
-        ALE::Push(L, group->SameSubGroup(player1, player2));
+        Player* player1 = YLA::CHECKOBJ<Player>(L, 2);
+        Player* player2 = YLA::CHECKOBJ<Player>(L, 3);
+        YLA::Push(L, group->SameSubGroup(player1, player2));
         return 1;
     }
 
@@ -120,7 +120,7 @@ namespace LuaGroup
      */
     int HasFreeSlotSubGroup(lua_State* L, Group* group)
     {
-        uint8 subGroup = ALE::CHECKVAL<uint8>(L, 2);
+        uint8 subGroup = YLA::CHECKVAL<uint8>(L, 2);
 
         if (subGroup >= MAX_RAID_SUBGROUPS)
         {
@@ -128,7 +128,7 @@ namespace LuaGroup
             return 0;
         }
 
-        ALE::Push(L, group->HasFreeSlotSubGroup(subGroup));
+        YLA::Push(L, group->HasFreeSlotSubGroup(subGroup));
         return 1;
     }
 
@@ -140,11 +140,11 @@ namespace LuaGroup
      */
     int AddMember(lua_State* L, Group* group)
     {
-        Player* player = ALE::CHECKOBJ<Player>(L, 2);
+        Player* player = YLA::CHECKOBJ<Player>(L, 2);
 
         if (player->GetGroup() || !group->IsCreated() || group->IsFull())
         {
-            ALE::Push(L, false);
+            YLA::Push(L, false);
             return 1;
         }
 
@@ -155,19 +155,19 @@ namespace LuaGroup
         if (success)
             group->BroadcastGroupUpdate();
 
-        ALE::Push(L, success);
+        YLA::Push(L, success);
         return 1;
     }
 
     /*int IsLFGGroup(lua_State* L, Group* group) // TODO: Implementation
     {
-        ALE::Push(L, group->isLFGGroup());
+        YLA::Push(L, group->isLFGGroup());
         return 1;
     }*/
 
     /*int IsBFGroup(lua_State* L, Group* group) // TODO: Implementation
     {
-        ALE::Push(L, group->isBFGroup());
+        YLA::Push(L, group->isBFGroup());
         return 1;
     }*/
 
@@ -189,7 +189,7 @@ namespace LuaGroup
             if (!member || !member->GetSession())
                 continue;
 
-            ALE::Push(L, member);
+            YLA::Push(L, member);
             lua_rawseti(L, tbl, ++i);
         }
 
@@ -204,7 +204,7 @@ namespace LuaGroup
      */
     int GetLeaderGUID(lua_State* L, Group* group)
     {
-        ALE::Push(L, group->GetLeaderGUID());
+        YLA::Push(L, group->GetLeaderGUID());
         return 1;
     }
 
@@ -215,7 +215,7 @@ namespace LuaGroup
      */
     int GetGUID(lua_State* L, Group* group)
     {
-        ALE::Push(L, group->GET_GUID());
+        YLA::Push(L, group->GET_GUID());
         return 1;
     }
 
@@ -227,9 +227,9 @@ namespace LuaGroup
      */
     int GetMemberGUID(lua_State* L, Group* group)
     {
-        const char* name = ALE::CHECKVAL<const char*>(L, 2);
+        const char* name = YLA::CHECKVAL<const char*>(L, 2);
 
-        ALE::Push(L, group->GetMemberGUID(name));
+        YLA::Push(L, group->GetMemberGUID(name));
         return 1;
     }
 
@@ -240,7 +240,7 @@ namespace LuaGroup
      */
     int GetMembersCount(lua_State* L, Group* group)
     {
-        ALE::Push(L, group->GetMembersCount());
+        YLA::Push(L, group->GetMembersCount());
         return 1;
     }
 
@@ -262,7 +262,7 @@ namespace LuaGroup
      */
     int GetGroupType(lua_State* L, Group* group)
     {
-        ALE::Push(L, group->GetGroupType());
+        YLA::Push(L, group->GetGroupType());
         return 1;
     }
 
@@ -274,8 +274,8 @@ namespace LuaGroup
      */
     int GetMemberGroup(lua_State* L, Group* group)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
-        ALE::Push(L, group->GetMemberGroup(guid));
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
+        YLA::Push(L, group->GetMemberGroup(guid));
         return 1;
     }
 
@@ -286,7 +286,7 @@ namespace LuaGroup
      */
     int SetLeader(lua_State* L, Group* group)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
         group->ChangeLeader(guid);
         group->SendUpdate();
         return 0;
@@ -301,9 +301,9 @@ namespace LuaGroup
      */
     int SendPacket(lua_State* L, Group* group)
     {
-        WorldPacket* data = ALE::CHECKOBJ<WorldPacket>(L, 2);
-        bool ignorePlayersInBg = ALE::CHECKVAL<bool>(L, 3);
-        ObjectGuid ignore = ALE::CHECKVAL<ObjectGuid>(L, 4);
+        WorldPacket* data = YLA::CHECKOBJ<WorldPacket>(L, 2);
+        bool ignorePlayersInBg = YLA::CHECKVAL<bool>(L, 3);
+        ObjectGuid ignore = YLA::CHECKVAL<ObjectGuid>(L, 4);
 
         group->BroadcastPacket(data, ignorePlayersInBg, -1, ignore);
         return 0;
@@ -328,10 +328,10 @@ namespace LuaGroup
      */
     int RemoveMember(lua_State* L, Group* group)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
-        uint32 method = ALE::CHECKVAL<uint32>(L, 3, 0);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
+        uint32 method = YLA::CHECKVAL<uint32>(L, 3, 0);
 
-        ALE::Push(L, group->RemoveMember(guid, (RemoveMethod)method));
+        YLA::Push(L, group->RemoveMember(guid, (RemoveMethod)method));
         return 1;
     }
 
@@ -363,8 +363,8 @@ namespace LuaGroup
      */
     int SetMembersGroup(lua_State* L, Group* group)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
-        uint8 subGroup = ALE::CHECKVAL<uint8>(L, 3);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
+        uint8 subGroup = YLA::CHECKVAL<uint8>(L, 3);
 
         if (subGroup >= MAX_RAID_SUBGROUPS)
         {
@@ -388,9 +388,9 @@ namespace LuaGroup
      */
     int SetTargetIcon(lua_State* L, Group* group)
     {
-        uint8 icon = ALE::CHECKVAL<uint8>(L, 2);
-        ObjectGuid target = ALE::CHECKVAL<ObjectGuid>(L, 3);
-        ObjectGuid setter = ALE::CHECKVAL<ObjectGuid>(L, 4, ObjectGuid());
+        uint8 icon = YLA::CHECKVAL<uint8>(L, 2);
+        ObjectGuid target = YLA::CHECKVAL<ObjectGuid>(L, 3);
+        ObjectGuid setter = YLA::CHECKVAL<ObjectGuid>(L, 4, ObjectGuid());
 
         if (icon >= TARGETICONCOUNT)
             return luaL_argerror(L, 2, "valid target icon expected");
@@ -417,9 +417,9 @@ namespace LuaGroup
      */
     int SetMemberFlag(lua_State* L, Group* group)
     {
-        ObjectGuid target = ALE::CHECKVAL<ObjectGuid>(L, 2);
-        bool apply = ALE::CHECKVAL<bool>(L, 3);
-        GroupMemberFlags flag = static_cast<GroupMemberFlags>(ALE::CHECKVAL<uint32>(L, 4));
+        ObjectGuid target = YLA::CHECKVAL<ObjectGuid>(L, 2);
+        bool apply = YLA::CHECKVAL<bool>(L, 3);
+        GroupMemberFlags flag = static_cast<GroupMemberFlags>(YLA::CHECKVAL<uint32>(L, 4));
 
         group->SetGroupMemberFlag(target, apply, flag);
         return 0;

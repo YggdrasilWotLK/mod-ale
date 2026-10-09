@@ -21,7 +21,7 @@ namespace LuaCorpse
      */
     int GetOwnerGUID(lua_State* L, Corpse* corpse)
     {
-        ALE::Push(L, corpse->GetOwnerGUID());
+        YLA::Push(L, corpse->GetOwnerGUID());
         return 1;
     }
 
@@ -32,7 +32,7 @@ namespace LuaCorpse
      */
     int GetGhostTime(lua_State* L, Corpse* corpse)
     {
-        ALE::Push(L, corpse->GetGhostTime());
+        YLA::Push(L, corpse->GetGhostTime());
         return 1;
     }
 
@@ -50,7 +50,7 @@ namespace LuaCorpse
      */
     int GetType(lua_State* L, Corpse* corpse)
     {
-        ALE::Push(L, corpse->GetType());
+        YLA::Push(L, corpse->GetType());
         return 1;
     }
 

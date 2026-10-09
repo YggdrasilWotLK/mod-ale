@@ -8,13 +8,13 @@
 #include "HookHelpers.h"
 #include "LuaEngine.h"
 #include "BindingMap.h"
-#include "ALEIncludes.h"
-#include "ALETemplate.h"
+#include "YLAIncludes.h"
+#include "YLATemplate.h"
 
 using namespace Hooks;
 
 #define START_HOOK_WORLD(EVENT) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
     auto key = EventKey<PlayerEvents>(EVENT);\
     if (!PlayerEventBindings->HasBindingsFor(key))\
@@ -22,7 +22,7 @@ using namespace Hooks;
     LOCK_ALE
 
 #define START_HOOK_WORLD_WITH_RETVAL(EVENT, RETVAL) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return RETVAL;\
     auto key = EventKey<PlayerEvents>(EVENT);\
     if (!PlayerEventBindings->HasBindingsFor(key))\
@@ -30,23 +30,23 @@ using namespace Hooks;
     LOCK_ALE
 
 #define START_HOOK_MAP(EVENT) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
     auto key = EventKey<PlayerEvents>(EVENT);\
     if (!PlayerEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
 #define START_HOOK_MAP_WITH_RETVAL(EVENT, RETVAL) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return RETVAL;\
     auto key = EventKey<PlayerEvents>(EVENT);\
     if (!PlayerEventBindings->HasBindingsFor(key))\
         return RETVAL;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
 // MAP
-void ALE::OnLearnTalents(Player* pPlayer, uint32 talentId, uint32 talentRank, uint32 spellid)
+void YLA::OnLearnTalents(Player* pPlayer, uint32 talentId, uint32 talentRank, uint32 spellid)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_LEARN_TALENTS);
     Push(pPlayer);
@@ -57,7 +57,7 @@ void ALE::OnLearnTalents(Player* pPlayer, uint32 talentId, uint32 talentRank, ui
 }
 
 // WORLD
-bool ALE::OnCommand(ChatHandler& handler, const char* text)
+bool YLA::OnCommand(ChatHandler& handler, const char* text)
 {
     Player* player = handler.IsConsole() ? nullptr : handler.GetSession()->GetPlayer();
     if (!player || player->GetSession()->GetSecurity() >= SEC_ADMINISTRATOR)
@@ -79,7 +79,7 @@ bool ALE::OnCommand(ChatHandler& handler, const char* text)
 }
 
 // MAP
-void ALE::OnLootItem(Player* pPlayer, Item* pItem, uint32 count, ObjectGuid guid)
+void YLA::OnLootItem(Player* pPlayer, Item* pItem, uint32 count, ObjectGuid guid)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_LOOT_ITEM);
     Push(pPlayer);
@@ -90,7 +90,7 @@ void ALE::OnLootItem(Player* pPlayer, Item* pItem, uint32 count, ObjectGuid guid
 }
 
 // MAP
-void ALE::OnLootMoney(Player* pPlayer, uint32 amount)
+void YLA::OnLootMoney(Player* pPlayer, uint32 amount)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_LOOT_MONEY);
     Push(pPlayer);
@@ -99,7 +99,7 @@ void ALE::OnLootMoney(Player* pPlayer, uint32 amount)
 }
 
 // WORLD
-void ALE::OnFirstLogin(Player* pPlayer)
+void YLA::OnFirstLogin(Player* pPlayer)
 {
     START_HOOK_WORLD(PLAYER_EVENT_ON_FIRST_LOGIN);
     Push(pPlayer);
@@ -107,7 +107,7 @@ void ALE::OnFirstLogin(Player* pPlayer)
 }
 
 // MAP
-void ALE::OnRepop(Player* pPlayer)
+void YLA::OnRepop(Player* pPlayer)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_REPOP);
     Push(pPlayer);
@@ -115,7 +115,7 @@ void ALE::OnRepop(Player* pPlayer)
 }
 
 // MAP
-void ALE::OnResurrect(Player* pPlayer)
+void YLA::OnResurrect(Player* pPlayer)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_RESURRECT);
     Push(pPlayer);
@@ -123,7 +123,7 @@ void ALE::OnResurrect(Player* pPlayer)
 }
 
 // MAP
-void ALE::OnQuestAbandon(Player* pPlayer, uint32 questId)
+void YLA::OnQuestAbandon(Player* pPlayer, uint32 questId)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_QUEST_ABANDON);
     Push(pPlayer);
@@ -132,7 +132,7 @@ void ALE::OnQuestAbandon(Player* pPlayer, uint32 questId)
 }
 
 // MAP
-void ALE::OnEquip(Player* pPlayer, Item* pItem, uint8 bag, uint8 slot)
+void YLA::OnEquip(Player* pPlayer, Item* pItem, uint8 bag, uint8 slot)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_EQUIP);
     Push(pPlayer);
@@ -143,7 +143,7 @@ void ALE::OnEquip(Player* pPlayer, Item* pItem, uint8 bag, uint8 slot)
 }
 
 // MAP
-InventoryResult ALE::OnCanUseItem(const Player* pPlayer, uint32 itemEntry)
+InventoryResult YLA::OnCanUseItem(const Player* pPlayer, uint32 itemEntry)
 {
     START_HOOK_MAP_WITH_RETVAL(PLAYER_EVENT_ON_CAN_USE_ITEM, EQUIP_ERR_OK);
     InventoryResult result = EQUIP_ERR_OK;
@@ -166,7 +166,7 @@ InventoryResult ALE::OnCanUseItem(const Player* pPlayer, uint32 itemEntry)
 }
 
 // MAP
-void ALE::OnPlayerEnterCombat(Player* pPlayer, Unit* pEnemy)
+void YLA::OnPlayerEnterCombat(Player* pPlayer, Unit* pEnemy)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_ENTER_COMBAT);
     Push(pPlayer);
@@ -175,7 +175,7 @@ void ALE::OnPlayerEnterCombat(Player* pPlayer, Unit* pEnemy)
 }
 
 // MAP
-void ALE::OnPlayerLeaveCombat(Player* pPlayer)
+void YLA::OnPlayerLeaveCombat(Player* pPlayer)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_LEAVE_COMBAT);
     Push(pPlayer);
@@ -183,7 +183,7 @@ void ALE::OnPlayerLeaveCombat(Player* pPlayer)
 }
 
 // MAP
-void ALE::OnPVPKill(Player* pKiller, Player* pKilled)
+void YLA::OnPVPKill(Player* pKiller, Player* pKilled)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_KILL_PLAYER);
     Push(pKiller);
@@ -192,7 +192,7 @@ void ALE::OnPVPKill(Player* pKiller, Player* pKilled)
 }
 
 // MAP
-void ALE::OnCreatureKill(Player* pKiller, Creature* pKilled)
+void YLA::OnCreatureKill(Player* pKiller, Creature* pKilled)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_KILL_CREATURE);
     Push(pKiller);
@@ -201,7 +201,7 @@ void ALE::OnCreatureKill(Player* pKiller, Creature* pKilled)
 }
 
 // MAP
-void ALE::OnPlayerKilledByCreature(Creature* pKiller, Player* pKilled)
+void YLA::OnPlayerKilledByCreature(Creature* pKiller, Player* pKilled)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_KILLED_BY_CREATURE);
     Push(pKiller);
@@ -210,7 +210,7 @@ void ALE::OnPlayerKilledByCreature(Creature* pKiller, Player* pKilled)
 }
 
 // MAP
-void ALE::OnLevelChanged(Player* pPlayer, uint8 oldLevel)
+void YLA::OnLevelChanged(Player* pPlayer, uint8 oldLevel)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_LEVEL_CHANGE);
     Push(pPlayer);
@@ -219,7 +219,7 @@ void ALE::OnLevelChanged(Player* pPlayer, uint8 oldLevel)
 }
 
 // MAP
-void ALE::OnFreeTalentPointsChanged(Player* pPlayer, uint32 newPoints)
+void YLA::OnFreeTalentPointsChanged(Player* pPlayer, uint32 newPoints)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_TALENTS_CHANGE);
     Push(pPlayer);
@@ -228,7 +228,7 @@ void ALE::OnFreeTalentPointsChanged(Player* pPlayer, uint32 newPoints)
 }
 
 // MAP
-void ALE::OnTalentsReset(Player* pPlayer, bool noCost)
+void YLA::OnTalentsReset(Player* pPlayer, bool noCost)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_TALENTS_RESET);
     Push(pPlayer);
@@ -237,7 +237,7 @@ void ALE::OnTalentsReset(Player* pPlayer, bool noCost)
 }
 
 // MAP
-void ALE::OnMoneyChanged(Player* pPlayer, int32& amount)
+void YLA::OnMoneyChanged(Player* pPlayer, int32& amount)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_MONEY_CHANGE);
     Push(pPlayer);
@@ -262,7 +262,7 @@ void ALE::OnMoneyChanged(Player* pPlayer, int32& amount)
 }
 
 // MAP
-void ALE::OnGiveXP(Player* pPlayer, uint32& amount, Unit* pVictim, uint8 xpSource)
+void YLA::OnGiveXP(Player* pPlayer, uint32& amount, Unit* pVictim, uint8 xpSource)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_GIVE_XP);
     Push(pPlayer);
@@ -289,7 +289,7 @@ void ALE::OnGiveXP(Player* pPlayer, uint32& amount, Unit* pVictim, uint8 xpSourc
 }
 
 // MAP
-bool ALE::OnReputationChange(Player* pPlayer, uint32 factionID, int32& standing, bool incremental)
+bool YLA::OnReputationChange(Player* pPlayer, uint32 factionID, int32& standing, bool incremental)
 {
     START_HOOK_MAP_WITH_RETVAL(PLAYER_EVENT_ON_REPUTATION_CHANGE, true);
     bool result = true;
@@ -320,7 +320,7 @@ bool ALE::OnReputationChange(Player* pPlayer, uint32 factionID, int32& standing,
 }
 
 // MAP
-void ALE::OnDuelRequest(Player* pTarget, Player* pChallenger)
+void YLA::OnDuelRequest(Player* pTarget, Player* pChallenger)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_DUEL_REQUEST);
     Push(pTarget);
@@ -329,7 +329,7 @@ void ALE::OnDuelRequest(Player* pTarget, Player* pChallenger)
 }
 
 // MAP
-void ALE::OnDuelStart(Player* pStarter, Player* pChallenger)
+void YLA::OnDuelStart(Player* pStarter, Player* pChallenger)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_DUEL_START);
     Push(pStarter);
@@ -338,7 +338,7 @@ void ALE::OnDuelStart(Player* pStarter, Player* pChallenger)
 }
 
 // MAP
-void ALE::OnDuelEnd(Player* pWinner, Player* pLoser, DuelCompleteType type)
+void YLA::OnDuelEnd(Player* pWinner, Player* pLoser, DuelCompleteType type)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_DUEL_END);
     Push(pWinner);
@@ -348,7 +348,7 @@ void ALE::OnDuelEnd(Player* pWinner, Player* pLoser, DuelCompleteType type)
 }
 
 // MAP
-void ALE::OnEmote(Player* pPlayer, uint32 emote)
+void YLA::OnEmote(Player* pPlayer, uint32 emote)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_EMOTE);
     Push(pPlayer);
@@ -357,7 +357,7 @@ void ALE::OnEmote(Player* pPlayer, uint32 emote)
 }
 
 // MAP
-void ALE::OnTextEmote(Player* pPlayer, uint32 textEmote, uint32 emoteNum, ObjectGuid guid)
+void YLA::OnTextEmote(Player* pPlayer, uint32 textEmote, uint32 emoteNum, ObjectGuid guid)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_TEXT_EMOTE);
     Push(pPlayer);
@@ -368,7 +368,7 @@ void ALE::OnTextEmote(Player* pPlayer, uint32 textEmote, uint32 emoteNum, Object
 }
 
 // MAP
-void ALE::OnPlayerSpellCast(Player* pPlayer, Spell* pSpell, bool skipCheck)
+void YLA::OnPlayerSpellCast(Player* pPlayer, Spell* pSpell, bool skipCheck)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_SPELL_CAST);
     Push(pPlayer);
@@ -378,7 +378,7 @@ void ALE::OnPlayerSpellCast(Player* pPlayer, Spell* pSpell, bool skipCheck)
 }
 
 // WORLD
-void ALE::OnLogin(Player* pPlayer)
+void YLA::OnLogin(Player* pPlayer)
 {
     START_HOOK_WORLD(PLAYER_EVENT_ON_LOGIN);
     Push(pPlayer);
@@ -386,7 +386,7 @@ void ALE::OnLogin(Player* pPlayer)
 }
 
 // WORLD
-void ALE::OnLogout(Player* pPlayer)
+void YLA::OnLogout(Player* pPlayer)
 {
     START_HOOK_WORLD(PLAYER_EVENT_ON_LOGOUT);
     Push(pPlayer);
@@ -394,7 +394,7 @@ void ALE::OnLogout(Player* pPlayer)
 }
 
 // WORLD
-void ALE::OnCreate(Player* pPlayer)
+void YLA::OnCreate(Player* pPlayer)
 {
     START_HOOK_WORLD(PLAYER_EVENT_ON_CHARACTER_CREATE);
     Push(pPlayer);
@@ -402,7 +402,7 @@ void ALE::OnCreate(Player* pPlayer)
 }
 
 // WORLD
-void ALE::OnDelete(uint32 guidlow)
+void YLA::OnDelete(uint32 guidlow)
 {
     START_HOOK_WORLD(PLAYER_EVENT_ON_CHARACTER_DELETE);
     Push(guidlow);
@@ -410,7 +410,7 @@ void ALE::OnDelete(uint32 guidlow)
 }
 
 // MAP
-void ALE::OnSave(Player* pPlayer)
+void YLA::OnSave(Player* pPlayer)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_SAVE);
     Push(pPlayer);
@@ -418,7 +418,7 @@ void ALE::OnSave(Player* pPlayer)
 }
 
 // MAP
-void ALE::OnBindToInstance(Player* pPlayer, Difficulty difficulty, uint32 mapid, bool permanent)
+void YLA::OnBindToInstance(Player* pPlayer, Difficulty difficulty, uint32 mapid, bool permanent)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_BIND_TO_INSTANCE);
     Push(pPlayer);
@@ -429,7 +429,7 @@ void ALE::OnBindToInstance(Player* pPlayer, Difficulty difficulty, uint32 mapid,
 }
 
 // MAP
-void ALE::OnUpdateArea(Player* pPlayer, uint32 oldArea, uint32 newArea)
+void YLA::OnUpdateArea(Player* pPlayer, uint32 oldArea, uint32 newArea)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_UPDATE_AREA);
     Push(pPlayer);
@@ -439,7 +439,7 @@ void ALE::OnUpdateArea(Player* pPlayer, uint32 oldArea, uint32 newArea)
 }
 
 // MAP
-void ALE::OnUpdateZone(Player* pPlayer, uint32 newZone, uint32 newArea)
+void YLA::OnUpdateZone(Player* pPlayer, uint32 newZone, uint32 newArea)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_UPDATE_ZONE);
     Push(pPlayer);
@@ -449,7 +449,7 @@ void ALE::OnUpdateZone(Player* pPlayer, uint32 newZone, uint32 newArea)
 }
 
 // MAP
-void ALE::OnMapChanged(Player* player)
+void YLA::OnMapChanged(Player* player)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_MAP_CHANGE);
     Push(player);
@@ -457,7 +457,7 @@ void ALE::OnMapChanged(Player* player)
 }
 
 // WORLD
-bool ALE::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg)
+bool YLA::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg)
 {
     if (lang == LANG_ADDON)
         return OnAddonMessage(pPlayer, type, msg, NULL, NULL, NULL, NULL);
@@ -488,7 +488,7 @@ bool ALE::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg)
 }
 
 // WORLD
-bool ALE::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg, Group* pGroup)
+bool YLA::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg, Group* pGroup)
 {
     if (lang == LANG_ADDON)
         return OnAddonMessage(pPlayer, type, msg, NULL, NULL, pGroup, NULL);
@@ -520,7 +520,7 @@ bool ALE::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg, Gr
 }
 
 // WORLD
-bool ALE::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg, Guild* pGuild)
+bool YLA::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg, Guild* pGuild)
 {
     if (lang == LANG_ADDON)
         return OnAddonMessage(pPlayer, type, msg, NULL, pGuild, NULL, NULL);
@@ -552,7 +552,7 @@ bool ALE::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg, Gu
 }
 
 // WORLD
-bool ALE::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg, Channel* pChannel)
+bool YLA::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg, Channel* pChannel)
 {
     if (lang == LANG_ADDON)
         return OnAddonMessage(pPlayer, type, msg, NULL, NULL, NULL, pChannel);
@@ -584,7 +584,7 @@ bool ALE::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg, Ch
 }
 
 // WORLD
-bool ALE::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg, Player* pReceiver)
+bool YLA::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg, Player* pReceiver)
 {
     if (lang == LANG_ADDON)
         return OnAddonMessage(pPlayer, type, msg, pReceiver, NULL, NULL, NULL);
@@ -616,7 +616,7 @@ bool ALE::OnChat(Player* pPlayer, uint32 type, uint32 lang, std::string& msg, Pl
 }
 
 // MAP
-void ALE::OnPetAddedToWorld(Player* player, Creature* pet)
+void YLA::OnPetAddedToWorld(Player* player, Creature* pet)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_PET_ADDED_TO_WORLD);
     Push(player);
@@ -625,7 +625,7 @@ void ALE::OnPetAddedToWorld(Player* player, Creature* pet)
 }
 
 // MAP
-void ALE::OnLearnSpell(Player* player, uint32 spellId)
+void YLA::OnLearnSpell(Player* player, uint32 spellId)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_LEARN_SPELL);
     Push(player);
@@ -634,7 +634,7 @@ void ALE::OnLearnSpell(Player* player, uint32 spellId)
 }
 
 // MAP
-void ALE::OnAchiComplete(Player* player, AchievementEntry const* achievement)
+void YLA::OnAchiComplete(Player* player, AchievementEntry const* achievement)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_ACHIEVEMENT_COMPLETE);
     Push(player);
@@ -643,7 +643,7 @@ void ALE::OnAchiComplete(Player* player, AchievementEntry const* achievement)
 }
 
 // MAP
-void ALE::OnFfaPvpStateUpdate(Player* player, bool hasFfaPvp)
+void YLA::OnFfaPvpStateUpdate(Player* player, bool hasFfaPvp)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_FFAPVP_CHANGE);
     Push(player);
@@ -652,7 +652,7 @@ void ALE::OnFfaPvpStateUpdate(Player* player, bool hasFfaPvp)
 }
 
 // MAP
-bool ALE::OnCanInitTrade(Player* player, Player* target)
+bool YLA::OnCanInitTrade(Player* player, Player* target)
 {
     START_HOOK_MAP_WITH_RETVAL(PLAYER_EVENT_ON_CAN_INIT_TRADE, true);
     Push(player);
@@ -661,7 +661,7 @@ bool ALE::OnCanInitTrade(Player* player, Player* target)
 }
 
 // MAP
-bool ALE::OnCanSendMail(Player* player, ObjectGuid receiverGuid, ObjectGuid mailbox, std::string& subject, std::string& body, uint32 money, uint32 cod, Item* item)
+bool YLA::OnCanSendMail(Player* player, ObjectGuid receiverGuid, ObjectGuid mailbox, std::string& subject, std::string& body, uint32 money, uint32 cod, Item* item)
 {
     START_HOOK_MAP_WITH_RETVAL(PLAYER_EVENT_ON_CAN_SEND_MAIL, true);
     Push(player);
@@ -676,7 +676,7 @@ bool ALE::OnCanSendMail(Player* player, ObjectGuid receiverGuid, ObjectGuid mail
 }
 
 // MAP
-bool ALE::OnCanJoinLfg(Player* player, uint8 roles, lfg::LfgDungeonSet& dungeons, const std::string& comment)
+bool YLA::OnCanJoinLfg(Player* player, uint8 roles, lfg::LfgDungeonSet& dungeons, const std::string& comment)
 {
     START_HOOK_MAP_WITH_RETVAL(PLAYER_EVENT_ON_CAN_JOIN_LFG, true);
     Push(player);
@@ -687,7 +687,7 @@ bool ALE::OnCanJoinLfg(Player* player, uint8 roles, lfg::LfgDungeonSet& dungeons
     uint32 counter = 1;
     for (uint32 dungeon : dungeons)
     {
-        ALE::Push(L, dungeon);
+        YLA::Push(L, dungeon);
         lua_rawseti(L, table, counter);
         ++counter;
     }
@@ -699,7 +699,7 @@ bool ALE::OnCanJoinLfg(Player* player, uint8 roles, lfg::LfgDungeonSet& dungeons
 }
 
 // MAP
-void ALE::OnQuestRewardItem(Player* player, Item* item, uint32 count)
+void YLA::OnQuestRewardItem(Player* player, Item* item, uint32 count)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_QUEST_REWARD_ITEM);
     Push(player);
@@ -709,7 +709,7 @@ void ALE::OnQuestRewardItem(Player* player, Item* item, uint32 count)
 }
 
 // MAP
-void ALE::OnCreateItem(Player* player, Item* item, uint32 count)
+void YLA::OnCreateItem(Player* player, Item* item, uint32 count)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_CREATE_ITEM);
     Push(player);
@@ -719,7 +719,7 @@ void ALE::OnCreateItem(Player* player, Item* item, uint32 count)
 }
 
 // MAP
-void ALE::OnStoreNewItem(Player* player, Item* item, uint32 count)
+void YLA::OnStoreNewItem(Player* player, Item* item, uint32 count)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_STORE_NEW_ITEM);
     Push(player);
@@ -729,7 +729,7 @@ void ALE::OnStoreNewItem(Player* player, Item* item, uint32 count)
 }
 
 // MAP
-void ALE::OnPlayerCompleteQuest(Player* player, Quest const* quest)
+void YLA::OnPlayerCompleteQuest(Player* player, Quest const* quest)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_COMPLETE_QUEST);
     Push(player);
@@ -738,7 +738,7 @@ void ALE::OnPlayerCompleteQuest(Player* player, Quest const* quest)
 }
 
 // MAP
-bool ALE::OnCanGroupInvite(Player* player, std::string& memberName)
+bool YLA::OnCanGroupInvite(Player* player, std::string& memberName)
 {
     START_HOOK_MAP_WITH_RETVAL(PLAYER_EVENT_ON_CAN_GROUP_INVITE, true);
     Push(player);
@@ -747,7 +747,7 @@ bool ALE::OnCanGroupInvite(Player* player, std::string& memberName)
 }
 
 // MAP
-void ALE::OnGroupRollRewardItem(Player* player, Item* item, uint32 count, RollVote voteType, Roll* roll)
+void YLA::OnGroupRollRewardItem(Player* player, Item* item, uint32 count, RollVote voteType, Roll* roll)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_GROUP_ROLL_REWARD_ITEM);
     Push(player);
@@ -759,7 +759,7 @@ void ALE::OnGroupRollRewardItem(Player* player, Item* item, uint32 count, RollVo
 }
 
 // MAP
-void ALE::OnBattlegroundDesertion(Player* player, const BattlegroundDesertionType type)
+void YLA::OnBattlegroundDesertion(Player* player, const BattlegroundDesertionType type)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_BG_DESERTION);
     Push(player);
@@ -768,7 +768,7 @@ void ALE::OnBattlegroundDesertion(Player* player, const BattlegroundDesertionTyp
 }
 
 // MAP
-void ALE::OnCreatureKilledByPet(Player* player, Creature* killed)
+void YLA::OnCreatureKilledByPet(Player* player, Creature* killed)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_PET_KILL);
     Push(player);
@@ -777,7 +777,7 @@ void ALE::OnCreatureKilledByPet(Player* player, Creature* killed)
 }
 
 // MAP
-bool ALE::OnPlayerCanUpdateSkill(Player* player, uint32 skill_id)
+bool YLA::OnPlayerCanUpdateSkill(Player* player, uint32 skill_id)
 {
     START_HOOK_MAP_WITH_RETVAL(PLAYER_EVENT_ON_CAN_UPDATE_SKILL, true);
     Push(player);
@@ -786,7 +786,7 @@ bool ALE::OnPlayerCanUpdateSkill(Player* player, uint32 skill_id)
 }
 
 // MAP
-void ALE::OnPlayerBeforeUpdateSkill(Player* player, uint32 skill_id, uint32& value, uint32 max, uint32 step)
+void YLA::OnPlayerBeforeUpdateSkill(Player* player, uint32 skill_id, uint32& value, uint32 max, uint32 step)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_BEFORE_UPDATE_SKILL);
     Push(player);
@@ -812,7 +812,7 @@ void ALE::OnPlayerBeforeUpdateSkill(Player* player, uint32 skill_id, uint32& val
 }
 
 // MAP
-void ALE::OnPlayerUpdateSkill(Player* player, uint32 skill_id, uint32 value, uint32 max, uint32 step, uint32 new_value)
+void YLA::OnPlayerUpdateSkill(Player* player, uint32 skill_id, uint32 value, uint32 max, uint32 step, uint32 new_value)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_UPDATE_SKILL);
     Push(player);
@@ -825,7 +825,7 @@ void ALE::OnPlayerUpdateSkill(Player* player, uint32 skill_id, uint32 value, uin
 }
 
 // MAP
-bool ALE::CanPlayerResurrect(Player* player)
+bool YLA::CanPlayerResurrect(Player* player)
 {
     START_HOOK_MAP_WITH_RETVAL(PLAYER_EVENT_ON_CAN_RESURRECT, true);
     Push(player);
@@ -833,7 +833,7 @@ bool ALE::CanPlayerResurrect(Player* player)
 }
 
 // MAP
-void ALE::OnPlayerQuestAccept(Player* player, Quest const* quest)
+void YLA::OnPlayerQuestAccept(Player* player, Quest const* quest)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_QUEST_ACCEPT);
     Push(player);
@@ -842,7 +842,7 @@ void ALE::OnPlayerQuestAccept(Player* player, Quest const* quest)
 }
 
 // MAP
-void ALE::OnPlayerAuraApply(Player* player, Aura* aura)
+void YLA::OnPlayerAuraApply(Player* player, Aura* aura)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_AURA_APPLY);
     Push(player);
@@ -851,7 +851,7 @@ void ALE::OnPlayerAuraApply(Player* player, Aura* aura)
 }
 
 // MAP
-void ALE::OnPlayerHeal(Player* player, Unit* target, uint32& gain)
+void YLA::OnPlayerHeal(Player* player, Unit* target, uint32& gain)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_HEAL);
     Push(player);
@@ -875,7 +875,7 @@ void ALE::OnPlayerHeal(Player* player, Unit* target, uint32& gain)
 }
 
 // MAP
-void ALE::OnPlayerDamage(Player* player, Unit* target, uint32& damage)
+void YLA::OnPlayerDamage(Player* player, Unit* target, uint32& damage)
 {
     START_HOOK_MAP(PLAYER_EVENT_ON_DAMAGE);
     Push(player);

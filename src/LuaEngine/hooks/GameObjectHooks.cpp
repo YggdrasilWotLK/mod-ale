@@ -8,29 +8,29 @@
 #include "HookHelpers.h"
 #include "LuaEngine.h"
 #include "BindingMap.h"
-#include "ALEIncludes.h"
-#include "ALEEventMgr.h"
-#include "ALETemplate.h"
+#include "YLAIncludes.h"
+#include "YLAEventMgr.h"
+#include "YLATemplate.h"
 
 using namespace Hooks;
 
 #define START_HOOK(EVENT, ENTRY) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
     auto key = EntryKey<GameObjectEvents>(EVENT, ENTRY);\
     if (!GameObjectEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
 #define START_HOOK_WITH_RETVAL(EVENT, ENTRY, RETVAL) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return RETVAL;\
     auto key = EntryKey<GameObjectEvents>(EVENT, ENTRY);\
     if (!GameObjectEventBindings->HasBindingsFor(key))\
         return RETVAL;\
-    LOCK_ALE_STATE
+    LOCK_YLA_STATE
 
-void ALE::OnDummyEffect(WorldObject* pCaster, uint32 spellId, SpellEffIndex effIndex, GameObject* pTarget)
+void YLA::OnDummyEffect(WorldObject* pCaster, uint32 spellId, SpellEffIndex effIndex, GameObject* pTarget)
 {
     START_HOOK(GAMEOBJECT_EVENT_ON_DUMMY_EFFECT, pTarget->GetEntry());
     Push(pCaster);
@@ -40,16 +40,16 @@ void ALE::OnDummyEffect(WorldObject* pCaster, uint32 spellId, SpellEffIndex effI
     CallAllFunctions(GameObjectEventBindings, key);
 }
 
-void ALE::UpdateAI(GameObject* pGameObject, uint32 diff)
+void YLA::UpdateAI(GameObject* pGameObject, uint32 diff)
 {
-    pGameObject->ALEEvents->Update(diff);
+    pGameObject->YLAEvents->Update(diff);
     START_HOOK(GAMEOBJECT_EVENT_ON_AIUPDATE, pGameObject->GetEntry());
     Push(pGameObject);
     Push(diff);
     CallAllFunctions(GameObjectEventBindings, key);
 }
 
-bool ALE::OnQuestAccept(Player* pPlayer, GameObject* pGameObject, Quest const* pQuest)
+bool YLA::OnQuestAccept(Player* pPlayer, GameObject* pGameObject, Quest const* pQuest)
 {
     START_HOOK_WITH_RETVAL(GAMEOBJECT_EVENT_ON_QUEST_ACCEPT, pGameObject->GetEntry(), false);
     Push(pPlayer);
@@ -58,7 +58,7 @@ bool ALE::OnQuestAccept(Player* pPlayer, GameObject* pGameObject, Quest const* p
     return CallAllFunctionsBool(GameObjectEventBindings, key);
 }
 
-bool ALE::OnQuestReward(Player* pPlayer, GameObject* pGameObject, Quest const* pQuest, uint32 opt)
+bool YLA::OnQuestReward(Player* pPlayer, GameObject* pGameObject, Quest const* pQuest, uint32 opt)
 {
     START_HOOK_WITH_RETVAL(GAMEOBJECT_EVENT_ON_QUEST_REWARD, pGameObject->GetEntry(), false);
     Push(pPlayer);
@@ -68,7 +68,7 @@ bool ALE::OnQuestReward(Player* pPlayer, GameObject* pGameObject, Quest const* p
     return CallAllFunctionsBool(GameObjectEventBindings, key);
 }
 
-void ALE::GetDialogStatus(const Player* pPlayer, const GameObject* pGameObject)
+void YLA::GetDialogStatus(const Player* pPlayer, const GameObject* pGameObject)
 {
     START_HOOK(GAMEOBJECT_EVENT_ON_DIALOG_STATUS, pGameObject->GetEntry());
     Push(pPlayer);
@@ -76,7 +76,7 @@ void ALE::GetDialogStatus(const Player* pPlayer, const GameObject* pGameObject)
     CallAllFunctions(GameObjectEventBindings, key);
 }
 
-void ALE::OnDestroyed(GameObject* pGameObject, WorldObject* attacker)
+void YLA::OnDestroyed(GameObject* pGameObject, WorldObject* attacker)
 {
     START_HOOK(GAMEOBJECT_EVENT_ON_DESTROYED, pGameObject->GetEntry());
     Push(pGameObject);
@@ -84,7 +84,7 @@ void ALE::OnDestroyed(GameObject* pGameObject, WorldObject* attacker)
     CallAllFunctions(GameObjectEventBindings, key);
 }
 
-void ALE::OnDamaged(GameObject* pGameObject, WorldObject* attacker)
+void YLA::OnDamaged(GameObject* pGameObject, WorldObject* attacker)
 {
     START_HOOK(GAMEOBJECT_EVENT_ON_DAMAGED, pGameObject->GetEntry());
     Push(pGameObject);
@@ -92,7 +92,7 @@ void ALE::OnDamaged(GameObject* pGameObject, WorldObject* attacker)
     CallAllFunctions(GameObjectEventBindings, key);
 }
 
-void ALE::OnLootStateChanged(GameObject* pGameObject, uint32 state)
+void YLA::OnLootStateChanged(GameObject* pGameObject, uint32 state)
 {
     START_HOOK(GAMEOBJECT_EVENT_ON_LOOT_STATE_CHANGE, pGameObject->GetEntry());
     Push(pGameObject);
@@ -100,7 +100,7 @@ void ALE::OnLootStateChanged(GameObject* pGameObject, uint32 state)
     CallAllFunctions(GameObjectEventBindings, key);
 }
 
-void ALE::OnGameObjectStateChanged(GameObject* pGameObject, uint32 state)
+void YLA::OnGameObjectStateChanged(GameObject* pGameObject, uint32 state)
 {
     START_HOOK(GAMEOBJECT_EVENT_ON_GO_STATE_CHANGED, pGameObject->GetEntry());
     Push(pGameObject);
@@ -108,28 +108,28 @@ void ALE::OnGameObjectStateChanged(GameObject* pGameObject, uint32 state)
     CallAllFunctions(GameObjectEventBindings, key);
 }
 
-void ALE::OnSpawn(GameObject* pGameObject)
+void YLA::OnSpawn(GameObject* pGameObject)
 {
     START_HOOK(GAMEOBJECT_EVENT_ON_SPAWN, pGameObject->GetEntry());
     Push(pGameObject);
     CallAllFunctions(GameObjectEventBindings, key);
 }
 
-void ALE::OnAddToWorld(GameObject* pGameObject)
+void YLA::OnAddToWorld(GameObject* pGameObject)
 {
     START_HOOK(GAMEOBJECT_EVENT_ON_ADD, pGameObject->GetEntry());
     Push(pGameObject);
     CallAllFunctions(GameObjectEventBindings, key);
 }
 
-void ALE::OnRemoveFromWorld(GameObject* pGameObject)
+void YLA::OnRemoveFromWorld(GameObject* pGameObject)
 {
     START_HOOK(GAMEOBJECT_EVENT_ON_REMOVE, pGameObject->GetEntry());
     Push(pGameObject);
     CallAllFunctions(GameObjectEventBindings, key);
 }
 
-bool ALE::OnGameObjectUse(Player* pPlayer, GameObject* pGameObject)
+bool YLA::OnGameObjectUse(Player* pPlayer, GameObject* pGameObject)
 {
     START_HOOK_WITH_RETVAL(GAMEOBJECT_EVENT_ON_USE, pGameObject->GetEntry(), false);
     Push(pGameObject);

@@ -57,8 +57,8 @@ namespace LuaUnit
     */
     int SetImmuneTo(lua_State* L, Unit* unit)
     {
-        int32 immunity = ALE::CHECKVAL<int32>(L, 2);
-        bool apply = ALE::CHECKVAL<bool>(L, 3, true);
+        int32 immunity = YLA::CHECKVAL<int32>(L, 2);
+        bool apply = YLA::CHECKVAL<bool>(L, 3, true);
 
         unit->ApplySpellImmune(0, 5, immunity, apply);
         return 0;
@@ -75,13 +75,13 @@ namespace LuaUnit
      */
     int HandleStatModifier(lua_State* L, Unit* unit)
     {
-        int32 stat = ALE::CHECKVAL<int32>(L, 2);
-        int8  type = ALE::CHECKVAL<int8>(L, 3);
+        int32 stat = YLA::CHECKVAL<int32>(L, 2);
+        int8  type = YLA::CHECKVAL<int8>(L, 3);
 
-        float value = ALE::CHECKVAL<float>(L, 4);
-        bool apply = ALE::CHECKVAL<bool>(L, 5, false);
+        float value = YLA::CHECKVAL<float>(L, 4);
+        bool apply = YLA::CHECKVAL<bool>(L, 5, false);
 
-        ALE::Push(L, unit->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + stat), (UnitModifierType)type, value, apply));
+        YLA::Push(L, unit->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + stat), (UnitModifierType)type, value, apply));
         return 1;
     }
 
@@ -94,10 +94,10 @@ namespace LuaUnit
      */
     int Attack(lua_State* L, Unit* unit)
     {
-        Unit* who = ALE::CHECKOBJ<Unit>(L, 2);
-        bool meleeAttack = ALE::CHECKVAL<bool>(L, 3, false);
+        Unit* who = YLA::CHECKOBJ<Unit>(L, 2);
+        bool meleeAttack = YLA::CHECKVAL<bool>(L, 3, false);
 
-        ALE::Push(L, unit->Attack(who, meleeAttack));
+        YLA::Push(L, unit->Attack(who, meleeAttack));
         return 1;
     }
 
@@ -108,7 +108,7 @@ namespace LuaUnit
      */
     int AttackStop(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->AttackStop());
+        YLA::Push(L, unit->AttackStop());
         return 1;
     }
 
@@ -119,7 +119,7 @@ namespace LuaUnit
      */
     int IsStandState(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsStandState());
+        YLA::Push(L, unit->IsStandState());
         return 1;
     }
 
@@ -130,7 +130,7 @@ namespace LuaUnit
      */
     int IsMounted(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsMounted());
+        YLA::Push(L, unit->IsMounted());
         return 1;
     }
 
@@ -141,7 +141,7 @@ namespace LuaUnit
      */
     int IsRooted(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->HasRootAura() || unit->HasUnitMovementFlag(MOVEMENTFLAG_ROOT));
+        YLA::Push(L, unit->HasRootAura() || unit->HasUnitMovementFlag(MOVEMENTFLAG_ROOT));
 
         return 1;
     }
@@ -153,7 +153,7 @@ namespace LuaUnit
      */
     int IsFullHealth(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsFullHealth());
+        YLA::Push(L, unit->IsFullHealth());
         return 1;
     }
 
@@ -166,9 +166,9 @@ namespace LuaUnit
      */
     int IsInAccessiblePlaceFor(lua_State* L, Unit* unit)
     {
-        Creature* creature = ALE::CHECKOBJ<Creature>(L, 2);
+        Creature* creature = YLA::CHECKOBJ<Creature>(L, 2);
 
-        ALE::Push(L, unit->isInAccessiblePlaceFor(creature));
+        YLA::Push(L, unit->isInAccessiblePlaceFor(creature));
 
         return 1;
     }
@@ -180,7 +180,7 @@ namespace LuaUnit
      */
     int IsAuctioneer(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsAuctioner());
+        YLA::Push(L, unit->IsAuctioner());
 
         return 1;
     }
@@ -192,7 +192,7 @@ namespace LuaUnit
      */
     int IsGuildMaster(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsGuildMaster());
+        YLA::Push(L, unit->IsGuildMaster());
         return 1;
     }
 
@@ -203,7 +203,7 @@ namespace LuaUnit
      */
     int IsInnkeeper(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsInnkeeper());
+        YLA::Push(L, unit->IsInnkeeper());
         return 1;
     }
 
@@ -214,7 +214,7 @@ namespace LuaUnit
      */
     int IsTrainer(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsTrainer());
+        YLA::Push(L, unit->IsTrainer());
         return 1;
     }
 
@@ -225,7 +225,7 @@ namespace LuaUnit
      */
     int IsGossip(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsGossip());
+        YLA::Push(L, unit->IsGossip());
         return 1;
     }
 
@@ -236,7 +236,7 @@ namespace LuaUnit
      */
     int IsTaxi(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsTaxi());
+        YLA::Push(L, unit->IsTaxi());
         return 1;
     }
 
@@ -247,7 +247,7 @@ namespace LuaUnit
      */
     int IsSpiritHealer(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsSpiritHealer());
+        YLA::Push(L, unit->IsSpiritHealer());
         return 1;
     }
 
@@ -258,7 +258,7 @@ namespace LuaUnit
      */
     int IsSpiritGuide(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsSpiritGuide());
+        YLA::Push(L, unit->IsSpiritGuide());
         return 1;
     }
 
@@ -269,7 +269,7 @@ namespace LuaUnit
      */
     int IsTabardDesigner(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsTabardDesigner());
+        YLA::Push(L, unit->IsTabardDesigner());
         return 1;
     }
 
@@ -280,7 +280,7 @@ namespace LuaUnit
      */
     int IsServiceProvider(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsServiceProvider());
+        YLA::Push(L, unit->IsServiceProvider());
         return 1;
     }
 
@@ -291,7 +291,7 @@ namespace LuaUnit
      */
     int IsSpiritService(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsSpiritService());
+        YLA::Push(L, unit->IsSpiritService());
         return 1;
     }
 
@@ -302,7 +302,7 @@ namespace LuaUnit
      */
     int IsAlive(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsAlive());
+        YLA::Push(L, unit->IsAlive());
         return 1;
     }
 
@@ -313,7 +313,7 @@ namespace LuaUnit
      */
     int IsDead(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->isDead());
+        YLA::Push(L, unit->isDead());
         return 1;
     }
 
@@ -324,7 +324,7 @@ namespace LuaUnit
      */
     int IsDying(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->isDying());
+        YLA::Push(L, unit->isDying());
         return 1;
     }
 
@@ -335,7 +335,7 @@ namespace LuaUnit
      */
     int IsBanker(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsBanker());
+        YLA::Push(L, unit->IsBanker());
         return 1;
     }
 
@@ -346,7 +346,7 @@ namespace LuaUnit
      */
     int IsVendor(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsVendor());
+        YLA::Push(L, unit->IsVendor());
         return 1;
     }
 
@@ -357,7 +357,7 @@ namespace LuaUnit
      */
     int IsBattleMaster(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsBattleMaster());
+        YLA::Push(L, unit->IsBattleMaster());
         return 1;
     }
 
@@ -368,7 +368,7 @@ namespace LuaUnit
      */
     int IsCharmed(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsCharmed());
+        YLA::Push(L, unit->IsCharmed());
         return 1;
     }
 
@@ -379,7 +379,7 @@ namespace LuaUnit
      */
     int IsArmorer(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsArmorer());
+        YLA::Push(L, unit->IsArmorer());
         return 1;
     }
 
@@ -390,7 +390,7 @@ namespace LuaUnit
      */
     int IsAttackingPlayer(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->isAttackingPlayer());
+        YLA::Push(L, unit->isAttackingPlayer());
         return 1;
     }
 
@@ -401,7 +401,7 @@ namespace LuaUnit
      */
     int IsPvPFlagged(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsPvP());
+        YLA::Push(L, unit->IsPvP());
         return 1;
     }
 
@@ -412,7 +412,7 @@ namespace LuaUnit
      */
     int IsOnVehicle(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetVehicle());
+        YLA::Push(L, unit->GetVehicle());
         return 1;
     }
 
@@ -423,7 +423,7 @@ namespace LuaUnit
      */
     int IsInCombat(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsInCombat());
+        YLA::Push(L, unit->IsInCombat());
         return 1;
     }
 
@@ -434,7 +434,7 @@ namespace LuaUnit
      */
     int IsUnderWater(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsUnderWater());
+        YLA::Push(L, unit->IsUnderWater());
         return 1;
     }
 
@@ -445,7 +445,7 @@ namespace LuaUnit
      */
     int IsInWater(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsInWater());
+        YLA::Push(L, unit->IsInWater());
         return 1;
     }
 
@@ -456,7 +456,7 @@ namespace LuaUnit
      */
     int IsStopped(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsStopped());
+        YLA::Push(L, unit->IsStopped());
         return 1;
     }
 
@@ -467,7 +467,7 @@ namespace LuaUnit
      */
     int IsQuestGiver(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsQuestGiver());
+        YLA::Push(L, unit->IsQuestGiver());
         return 1;
     }
 
@@ -479,7 +479,7 @@ namespace LuaUnit
      */
     int HealthBelowPct(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->HealthBelowPct(ALE::CHECKVAL<int32>(L, 2)));
+        YLA::Push(L, unit->HealthBelowPct(YLA::CHECKVAL<int32>(L, 2)));
         return 1;
     }
 
@@ -491,7 +491,7 @@ namespace LuaUnit
      */
     int HealthAbovePct(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->HealthAbovePct(ALE::CHECKVAL<int32>(L, 2)));
+        YLA::Push(L, unit->HealthAbovePct(YLA::CHECKVAL<int32>(L, 2)));
         return 1;
     }
 
@@ -503,9 +503,9 @@ namespace LuaUnit
      */
     int HasAura(lua_State* L, Unit* unit)
     {
-        uint32 spell = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 spell = YLA::CHECKVAL<uint32>(L, 2);
 
-        ALE::Push(L, unit->HasAura(spell));
+        YLA::Push(L, unit->HasAura(spell));
         return 1;
     }
 
@@ -516,7 +516,7 @@ namespace LuaUnit
      */
     int IsCasting(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->HasUnitState(UNIT_STATE_CASTING));
+        YLA::Push(L, unit->HasUnitState(UNIT_STATE_CASTING));
         return 1;
     }
 
@@ -528,26 +528,26 @@ namespace LuaUnit
      */
     int HasUnitState(lua_State* L, Unit* unit)
     {
-        uint32 state = ALE::CHECKVAL<uint32>(L, 2);
-        ALE::Push(L, unit->HasUnitState(state));
+        uint32 state = YLA::CHECKVAL<uint32>(L, 2);
+        YLA::Push(L, unit->HasUnitState(state));
         return 1;
     }
 
     /*int IsVisible(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsVisible());
+        YLA::Push(L, unit->IsVisible());
         return 1;
     }*/
 
     /*int IsMoving(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->isMoving());
+        YLA::Push(L, unit->isMoving());
         return 1;
     }*/
 
     /*int IsFlying(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->IsFlying());
+        YLA::Push(L, unit->IsFlying());
         return 1;
     }*/
 
@@ -558,7 +558,7 @@ namespace LuaUnit
      */
     int GetOwner(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetOwner());
+        YLA::Push(L, unit->GetOwner());
         return 1;
     }
 
@@ -569,7 +569,7 @@ namespace LuaUnit
      */
     int GetOwnerGUID(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetOwnerGUID());
+        YLA::Push(L, unit->GetOwnerGUID());
         return 1;
     }
 
@@ -580,7 +580,7 @@ namespace LuaUnit
      */
     int GetMountId(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetMountID());
+        YLA::Push(L, unit->GetMountID());
         return 1;
     }
 
@@ -591,7 +591,7 @@ namespace LuaUnit
      */
     int GetCreatorGUID(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetCreatorGUID());
+        YLA::Push(L, unit->GetCreatorGUID());
         return 1;
     }
 
@@ -602,7 +602,7 @@ namespace LuaUnit
      */
     int GetCharmerGUID(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetCharmerGUID());
+        YLA::Push(L, unit->GetCharmerGUID());
         return 1;
     }
 
@@ -613,7 +613,7 @@ namespace LuaUnit
      */
     int GetCharmGUID(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetCharmGUID());
+        YLA::Push(L, unit->GetCharmGUID());
         return 1;
     }
 
@@ -624,7 +624,7 @@ namespace LuaUnit
      */
     int GetPetGUID(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetPetGUID());
+        YLA::Push(L, unit->GetPetGUID());
         return 1;
     }
 
@@ -635,7 +635,7 @@ namespace LuaUnit
      */
     int GetControllerGUID(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetCharmerOrOwnerGUID());
+        YLA::Push(L, unit->GetCharmerOrOwnerGUID());
         return 1;
     }
 
@@ -646,7 +646,7 @@ namespace LuaUnit
      */
     int GetControllerGUIDS(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetCharmerOrOwnerOrOwnGUID());
+        YLA::Push(L, unit->GetCharmerOrOwnerOrOwnGUID());
         return 1;
     }
 
@@ -658,12 +658,12 @@ namespace LuaUnit
      */
     int GetStat(lua_State* L, Unit* unit)
     {
-        uint32 stat = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 stat = YLA::CHECKVAL<uint32>(L, 2);
 
         if (stat >= MAX_STATS)
             return 1;
 
-        ALE::Push(L, unit->GetStat((Stats)stat));
+        YLA::Push(L, unit->GetStat((Stats)stat));
         return 1;
     }
 
@@ -675,12 +675,12 @@ namespace LuaUnit
      */
     int GetBaseSpellPower(lua_State* L, Unit* unit)
     {
-        uint32 spellschool = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 spellschool = YLA::CHECKVAL<uint32>(L, 2);
 
         if (spellschool >= MAX_SPELL_SCHOOL)
             return 1;
 
-        ALE::Push(L, unit->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + spellschool));
+        YLA::Push(L, unit->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + spellschool));
         return 1;
     }
 
@@ -691,7 +691,7 @@ namespace LuaUnit
      */
     int GetVictim(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetVictim());
+        YLA::Push(L, unit->GetVictim());
         return 1;
     }
 
@@ -713,11 +713,11 @@ namespace LuaUnit
      */
     int GetCurrentSpell(lua_State* L, Unit* unit)
     {
-        uint32 type = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 type = YLA::CHECKVAL<uint32>(L, 2);
         if (type >= CURRENT_MAX_SPELL)
             return luaL_argerror(L, 2, "valid CurrentSpellTypes expected");
 
-        ALE::Push(L, unit->GetCurrentSpell(type));
+        YLA::Push(L, unit->GetCurrentSpell(type));
         return 1;
     }
 
@@ -728,7 +728,7 @@ namespace LuaUnit
      */
     int GetStandState(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->getStandState());
+        YLA::Push(L, unit->getStandState());
         return 1;
     }
 
@@ -739,7 +739,7 @@ namespace LuaUnit
      */
     int GetDisplayId(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetDisplayId());
+        YLA::Push(L, unit->GetDisplayId());
         return 1;
     }
 
@@ -750,7 +750,7 @@ namespace LuaUnit
      */
     int GetNativeDisplayId(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetNativeDisplayId());
+        YLA::Push(L, unit->GetNativeDisplayId());
         return 1;
     }
 
@@ -761,7 +761,7 @@ namespace LuaUnit
      */
     int GetLevel(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetLevel());
+        YLA::Push(L, unit->GetLevel());
         return 1;
     }
 
@@ -772,7 +772,7 @@ namespace LuaUnit
      */
     int GetHealth(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetHealth());
+        YLA::Push(L, unit->GetHealth());
         return 1;
     }
 
@@ -809,10 +809,10 @@ namespace LuaUnit
      */
     int GetPower(lua_State* L, Unit* unit)
     {
-        int type = ALE::CHECKVAL<int>(L, 2, -1);
+        int type = YLA::CHECKVAL<int>(L, 2, -1);
         Powers power = PowerSelectorHelper(L, unit, type);
 
-        ALE::Push(L, unit->GetPower(power));
+        YLA::Push(L, unit->GetPower(power));
         return 1;
     }
 
@@ -838,10 +838,10 @@ namespace LuaUnit
      */
     int GetMaxPower(lua_State* L, Unit* unit)
     {
-        int type = ALE::CHECKVAL<int>(L, 2, -1);
+        int type = YLA::CHECKVAL<int>(L, 2, -1);
         Powers power = PowerSelectorHelper(L, unit, type);
 
-        ALE::Push(L, unit->GetMaxPower(power));
+        YLA::Push(L, unit->GetMaxPower(power));
         return 1;
     }
 
@@ -867,12 +867,12 @@ namespace LuaUnit
      */
     int GetPowerPct(lua_State* L, Unit* unit)
     {
-        int type = ALE::CHECKVAL<int>(L, 2, -1);
+        int type = YLA::CHECKVAL<int>(L, 2, -1);
         Powers power = PowerSelectorHelper(L, unit, type);
 
         float percent = ((float)unit->GetPower(power) / (float)unit->GetMaxPower(power)) * 100.0f;
 
-        ALE::Push(L, percent);
+        YLA::Push(L, percent);
         return 1;
     }
 
@@ -897,7 +897,7 @@ namespace LuaUnit
      */
     int GetPowerType(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->getPowerType());
+        YLA::Push(L, unit->getPowerType());
         return 1;
     }
 
@@ -908,7 +908,7 @@ namespace LuaUnit
      */
     int GetMaxHealth(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetMaxHealth());
+        YLA::Push(L, unit->GetMaxHealth());
         return 1;
     }
 
@@ -919,7 +919,7 @@ namespace LuaUnit
      */
     int GetHealthPct(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetHealthPct());
+        YLA::Push(L, unit->GetHealthPct());
         return 1;
     }
 
@@ -930,7 +930,7 @@ namespace LuaUnit
      */
     int GetGender(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->getGender());
+        YLA::Push(L, unit->getGender());
         return 1;
     }
 
@@ -941,7 +941,7 @@ namespace LuaUnit
      */
     int GetRace(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->getRace());
+        YLA::Push(L, unit->getRace());
         return 1;
     }
 
@@ -952,7 +952,7 @@ namespace LuaUnit
      */
     int GetClass(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->getClass());
+        YLA::Push(L, unit->getClass());
         return 1;
     }
 
@@ -963,7 +963,7 @@ namespace LuaUnit
     */
     int GetRaceMask(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->getRaceMask());
+        YLA::Push(L, unit->getRaceMask());
         return 1;
     }
 
@@ -974,7 +974,7 @@ namespace LuaUnit
     */
     int GetClassMask(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->getClassMask());
+        YLA::Push(L, unit->getClassMask());
         return 1;
     }
 
@@ -1004,7 +1004,7 @@ namespace LuaUnit
      */
     int GetCreatureType(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetCreatureType());
+        YLA::Push(L, unit->GetCreatureType());
         return 1;
     }
 
@@ -1031,7 +1031,7 @@ namespace LuaUnit
      */
     int GetClassAsString(lua_State* L, Unit* unit)
     {
-        uint8 locale = ALE::CHECKVAL<uint8>(L, 2, DEFAULT_LOCALE);
+        uint8 locale = YLA::CHECKVAL<uint8>(L, 2, DEFAULT_LOCALE);
         if (locale >= TOTAL_LOCALES)
             return luaL_argerror(L, 2, "valid LocaleConstant expected");
 
@@ -1039,7 +1039,7 @@ namespace LuaUnit
         if (!entry)
             return 1;
 
-        ALE::Push(L, entry->name[locale]);
+        YLA::Push(L, entry->name[locale]);
         return 1;
     }
 
@@ -1066,7 +1066,7 @@ namespace LuaUnit
      */
     int GetRaceAsString(lua_State* L, Unit* unit)
     {
-        uint8 locale = ALE::CHECKVAL<uint8>(L, 2, DEFAULT_LOCALE);
+        uint8 locale = YLA::CHECKVAL<uint8>(L, 2, DEFAULT_LOCALE);
         if (locale >= TOTAL_LOCALES)
             return luaL_argerror(L, 2, "valid LocaleConstant expected");
 
@@ -1074,7 +1074,7 @@ namespace LuaUnit
         if (!entry)
             return 1;
 
-        ALE::Push(L, entry->name[locale]);
+        YLA::Push(L, entry->name[locale]);
         return 1;
     }
 
@@ -1085,7 +1085,7 @@ namespace LuaUnit
      */
     int GetFaction(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetFaction());
+        YLA::Push(L, unit->GetFaction());
         return 1;
     }
 
@@ -1097,8 +1097,8 @@ namespace LuaUnit
      */
     int GetAura(lua_State* L, Unit* unit)
     {
-        uint32 spellID = ALE::CHECKVAL<uint32>(L, 2);
-        ALE::Push(L, unit->GetAura(spellID));
+        uint32 spellID = YLA::CHECKVAL<uint32>(L, 2);
+        YLA::Push(L, unit->GetAura(spellID));
         return 1;
     }
 
@@ -1110,7 +1110,7 @@ namespace LuaUnit
      */
     int GetFriendlyUnitsInRange(lua_State* L, Unit* unit)
     {
-        float range = ALE::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+        float range = YLA::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
 
         std::list<Unit*> list;
 
@@ -1118,7 +1118,7 @@ namespace LuaUnit
         Acore::UnitListSearcher<Acore::AnyFriendlyUnitInObjectRangeCheck> searcher(unit, list, checker);
         Cell::VisitObjects(unit, searcher, range);
 
-        ALEUtil::ObjectGUIDCheck guidCheck(unit->GET_GUID());
+        YLAUtil::ObjectGUIDCheck guidCheck(unit->GET_GUID());
         list.remove_if(guidCheck);
 
         lua_createtable(L, list.size(), 0);
@@ -1127,7 +1127,7 @@ namespace LuaUnit
 
         for (std::list<Unit*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
-            ALE::Push(L, *it);
+            YLA::Push(L, *it);
             lua_rawseti(L, tbl, ++i);
         }
 
@@ -1143,13 +1143,13 @@ namespace LuaUnit
      */
     int GetUnfriendlyUnitsInRange(lua_State* L, Unit* unit)
     {
-        float range = ALE::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
+        float range = YLA::CHECKVAL<float>(L, 2, SIZE_OF_GRIDS);
 
         std::list<Unit*> list;
         Acore::AnyUnfriendlyUnitInObjectRangeCheck checker(unit, unit, range);
         Acore::UnitListSearcher<Acore::AnyUnfriendlyUnitInObjectRangeCheck> searcher(unit, list, checker);
         Cell::VisitObjects(unit, searcher, range);
-        ALEUtil::ObjectGUIDCheck guidCheck(unit->GET_GUID());
+        YLAUtil::ObjectGUIDCheck guidCheck(unit->GET_GUID());
         list.remove_if(guidCheck);
 
         lua_createtable(L, list.size(), 0);
@@ -1158,7 +1158,7 @@ namespace LuaUnit
 
         for (std::list<Unit*>::const_iterator it = list.begin(); it != list.end(); ++it)
         {
-            ALE::Push(L, *it);
+            YLA::Push(L, *it);
             lua_rawseti(L, tbl, ++i);
         }
 
@@ -1173,13 +1173,13 @@ namespace LuaUnit
      */
     int GetVehicleKit(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetVehicleKit());
+        YLA::Push(L, unit->GetVehicleKit());
         return 1;
     }
 
     /*int GetVehicle(lua_State* L, Unit* unit)
     {
-    ALE::Push(L, unit->GetVehicle());
+    YLA::Push(L, unit->GetVehicle());
     return 1;
     }*/
 
@@ -1190,7 +1190,7 @@ namespace LuaUnit
      */
     int GetCritterGUID(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetCritterGUID());
+        YLA::Push(L, unit->GetCritterGUID());
         return 1;
     }
 
@@ -1217,11 +1217,11 @@ namespace LuaUnit
      */
     int GetSpeed(lua_State* L, Unit* unit)
     {
-        uint32 type = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 type = YLA::CHECKVAL<uint32>(L, 2);
         if (type >= MAX_MOVE_TYPE)
             return luaL_argerror(L, 2, "valid UnitMoveType expected");
 
-        ALE::Push(L, unit->GetSpeed((UnitMoveType)type));
+        YLA::Push(L, unit->GetSpeed((UnitMoveType)type));
 
         return 1;
     }
@@ -1249,13 +1249,13 @@ namespace LuaUnit
     */
     int GetSpeedRate(lua_State* L, Unit* unit)
     {
-        uint32 type = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 type = YLA::CHECKVAL<uint32>(L, 2);
         if (type >= MAX_MOVE_TYPE)
         {
             return luaL_argerror(L, 2, "valid UnitMoveType expected");
         }
 
-        ALE::Push(L, unit->GetSpeedRate((UnitMoveType)type));
+        YLA::Push(L, unit->GetSpeedRate((UnitMoveType)type));
 
         return 1;
     }
@@ -1294,7 +1294,7 @@ namespace LuaUnit
      */
     int GetMovementType(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetMotionMaster()->GetCurrentMovementGeneratorType());
+        YLA::Push(L, unit->GetMotionMaster()->GetCurrentMovementGeneratorType());
         return 1;
     }
 
@@ -1317,7 +1317,7 @@ namespace LuaUnit
                 continue;
             }
 
-            ALE::Push(L, attacker);
+            YLA::Push(L, attacker);
             lua_rawseti(L, table, i);
             ++i;
         }
@@ -1333,7 +1333,7 @@ namespace LuaUnit
      */
     int SetOwnerGUID(lua_State* L, Unit* unit)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
 
         unit->SetOwnerGUID(guid);
         return 0;
@@ -1346,7 +1346,7 @@ namespace LuaUnit
      */
     int SetPvP(lua_State* L, Unit* unit)
     {
-        bool apply = ALE::CHECKVAL<bool>(L, 2, true);
+        bool apply = YLA::CHECKVAL<bool>(L, 2, true);
 
         unit->SetPvP(apply);
         return 0;
@@ -1366,7 +1366,7 @@ namespace LuaUnit
      */
     int SetSheath(lua_State* L, Unit* unit)
     {
-        uint32 sheathed = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 sheathed = YLA::CHECKVAL<uint32>(L, 2);
         if (sheathed >= MAX_SHEATH_STATE)
             return luaL_argerror(L, 2, "valid SheathState expected");
 
@@ -1381,7 +1381,7 @@ namespace LuaUnit
      */
     int SetName(lua_State* L, Unit* unit)
     {
-        const char* name = ALE::CHECKVAL<const char*>(L, 2);
+        const char* name = YLA::CHECKVAL<const char*>(L, 2);
         if (std::string(name).length() > 0)
             unit->SetName(name);
         return 0;
@@ -1412,9 +1412,9 @@ namespace LuaUnit
      */
     int SetSpeed(lua_State* L, Unit* unit)
     {
-        uint32 type = ALE::CHECKVAL<uint32>(L, 2);
-        float rate = ALE::CHECKVAL<float>(L, 3);
-        bool forced = ALE::CHECKVAL<bool>(L, 4, true);
+        uint32 type = YLA::CHECKVAL<uint32>(L, 2);
+        float rate = YLA::CHECKVAL<float>(L, 3);
+        bool forced = YLA::CHECKVAL<bool>(L, 4, true);
 
         if (type >= MAX_MOVE_TYPE)
             return luaL_argerror(L, 2, "valid UnitMoveType expected");
@@ -1449,8 +1449,8 @@ namespace LuaUnit
      */
     int SetSpeedRate(lua_State* L, Unit* unit)
     {
-        uint32 type = ALE::CHECKVAL<uint32>(L, 2);
-        float rate = ALE::CHECKVAL<float>(L, 3);
+        uint32 type = YLA::CHECKVAL<uint32>(L, 2);
+        float rate = YLA::CHECKVAL<float>(L, 3);
         if (type >= MAX_MOVE_TYPE)
             return luaL_argerror(L, 2, "valid UnitMoveType expected");
 
@@ -1466,7 +1466,7 @@ namespace LuaUnit
      */
     int SetFaction(lua_State* L, Unit* unit)
     {
-        uint32 factionId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 factionId = YLA::CHECKVAL<uint32>(L, 2);
 
         unit->SetFaction(factionId);
 
@@ -1480,7 +1480,7 @@ namespace LuaUnit
      */
     int SetLevel(lua_State* L, Unit* unit)
     {
-        uint8 newlevel = ALE::CHECKVAL<uint8>(L, 2);
+        uint8 newlevel = YLA::CHECKVAL<uint8>(L, 2);
 
         if (newlevel < 1)
             return luaL_argerror(L, 2, "level cannot be below 1");
@@ -1504,7 +1504,7 @@ namespace LuaUnit
      */
     int SetHealth(lua_State* L, Unit* unit)
     {
-        uint32 amt = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 amt = YLA::CHECKVAL<uint32>(L, 2);
         unit->SetHealth(amt);
         return 0;
     }
@@ -1516,7 +1516,7 @@ namespace LuaUnit
      */
     int SetMaxHealth(lua_State* L, Unit* unit)
     {
-        uint32 amt = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 amt = YLA::CHECKVAL<uint32>(L, 2);
         unit->SetMaxHealth(amt);
         return 0;
     }
@@ -1543,8 +1543,8 @@ namespace LuaUnit
      */
     int SetPower(lua_State* L, Unit* unit)
     {
-        uint32 amt = ALE::CHECKVAL<uint32>(L, 2);
-        int type = ALE::CHECKVAL<int>(L, 3, -1);
+        uint32 amt = YLA::CHECKVAL<uint32>(L, 2);
+        int type = YLA::CHECKVAL<int>(L, 3, -1);
         Powers power = PowerSelectorHelper(L, unit, type);
 
         unit->SetPower(power, amt);
@@ -1573,8 +1573,8 @@ namespace LuaUnit
      */
     int ModifyPower(lua_State* L, Unit* unit)
     {
-        int32 amt = ALE::CHECKVAL<int32>(L, 2);
-        int type = ALE::CHECKVAL<int>(L, 3, -1);
+        int32 amt = YLA::CHECKVAL<int32>(L, 2);
+        int type = YLA::CHECKVAL<int>(L, 3, -1);
         Powers power = PowerSelectorHelper(L, unit, type);
 
         unit->ModifyPower(power, amt);
@@ -1603,8 +1603,8 @@ namespace LuaUnit
      */
     int SetMaxPower(lua_State* L, Unit* unit)
     {
-        int type = ALE::CHECKVAL<int>(L, 2, -1);
-        uint32 amt = ALE::CHECKVAL<uint32>(L, 3);
+        int type = YLA::CHECKVAL<int>(L, 2, -1);
+        uint32 amt = YLA::CHECKVAL<uint32>(L, 3);
         Powers power = PowerSelectorHelper(L, unit, type);
 
         unit->SetMaxPower(power, amt);
@@ -1632,7 +1632,7 @@ namespace LuaUnit
      */
     int SetPowerType(lua_State* L, Unit* unit)
     {
-        uint32 type = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 type = YLA::CHECKVAL<uint32>(L, 2);
         if (type >= int(MAX_POWERS))
             return luaL_argerror(L, 2, "valid Powers expected");
 
@@ -1647,7 +1647,7 @@ namespace LuaUnit
      */
     int SetDisplayId(lua_State* L, Unit* unit)
     {
-        uint32 model = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 model = YLA::CHECKVAL<uint32>(L, 2);
         unit->SetDisplayId(model);
         return 0;
     }
@@ -1659,7 +1659,7 @@ namespace LuaUnit
      */
     int SetNativeDisplayId(lua_State* L, Unit* unit)
     {
-        uint32 model = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 model = YLA::CHECKVAL<uint32>(L, 2);
         unit->SetNativeDisplayId(model);
         return 0;
     }
@@ -1671,7 +1671,7 @@ namespace LuaUnit
      */
     int SetFacing(lua_State* L, Unit* unit)
     {
-        float o = ALE::CHECKVAL<float>(L, 2);
+        float o = YLA::CHECKVAL<float>(L, 2);
         unit->SetFacingTo(o);
         return 0;
     }
@@ -1683,7 +1683,7 @@ namespace LuaUnit
      */
     int SetFacingToObject(lua_State* L, Unit* unit)
     {
-        WorldObject* obj = ALE::CHECKOBJ<WorldObject>(L, 2);
+        WorldObject* obj = YLA::CHECKOBJ<WorldObject>(L, 2);
         unit->SetFacingToObject(obj);
         return 0;
     }
@@ -1695,7 +1695,7 @@ namespace LuaUnit
      */
     int SetCreatorGUID(lua_State* L, Unit* unit)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
         unit->SetCreatorGUID(guid);
         return 0;
     }
@@ -1707,7 +1707,7 @@ namespace LuaUnit
      */
     int SetPetGUID(lua_State* L, Unit* unit)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
         unit->SetPetGUID(guid);
         return 0;
     }
@@ -1719,7 +1719,7 @@ namespace LuaUnit
      */
     int SetWaterWalk(lua_State* L, Unit* unit)
     {
-        bool enable = ALE::CHECKVAL<bool>(L, 2, true);
+        bool enable = YLA::CHECKVAL<bool>(L, 2, true);
         unit->SetWaterWalking(enable);
         return 0;
     }
@@ -1731,7 +1731,7 @@ namespace LuaUnit
      */
     int SetStandState(lua_State* L, Unit* unit)
     {
-        uint8 state = ALE::CHECKVAL<uint8>(L, 2);
+        uint8 state = YLA::CHECKVAL<uint8>(L, 2);
         unit->SetStandState(state);
         return 0;
     }
@@ -1743,7 +1743,7 @@ namespace LuaUnit
      */
     int SetInCombatWith(lua_State* L, Unit* unit)
     {
-        Unit* enemy = ALE::CHECKOBJ<Unit>(L, 2);
+        Unit* enemy = YLA::CHECKOBJ<Unit>(L, 2);
         unit->SetInCombatWith(enemy);
         return 0;
     }
@@ -1755,7 +1755,7 @@ namespace LuaUnit
      */
     int SetFFA(lua_State* L, Unit* unit)
     {
-        bool apply = ALE::CHECKVAL<bool>(L, 2, true);
+        bool apply = YLA::CHECKVAL<bool>(L, 2, true);
 
         if (apply)
         {
@@ -1779,7 +1779,7 @@ namespace LuaUnit
      */
     int SetSanctuary(lua_State* L, Unit* unit)
     {
-        bool apply = ALE::CHECKVAL<bool>(L, 2, true);
+        bool apply = YLA::CHECKVAL<bool>(L, 2, true);
 
         if (apply)
         {
@@ -1802,14 +1802,14 @@ namespace LuaUnit
      */
     int SetCritterGUID(lua_State* L, Unit* unit)
     {
-        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
         unit->SetCritterGUID(guid);
         return 0;
     }
 
     /*int SetStunned(lua_State* L, Unit* unit)
     {
-    bool apply = ALE::CHECKVAL<bool>(L, 2, true);
+    bool apply = YLA::CHECKVAL<bool>(L, 2, true);
     unit->SetControlled(apply, UNIT_STATE_STUNNED);
     return 0;
     }*/
@@ -1821,7 +1821,7 @@ namespace LuaUnit
      */
     int SetRooted(lua_State* L, Unit* unit)
     {
-        bool apply = ALE::CHECKVAL<bool>(L, 2, true);
+        bool apply = YLA::CHECKVAL<bool>(L, 2, true);
         unit->SetControlled(apply, UNIT_STATE_ROOT);
         return 0;
     }
@@ -1833,7 +1833,7 @@ namespace LuaUnit
      */
     int SetConfused(lua_State* L, Unit* unit)
     {
-        bool apply = ALE::CHECKVAL<bool>(L, 2, true);
+        bool apply = YLA::CHECKVAL<bool>(L, 2, true);
         unit->SetControlled(apply, UNIT_STATE_CONFUSED);
         return 0;
     }
@@ -1845,21 +1845,21 @@ namespace LuaUnit
      */
     int SetFeared(lua_State* L, Unit* unit)
     {
-        bool apply = ALE::CHECKVAL<bool>(L, 2, true);
+        bool apply = YLA::CHECKVAL<bool>(L, 2, true);
         unit->SetControlled(apply, UNIT_STATE_FLEEING);
         return 0;
     }
 
     /*int SetCanFly(lua_State* L, Unit* unit)
     {
-        bool apply = ALE::CHECKVAL<bool>(L, 2, true);
+        bool apply = YLA::CHECKVAL<bool>(L, 2, true);
         unit->SetCanFly(apply);
         return 0;
     }*/
 
     /*int SetVisible(lua_State* L, Unit* unit)
     {
-        bool x = ALE::CHECKVAL<bool>(L, 2, true);
+        bool x = YLA::CHECKVAL<bool>(L, 2, true);
         unit->SetVisible(x);
         return 0;
     }*/
@@ -1882,7 +1882,7 @@ namespace LuaUnit
     {
         if (!unit->CanHaveThreatList())
         {
-            ALE::Push(L);
+            YLA::Push(L);
             return 1;
         }
 
@@ -1903,7 +1903,7 @@ namespace LuaUnit
                 continue;
             }
 
-            ALE::Push(L, victim);
+            YLA::Push(L, victim);
             lua_rawseti(L, table, i);
             ++i;
         }
@@ -1919,7 +1919,7 @@ namespace LuaUnit
      */
     int Mount(lua_State* L, Unit* unit)
     {
-        uint32 displayId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 displayId = YLA::CHECKVAL<uint32>(L, 2);
 
         unit->Mount(displayId);
         return 0;
@@ -1946,7 +1946,7 @@ namespace LuaUnit
      */
     int PerformEmote(lua_State* L, Unit* unit)
     {
-        unit->HandleEmoteCommand(ALE::CHECKVAL<uint32>(L, 2));
+        unit->HandleEmoteCommand(YLA::CHECKVAL<uint32>(L, 2));
         return 0;
     }
 
@@ -1957,7 +1957,7 @@ namespace LuaUnit
      */
     int EmoteState(lua_State* L, Unit* unit)
     {
-        uint32 emoteId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 emoteId = YLA::CHECKVAL<uint32>(L, 2);
 
         unit->SetUInt32Value(UNIT_NPC_EMOTESTATE, emoteId);
         return 0;
@@ -1970,7 +1970,7 @@ namespace LuaUnit
      */
     int CountPctFromCurHealth(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->CountPctFromCurHealth(ALE::CHECKVAL<int32>(L, 2)));
+        YLA::Push(L, unit->CountPctFromCurHealth(YLA::CHECKVAL<int32>(L, 2)));
         return 1;
     }
 
@@ -1981,7 +1981,7 @@ namespace LuaUnit
      */
     int CountPctFromMaxHealth(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->CountPctFromMaxHealth(ALE::CHECKVAL<int32>(L, 2)));
+        YLA::Push(L, unit->CountPctFromMaxHealth(YLA::CHECKVAL<int32>(L, 2)));
         return 1;
     }
 
@@ -1995,10 +1995,10 @@ namespace LuaUnit
      */
     int SendChatMessageToPlayer(lua_State* L, Unit* unit)
     {
-        uint8 type = ALE::CHECKVAL<uint8>(L, 2);
-        uint32 lang = ALE::CHECKVAL<uint32>(L, 3);
-        std::string msg = ALE::CHECKVAL<std::string>(L, 4);
-        Player* target = ALE::CHECKOBJ<Player>(L, 5);
+        uint8 type = YLA::CHECKVAL<uint8>(L, 2);
+        uint32 lang = YLA::CHECKVAL<uint32>(L, 3);
+        std::string msg = YLA::CHECKVAL<std::string>(L, 4);
+        Player* target = YLA::CHECKOBJ<Player>(L, 5);
 
         if (type >= MAX_CHAT_MSG_TYPE)
             return luaL_argerror(L, 2, "valid ChatMsg expected");
@@ -2034,7 +2034,7 @@ namespace LuaUnit
      */
     int MoveExpire(lua_State* L, Unit* unit)
     {
-        bool reset = ALE::CHECKVAL<bool>(L, 2, true);
+        bool reset = YLA::CHECKVAL<bool>(L, 2, true);
         unit->GetMotionMaster()->MovementExpired(reset);
         return 0;
     }
@@ -2046,7 +2046,7 @@ namespace LuaUnit
      */
     int MoveClear(lua_State* L, Unit* unit)
     {
-        bool reset = ALE::CHECKVAL<bool>(L, 2, true);
+        bool reset = YLA::CHECKVAL<bool>(L, 2, true);
         unit->GetMotionMaster()->Clear(reset);
         return 0;
     }
@@ -2067,7 +2067,7 @@ namespace LuaUnit
      */
     int MoveRandom(lua_State* L, Unit* unit)
     {
-        float radius = ALE::CHECKVAL<float>(L, 2);
+        float radius = YLA::CHECKVAL<float>(L, 2);
         float x, y, z;
         unit->GetPosition(x, y, z);
         unit->GetMotionMaster()->MoveRandom(radius);
@@ -2092,9 +2092,9 @@ namespace LuaUnit
      */
     int MoveFollow(lua_State* L, Unit* unit)
     {
-        Unit* target = ALE::CHECKOBJ<Unit>(L, 2);
-        float dist = ALE::CHECKVAL<float>(L, 3, 0.0f);
-        float angle = ALE::CHECKVAL<float>(L, 4, 0.0f);
+        Unit* target = YLA::CHECKOBJ<Unit>(L, 2);
+        float dist = YLA::CHECKVAL<float>(L, 3, 0.0f);
+        float angle = YLA::CHECKVAL<float>(L, 4, 0.0f);
         unit->GetMotionMaster()->MoveFollow(target, dist, angle);
         return 0;
     }
@@ -2108,9 +2108,9 @@ namespace LuaUnit
      */
     int MoveChase(lua_State* L, Unit* unit)
     {
-        Unit* target = ALE::CHECKOBJ<Unit>(L, 2);
-        float dist = ALE::CHECKVAL<float>(L, 3, 0.0f);
-        float angle = ALE::CHECKVAL<float>(L, 4, 0.0f);
+        Unit* target = YLA::CHECKOBJ<Unit>(L, 2);
+        float dist = YLA::CHECKVAL<float>(L, 3, 0.0f);
+        float angle = YLA::CHECKVAL<float>(L, 4, 0.0f);
         unit->GetMotionMaster()->MoveChase(target, dist, angle);
         return 0;
     }
@@ -2132,8 +2132,8 @@ namespace LuaUnit
      */
     int MoveFleeing(lua_State* L, Unit* unit)
     {
-        Unit* target = ALE::CHECKOBJ<Unit>(L, 2);
-        uint32 time = ALE::CHECKVAL<uint32>(L, 3, 0);
+        Unit* target = YLA::CHECKOBJ<Unit>(L, 2);
+        uint32 time = YLA::CHECKVAL<uint32>(L, 3, 0);
         unit->GetMotionMaster()->MoveFleeing(target, time);
         return 0;
     }
@@ -2149,11 +2149,11 @@ namespace LuaUnit
      */
     int MoveTo(lua_State* L, Unit* unit)
     {
-        uint32 id = ALE::CHECKVAL<uint32>(L, 2);
-        float x = ALE::CHECKVAL<float>(L, 3);
-        float y = ALE::CHECKVAL<float>(L, 4);
-        float z = ALE::CHECKVAL<float>(L, 5);
-        bool genPath = ALE::CHECKVAL<bool>(L, 6, true);
+        uint32 id = YLA::CHECKVAL<uint32>(L, 2);
+        float x = YLA::CHECKVAL<float>(L, 3);
+        float y = YLA::CHECKVAL<float>(L, 4);
+        float z = YLA::CHECKVAL<float>(L, 5);
+        bool genPath = YLA::CHECKVAL<bool>(L, 6, true);
         unit->GetMotionMaster()->MovePoint(id, x, y, z, FORCED_MOVEMENT_NONE, 0.f, 0.f, genPath);
         return 0;
     }
@@ -2170,12 +2170,12 @@ namespace LuaUnit
      */
     int MoveJump(lua_State* L, Unit* unit)
     {
-        float x = ALE::CHECKVAL<float>(L, 2);
-        float y = ALE::CHECKVAL<float>(L, 3);
-        float z = ALE::CHECKVAL<float>(L, 4);
-        float zSpeed = ALE::CHECKVAL<float>(L, 5);
-        float maxHeight = ALE::CHECKVAL<float>(L, 6);
-        uint32 id = ALE::CHECKVAL<uint32>(L, 7, 0);
+        float x = YLA::CHECKVAL<float>(L, 2);
+        float y = YLA::CHECKVAL<float>(L, 3);
+        float z = YLA::CHECKVAL<float>(L, 4);
+        float zSpeed = YLA::CHECKVAL<float>(L, 5);
+        float maxHeight = YLA::CHECKVAL<float>(L, 6);
+        uint32 id = YLA::CHECKVAL<uint32>(L, 7, 0);
         Position pos(x, y, z);
         unit->GetMotionMaster()->MoveJump(pos, zSpeed, maxHeight, id);
         return 0;
@@ -2189,7 +2189,7 @@ namespace LuaUnit
      */
     int MoveFall(lua_State* L, Unit* unit)
     {
-        uint32 id = ALE::CHECKVAL<uint32>(L, 2, 0);
+        uint32 id = YLA::CHECKVAL<uint32>(L, 2, 0);
         unit->GetMotionMaster()->MoveFall(id);
         return 0;
     }
@@ -2204,11 +2204,11 @@ namespace LuaUnit
      */
     int SendUnitWhisper(lua_State* L, Unit* unit)
     {
-        const char* msg = ALE::CHECKVAL<const char*>(L, 2);
-        uint32 lang = ALE::CHECKVAL<uint32>(L, 3);
+        const char* msg = YLA::CHECKVAL<const char*>(L, 2);
+        uint32 lang = YLA::CHECKVAL<uint32>(L, 3);
         (void)lang; // ensure that the variable is referenced in order to pass compiler checks
-        Player* receiver = ALE::CHECKOBJ<Player>(L, 4);
-        bool bossWhisper = ALE::CHECKVAL<bool>(L, 5, false);
+        Player* receiver = YLA::CHECKOBJ<Player>(L, 4);
+        bool bossWhisper = YLA::CHECKVAL<bool>(L, 5, false);
         if (std::string(msg).length() > 0)
             unit->Whisper(msg, (Language)lang, receiver, bossWhisper);
         return 0;
@@ -2223,9 +2223,9 @@ namespace LuaUnit
      */
     int SendUnitEmote(lua_State* L, Unit* unit)
     {
-        const char* msg = ALE::CHECKVAL<const char*>(L, 2);
-        Unit* receiver = ALE::CHECKOBJ<Unit>(L, 3, false);
-        bool bossEmote = ALE::CHECKVAL<bool>(L, 4, false);
+        const char* msg = YLA::CHECKVAL<const char*>(L, 2);
+        Unit* receiver = YLA::CHECKOBJ<Unit>(L, 3, false);
+        bool bossEmote = YLA::CHECKVAL<bool>(L, 4, false);
         if (std::string(msg).length() > 0)
             unit->TextEmote(msg, receiver, bossEmote);
         return 0;
@@ -2239,8 +2239,8 @@ namespace LuaUnit
      */
     int SendUnitSay(lua_State* L, Unit* unit)
     {
-        const char* msg = ALE::CHECKVAL<const char*>(L, 2);
-        uint32 language = ALE::CHECKVAL<uint32>(L, 3);
+        const char* msg = YLA::CHECKVAL<const char*>(L, 2);
+        uint32 language = YLA::CHECKVAL<uint32>(L, 3);
         if (std::string(msg).length() > 0)
             unit->Say(msg, (Language)language, unit);
         return 0;
@@ -2254,8 +2254,8 @@ namespace LuaUnit
      */
     int SendUnitYell(lua_State* L, Unit* unit)
     {
-        const char* msg = ALE::CHECKVAL<const char*>(L, 2);
-        uint32 language = ALE::CHECKVAL<uint32>(L, 3);
+        const char* msg = YLA::CHECKVAL<const char*>(L, 2);
+        uint32 language = YLA::CHECKVAL<uint32>(L, 3);
         if (std::string(msg).length() > 0)
             unit->Yell(msg, (Language)language, unit);
         return 0;
@@ -2279,9 +2279,9 @@ namespace LuaUnit
      */
     int CastSpell(lua_State* L, Unit* unit)
     {
-        Unit* target = ALE::CHECKOBJ<Unit>(L, 2, false);
-        uint32 spell = ALE::CHECKVAL<uint32>(L, 3);
-        bool triggered = ALE::CHECKVAL<bool>(L, 4, false);
+        Unit* target = YLA::CHECKOBJ<Unit>(L, 2, false);
+        uint32 spell = YLA::CHECKVAL<uint32>(L, 3);
+        bool triggered = YLA::CHECKVAL<bool>(L, 4, false);
         SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spell);
         if (!spellEntry)
             return 0;
@@ -2305,17 +2305,17 @@ namespace LuaUnit
      */
     int CastCustomSpell(lua_State* L, Unit* unit)
     {
-        Unit* target = ALE::CHECKOBJ<Unit>(L, 2, false);
-        uint32 spell = ALE::CHECKVAL<uint32>(L, 3);
-        bool triggered = ALE::CHECKVAL<bool>(L, 4, false);
+        Unit* target = YLA::CHECKOBJ<Unit>(L, 2, false);
+        uint32 spell = YLA::CHECKVAL<uint32>(L, 3);
+        bool triggered = YLA::CHECKVAL<bool>(L, 4, false);
         bool has_bp0 = !lua_isnoneornil(L, 5);
-        int32 bp0 = ALE::CHECKVAL<int32>(L, 5, 0);
+        int32 bp0 = YLA::CHECKVAL<int32>(L, 5, 0);
         bool has_bp1 = !lua_isnoneornil(L, 6);
-        int32 bp1 = ALE::CHECKVAL<int32>(L, 6, 0);
+        int32 bp1 = YLA::CHECKVAL<int32>(L, 6, 0);
         bool has_bp2 = !lua_isnoneornil(L, 7);
-        int32 bp2 = ALE::CHECKVAL<int32>(L, 7, 0);
-        Item* castItem = ALE::CHECKOBJ<Item>(L, 8, false);
-        ObjectGuid originalCaster = ALE::CHECKVAL<ObjectGuid>(L, 9, ObjectGuid());
+        int32 bp2 = YLA::CHECKVAL<int32>(L, 7, 0);
+        Item* castItem = YLA::CHECKOBJ<Item>(L, 8, false);
+        ObjectGuid originalCaster = YLA::CHECKVAL<ObjectGuid>(L, 9, ObjectGuid());
 
         unit->CastCustomSpell(target, spell, has_bp0 ? &bp0 : NULL, has_bp1 ? &bp1 : NULL, has_bp2 ? &bp2 : NULL, triggered, castItem, NULL, ObjectGuid(originalCaster));
         return 0;
@@ -2332,11 +2332,11 @@ namespace LuaUnit
      */
     int CastSpellAoF(lua_State* L, Unit* unit)
     {
-        float _x = ALE::CHECKVAL<float>(L, 2);
-        float _y = ALE::CHECKVAL<float>(L, 3);
-        float _z = ALE::CHECKVAL<float>(L, 4);
-        uint32 spell = ALE::CHECKVAL<uint32>(L, 5);
-        bool triggered = ALE::CHECKVAL<bool>(L, 6, true);
+        float _x = YLA::CHECKVAL<float>(L, 2);
+        float _y = YLA::CHECKVAL<float>(L, 3);
+        float _z = YLA::CHECKVAL<float>(L, 4);
+        uint32 spell = YLA::CHECKVAL<uint32>(L, 5);
+        bool triggered = YLA::CHECKVAL<bool>(L, 6, true);
         unit->CastSpell(_x, _y, _z, spell, triggered);
         return 0;
     }
@@ -2357,7 +2357,7 @@ namespace LuaUnit
      */
     int StopSpellCast(lua_State* L, Unit* unit)
     {
-        uint32 spellId = ALE::CHECKVAL<uint32>(L, 2, 0);
+        uint32 spellId = YLA::CHECKVAL<uint32>(L, 2, 0);
         unit->CastStop(spellId);
         return 0;
     }
@@ -2372,8 +2372,8 @@ namespace LuaUnit
      */
     int InterruptSpell(lua_State* L, Unit* unit)
     {
-        int spellType = ALE::CHECKVAL<int>(L, 2);
-        bool delayed = ALE::CHECKVAL<bool>(L, 3, true);
+        int spellType = YLA::CHECKVAL<int>(L, 2);
+        bool delayed = YLA::CHECKVAL<bool>(L, 3, true);
         switch (spellType)
         {
         case 0:
@@ -2405,13 +2405,13 @@ namespace LuaUnit
      */
     int AddAura(lua_State* L, Unit* unit)
     {
-        uint32 spell = ALE::CHECKVAL<uint32>(L, 2);
-        Unit* target = ALE::CHECKOBJ<Unit>(L, 3);
+        uint32 spell = YLA::CHECKVAL<uint32>(L, 2);
+        Unit* target = YLA::CHECKOBJ<Unit>(L, 3);
         SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spell);
         if (!spellEntry)
             return 1;
 
-        ALE::Push(L, unit->AddAura(spell, target));
+        YLA::Push(L, unit->AddAura(spell, target));
         return 1;
     }
 
@@ -2422,7 +2422,7 @@ namespace LuaUnit
      */
     int RemoveAura(lua_State* L, Unit* unit)
     {
-        uint32 spellId = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 spellId = YLA::CHECKVAL<uint32>(L, 2);
         unit->RemoveAurasDueToSpell(spellId);
         return 0;
     }
@@ -2454,7 +2454,7 @@ namespace LuaUnit
      */
     int AddUnitState(lua_State* L, Unit* unit)
     {
-        uint32 state = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 state = YLA::CHECKVAL<uint32>(L, 2);
 
         unit->AddUnitState(state);
         return 0;
@@ -2467,7 +2467,7 @@ namespace LuaUnit
      */
     int ClearUnitState(lua_State* L, Unit* unit)
     {
-        uint32 state = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 state = YLA::CHECKVAL<uint32>(L, 2);
 
         unit->ClearUnitState(state);
         return 0;
@@ -2483,10 +2483,10 @@ namespace LuaUnit
      */
     int NearTeleport(lua_State* L, Unit* unit)
     {
-        float x = ALE::CHECKVAL<float>(L, 2);
-        float y = ALE::CHECKVAL<float>(L, 3);
-        float z = ALE::CHECKVAL<float>(L, 4);
-        float o = ALE::CHECKVAL<float>(L, 5);
+        float x = YLA::CHECKVAL<float>(L, 2);
+        float y = YLA::CHECKVAL<float>(L, 3);
+        float z = YLA::CHECKVAL<float>(L, 4);
+        float o = YLA::CHECKVAL<float>(L, 5);
 
         unit->NearTeleportTo(x, y, z, o);
         return 0;
@@ -2517,11 +2517,11 @@ namespace LuaUnit
      */
     int DealDamage(lua_State* L, Unit* unit)
     {
-        Unit* target = ALE::CHECKOBJ<Unit>(L, 2);
-        uint32 damage = ALE::CHECKVAL<uint32>(L, 3);
-        bool durabilityloss = ALE::CHECKVAL<bool>(L, 4, true);
-        uint32 school = ALE::CHECKVAL<uint32>(L, 5, MAX_SPELL_SCHOOL);
-        uint32 spell = ALE::CHECKVAL<uint32>(L, 6, 0);
+        Unit* target = YLA::CHECKOBJ<Unit>(L, 2);
+        uint32 damage = YLA::CHECKVAL<uint32>(L, 3);
+        bool durabilityloss = YLA::CHECKVAL<bool>(L, 4, true);
+        uint32 school = YLA::CHECKVAL<uint32>(L, 5, MAX_SPELL_SCHOOL);
+        uint32 spell = YLA::CHECKVAL<uint32>(L, 6, 0);
         if (school > MAX_SPELL_SCHOOL)
             return luaL_argerror(L, 6, "valid SpellSchool expected");
 
@@ -2580,10 +2580,10 @@ namespace LuaUnit
      */
     int DealHeal(lua_State* L, Unit* unit)
     {
-        Unit* target = ALE::CHECKOBJ<Unit>(L, 2);
-        uint32 spell = ALE::CHECKVAL<uint32>(L, 3);
-        uint32 amount = ALE::CHECKVAL<uint32>(L, 4);
-        bool critical = ALE::CHECKVAL<bool>(L, 5, false);
+        Unit* target = YLA::CHECKOBJ<Unit>(L, 2);
+        uint32 spell = YLA::CHECKVAL<uint32>(L, 3);
+        uint32 amount = YLA::CHECKVAL<uint32>(L, 4);
+        bool critical = YLA::CHECKVAL<bool>(L, 5, false);
 
         if (const SpellInfo* info = sSpellMgr->GetSpellInfo(spell))
         {
@@ -2601,8 +2601,8 @@ namespace LuaUnit
      */
     int Kill(lua_State* L, Unit* unit)
     {
-        Unit* target = ALE::CHECKOBJ<Unit>(L, 2);
-        bool durLoss = ALE::CHECKVAL<bool>(L, 3, true);
+        Unit* target = YLA::CHECKOBJ<Unit>(L, 2);
+        bool durLoss = YLA::CHECKVAL<bool>(L, 3, true);
 
         Unit::Kill(unit, target, durLoss);
         return 0;
@@ -2632,11 +2632,11 @@ namespace LuaUnit
      */
     int AddThreat(lua_State* L, Unit* unit)
     {
-        Unit* victim = ALE::CHECKOBJ<Unit>(L, 2);
-        float threat = ALE::CHECKVAL<float>(L, 3, true);
-        uint32 spell = ALE::CHECKVAL<uint32>(L, 4, 0);
+        Unit* victim = YLA::CHECKOBJ<Unit>(L, 2);
+        float threat = YLA::CHECKVAL<float>(L, 3, true);
+        uint32 spell = YLA::CHECKVAL<uint32>(L, 4, 0);
 
-        uint32 schoolMask = ALE::CHECKVAL<uint32>(L, 5, 0);
+        uint32 schoolMask = YLA::CHECKVAL<uint32>(L, 5, 0);
         if (schoolMask > SPELL_SCHOOL_MASK_ALL)
         {
             return luaL_argerror(L, 4, "valid SpellSchoolMask expected");
@@ -2653,8 +2653,8 @@ namespace LuaUnit
      */
     int ModifyThreatPct(lua_State* L, Unit* unit)
     {
-        Unit* victim = ALE::CHECKOBJ<Unit>(L, 2);
-        int32 threatPct = ALE::CHECKVAL<int32>(L, 3, true);
+        Unit* victim = YLA::CHECKOBJ<Unit>(L, 2);
+        int32 threatPct = YLA::CHECKVAL<int32>(L, 3, true);
 
         unit->GetThreatMgr().ModifyThreatByPercent(victim, threatPct);
         return 0;
@@ -2686,7 +2686,7 @@ namespace LuaUnit
 
     /*int DisableMelee(lua_State* L, Unit* unit)
     {
-    bool apply = ALE::CHECKVAL<bool>(L, 2, true);
+    bool apply = YLA::CHECKVAL<bool>(L, 2, true);
 
     if (apply)
     unit->AddUnitState(UNIT_STATE_CANNOT_AUTOATTACK);
@@ -2697,12 +2697,12 @@ namespace LuaUnit
 
     /*int SummonGuardian(lua_State* L, Unit* unit)
     {
-    uint32 entry = ALE::CHECKVAL<uint32>(L, 2);
-    float x = ALE::CHECKVAL<float>(L, 3);
-    float y = ALE::CHECKVAL<float>(L, 4);
-    float z = ALE::CHECKVAL<float>(L, 5);
-    float o = ALE::CHECKVAL<float>(L, 6);
-    uint32 desp = ALE::CHECKVAL<uint32>(L, 7, 0);
+    uint32 entry = YLA::CHECKVAL<uint32>(L, 2);
+    float x = YLA::CHECKVAL<float>(L, 3);
+    float y = YLA::CHECKVAL<float>(L, 4);
+    float z = YLA::CHECKVAL<float>(L, 5);
+    float o = YLA::CHECKVAL<float>(L, 6);
+    uint32 desp = YLA::CHECKVAL<uint32>(L, 7, 0);
 
     SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(61);
     if (!properties)
@@ -2731,7 +2731,7 @@ namespace LuaUnit
     }
     summon->AI()->EnterEvadeMode();
 
-    ALE::Push(L, summon);
+    YLA::Push(L, summon);
     return 1;
     }*/
 
@@ -2742,7 +2742,7 @@ namespace LuaUnit
      */
     int ClearThreat(lua_State* L, Unit* unit)
     {
-        Unit* target = ALE::CHECKOBJ<Unit>(L, 2);
+        Unit* target = YLA::CHECKOBJ<Unit>(L, 2);
 
         unit->GetThreatMgr().ClearThreat(target);
         return 0;
@@ -2765,9 +2765,9 @@ namespace LuaUnit
      */
     int GetThreat(lua_State* L, Unit* unit)
     {
-        Unit* target = ALE::CHECKOBJ<Unit>(L, 2);
+        Unit* target = YLA::CHECKOBJ<Unit>(L, 2);
 
-        ALE::Push(L, unit->GetThreatMgr().GetThreat(target));
+        YLA::Push(L, unit->GetThreatMgr().GetThreat(target));
         return 1;
     }
     
@@ -2811,7 +2811,7 @@ namespace LuaUnit
      */
     int GetMovementFlags(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->GetUnitMovementFlags());
+        YLA::Push(L, unit->GetUnitMovementFlags());
         return 1;
     }
 
@@ -2856,8 +2856,8 @@ namespace LuaUnit
      */
     int HasMovementFlag(lua_State* L, Unit* unit)
     {
-        uint32 flag = ALE::CHECKVAL<uint32>(L, 2);
-        ALE::Push(L, unit->HasUnitMovementFlag((MovementFlags)flag));
+        uint32 flag = YLA::CHECKVAL<uint32>(L, 2);
+        YLA::Push(L, unit->HasUnitMovementFlag((MovementFlags)flag));
         return 1;
     }
 
@@ -2901,7 +2901,7 @@ namespace LuaUnit
      */
     int AddMovementFlag(lua_State* L, Unit* unit)
     {
-        uint32 flag = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 flag = YLA::CHECKVAL<uint32>(L, 2);
         unit->AddUnitMovementFlag((MovementFlags)flag);
         return 0;
     }
@@ -2946,7 +2946,7 @@ namespace LuaUnit
      */
     int RemoveMovementFlag(lua_State* L, Unit* unit)
     {
-        uint32 flag = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 flag = YLA::CHECKVAL<uint32>(L, 2);
         unit->RemoveUnitMovementFlag((MovementFlags)flag);
         return 0;
     }
@@ -2959,7 +2959,7 @@ namespace LuaUnit
      */
     int SendMovementFlagUpdate(lua_State* L, Unit* unit)
     {
-        bool self = ALE::CHECKVAL<bool>(L, 2, false);
+        bool self = YLA::CHECKVAL<bool>(L, 2, false);
         unit->SendMovementFlagUpdate(self);
         return 0;
     }
@@ -2971,7 +2971,7 @@ namespace LuaUnit
      */
     int IsOnTransport(lua_State* L, Unit* unit)
     {
-        ALE::Push(L, unit->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT));
+        YLA::Push(L, unit->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT));
         return 1;
     }
 };

@@ -8,19 +8,19 @@
 #include "HookHelpers.h"
 #include "LuaEngine.h"
 #include "BindingMap.h"
-#include "ALETemplate.h"
+#include "YLATemplate.h"
 
 using namespace Hooks;
 
 #define START_HOOK(EVENT) \
-    if (!ALEConfig::GetInstance().IsALEEnabled())\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
     auto key = EventKey<GuildEvents>(EVENT);\
     if (!GuildEventBindings->HasBindingsFor(key))\
         return;\
     LOCK_ALE
 
-void ALE::OnAddMember(Guild* guild, Player* player, uint32 plRank)
+void YLA::OnAddMember(Guild* guild, Player* player, uint32 plRank)
 {
     START_HOOK(GUILD_EVENT_ON_ADD_MEMBER);
     Push(guild);
@@ -29,7 +29,7 @@ void ALE::OnAddMember(Guild* guild, Player* player, uint32 plRank)
     CallAllFunctions(GuildEventBindings, key);
 }
 
-void ALE::OnRemoveMember(Guild* guild, Player* player, bool isDisbanding)
+void YLA::OnRemoveMember(Guild* guild, Player* player, bool isDisbanding)
 {
     START_HOOK(GUILD_EVENT_ON_REMOVE_MEMBER);
     Push(guild);
@@ -38,7 +38,7 @@ void ALE::OnRemoveMember(Guild* guild, Player* player, bool isDisbanding)
     CallAllFunctions(GuildEventBindings, key);
 }
 
-void ALE::OnMOTDChanged(Guild* guild, const std::string& newMotd)
+void YLA::OnMOTDChanged(Guild* guild, const std::string& newMotd)
 {
     START_HOOK(GUILD_EVENT_ON_MOTD_CHANGE);
     Push(guild);
@@ -46,7 +46,7 @@ void ALE::OnMOTDChanged(Guild* guild, const std::string& newMotd)
     CallAllFunctions(GuildEventBindings, key);
 }
 
-void ALE::OnInfoChanged(Guild* guild, const std::string& newInfo)
+void YLA::OnInfoChanged(Guild* guild, const std::string& newInfo)
 {
     START_HOOK(GUILD_EVENT_ON_INFO_CHANGE);
     Push(guild);
@@ -54,7 +54,7 @@ void ALE::OnInfoChanged(Guild* guild, const std::string& newInfo)
     CallAllFunctions(GuildEventBindings, key);
 }
 
-void ALE::OnCreate(Guild* guild, Player* leader, const std::string& name)
+void YLA::OnCreate(Guild* guild, Player* leader, const std::string& name)
 {
     START_HOOK(GUILD_EVENT_ON_CREATE);
     Push(guild);
@@ -63,14 +63,14 @@ void ALE::OnCreate(Guild* guild, Player* leader, const std::string& name)
     CallAllFunctions(GuildEventBindings, key);
 }
 
-void ALE::OnDisband(Guild* guild)
+void YLA::OnDisband(Guild* guild)
 {
     START_HOOK(GUILD_EVENT_ON_DISBAND);
     Push(guild);
     CallAllFunctions(GuildEventBindings, key);
 }
 
-void ALE::OnMemberWitdrawMoney(Guild* guild, Player* player, uint32& amount, bool isRepair)
+void YLA::OnMemberWitdrawMoney(Guild* guild, Player* player, uint32& amount, bool isRepair)
 {
     START_HOOK(GUILD_EVENT_ON_MONEY_WITHDRAW);
     Push(guild);
@@ -96,7 +96,7 @@ void ALE::OnMemberWitdrawMoney(Guild* guild, Player* player, uint32& amount, boo
     CleanUpStack(4);
 }
 
-void ALE::OnMemberDepositMoney(Guild* guild, Player* player, uint32& amount)
+void YLA::OnMemberDepositMoney(Guild* guild, Player* player, uint32& amount)
 {
     START_HOOK(GUILD_EVENT_ON_MONEY_DEPOSIT);
     Push(guild);
@@ -121,7 +121,7 @@ void ALE::OnMemberDepositMoney(Guild* guild, Player* player, uint32& amount)
     CleanUpStack(3);
 }
 
-void ALE::OnItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId,
+void YLA::OnItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId,
     bool isDestBank, uint8 destContainer, uint8 destSlotId)
 {
     START_HOOK(GUILD_EVENT_ON_ITEM_MOVE);
@@ -137,7 +137,7 @@ void ALE::OnItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank, 
     CallAllFunctions(GuildEventBindings, key);
 }
 
-void ALE::OnEvent(Guild* guild, uint8 eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank)
+void YLA::OnEvent(Guild* guild, uint8 eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank)
 {
     START_HOOK(GUILD_EVENT_ON_EVENT);
     Push(guild);
@@ -148,7 +148,7 @@ void ALE::OnEvent(Guild* guild, uint8 eventType, uint32 playerGuid1, uint32 play
     CallAllFunctions(GuildEventBindings, key);
 }
 
-void ALE::OnBankEvent(Guild* guild, uint8 eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
+void YLA::OnBankEvent(Guild* guild, uint8 eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
 {
     START_HOOK(GUILD_EVENT_ON_BANK_EVENT);
     Push(guild);

@@ -23,7 +23,7 @@ namespace LuaSpellEntry
      */
     int GetId(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->Id);
+        YLA::Push(L, entry->Id);
         return 1;
     }
 
@@ -34,7 +34,7 @@ namespace LuaSpellEntry
      */
     int GetCategory(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->Category);
+        YLA::Push(L, entry->Category);
         return 1;
     }
 
@@ -45,7 +45,7 @@ namespace LuaSpellEntry
      */
     int GetDispel(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->Dispel);
+        YLA::Push(L, entry->Dispel);
         return 1;
     }
 
@@ -56,7 +56,7 @@ namespace LuaSpellEntry
      */
     int GetMechanic(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->Mechanic);
+        YLA::Push(L, entry->Mechanic);
         return 1;
     }
 
@@ -67,7 +67,7 @@ namespace LuaSpellEntry
      */
     int GetAttributes(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->Attributes);
+        YLA::Push(L, entry->Attributes);
         return 1;
     }
 
@@ -78,7 +78,7 @@ namespace LuaSpellEntry
      */
     int GetAttributesEx(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->AttributesEx);
+        YLA::Push(L, entry->AttributesEx);
         return 1;
     }
 
@@ -89,7 +89,7 @@ namespace LuaSpellEntry
      */
     int GetAttributesEx2(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->AttributesEx2);
+        YLA::Push(L, entry->AttributesEx2);
         return 1;
     }
 
@@ -100,7 +100,7 @@ namespace LuaSpellEntry
      */
     int GetAttributesEx3(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->AttributesEx3);
+        YLA::Push(L, entry->AttributesEx3);
         return 1;
     }
 
@@ -111,7 +111,7 @@ namespace LuaSpellEntry
      */
     int GetAttributesEx4(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->AttributesEx4);
+        YLA::Push(L, entry->AttributesEx4);
         return 1;
     }
 
@@ -122,7 +122,7 @@ namespace LuaSpellEntry
      */
     int GetAttributesEx5(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->AttributesEx5);
+        YLA::Push(L, entry->AttributesEx5);
         return 1;
     }
 
@@ -133,7 +133,7 @@ namespace LuaSpellEntry
      */
     int GetAttributesEx6(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->AttributesEx6);
+        YLA::Push(L, entry->AttributesEx6);
         return 1;
     }
 
@@ -144,7 +144,7 @@ namespace LuaSpellEntry
      */
     int GetAttributesEx7(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->AttributesEx7);
+        YLA::Push(L, entry->AttributesEx7);
         return 1;
     }
 
@@ -155,7 +155,7 @@ namespace LuaSpellEntry
      */
     int GetStances(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->Stances);
+        YLA::Push(L, entry->Stances);
         return 1;
     }
 
@@ -168,7 +168,7 @@ namespace LuaSpellEntry
      */
     int GetStancesNot(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->StancesNot);
+        YLA::Push(L, entry->StancesNot);
         return 1;
     }
 
@@ -179,7 +179,7 @@ namespace LuaSpellEntry
      */
     int GetTargets(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->Targets);
+        YLA::Push(L, entry->Targets);
         return 1;
     }
 
@@ -190,7 +190,7 @@ namespace LuaSpellEntry
      */
     int GetTargetCreatureType(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->TargetCreatureType);
+        YLA::Push(L, entry->TargetCreatureType);
         return 1;
     }
 
@@ -203,7 +203,7 @@ namespace LuaSpellEntry
      */
     int GetRequiresSpellFocus(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->RequiresSpellFocus);
+        YLA::Push(L, entry->RequiresSpellFocus);
         return 1;
     }
 
@@ -216,7 +216,7 @@ namespace LuaSpellEntry
      */
     int GetFacingCasterFlags(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->FacingCasterFlags);
+        YLA::Push(L, entry->FacingCasterFlags);
         return 1;
     }
 
@@ -229,7 +229,7 @@ namespace LuaSpellEntry
      */
     int GetCasterAuraState(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->CasterAuraState);
+        YLA::Push(L, entry->CasterAuraState);
         return 1;
     }
 
@@ -242,7 +242,7 @@ namespace LuaSpellEntry
      */
     int GetTargetAuraState(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->TargetAuraState);
+        YLA::Push(L, entry->TargetAuraState);
         return 1;
     }
 
@@ -255,7 +255,7 @@ namespace LuaSpellEntry
      */
     int GetCasterAuraStateNot(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->CasterAuraStateNot);
+        YLA::Push(L, entry->CasterAuraStateNot);
         return 1;
     }
 
@@ -268,7 +268,7 @@ namespace LuaSpellEntry
      */
     int GetTargetAuraStateNot(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->TargetAuraStateNot);
+        YLA::Push(L, entry->TargetAuraStateNot);
         return 1;
     }
 
@@ -281,7 +281,7 @@ namespace LuaSpellEntry
      */
     int GetCasterAuraSpell(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->CasterAuraSpell);
+        YLA::Push(L, entry->CasterAuraSpell);
         return 1;
     }
 
@@ -294,7 +294,7 @@ namespace LuaSpellEntry
      */
     int GetTargetAuraSpell(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->TargetAuraSpell);
+        YLA::Push(L, entry->TargetAuraSpell);
         return 1;
     }
 
@@ -307,7 +307,7 @@ namespace LuaSpellEntry
      */
     int GetExcludeCasterAuraSpell(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->ExcludeCasterAuraSpell);
+        YLA::Push(L, entry->ExcludeCasterAuraSpell);
         return 1;
     }
 
@@ -320,7 +320,7 @@ namespace LuaSpellEntry
      */
     int GetExcludeTargetAuraSpell(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->ExcludeTargetAuraSpell);
+        YLA::Push(L, entry->ExcludeTargetAuraSpell);
         return 1;
     }
 
@@ -333,7 +333,7 @@ namespace LuaSpellEntry
      */
     int GetCastingTimeIndex(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->CastingTimeIndex);
+        YLA::Push(L, entry->CastingTimeIndex);
         return 1;
     }
 
@@ -344,7 +344,7 @@ namespace LuaSpellEntry
      */
     int GetRecoveryTime(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->RecoveryTime);
+        YLA::Push(L, entry->RecoveryTime);
         return 1;
     }
 
@@ -355,7 +355,7 @@ namespace LuaSpellEntry
      */
     int GetCategoryRecoveryTime(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->CategoryRecoveryTime);
+        YLA::Push(L, entry->CategoryRecoveryTime);
         return 1;
     }
 
@@ -368,7 +368,7 @@ namespace LuaSpellEntry
      */
     int GetInterruptFlags(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->InterruptFlags);
+        YLA::Push(L, entry->InterruptFlags);
         return 1;
     }
 
@@ -381,7 +381,7 @@ namespace LuaSpellEntry
      */
     int GetAuraInterruptFlags(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->AuraInterruptFlags);
+        YLA::Push(L, entry->AuraInterruptFlags);
         return 1;
     }
 
@@ -394,7 +394,7 @@ namespace LuaSpellEntry
      */
     int GetChannelInterruptFlags(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->ChannelInterruptFlags);
+        YLA::Push(L, entry->ChannelInterruptFlags);
         return 1;
     }
 
@@ -407,7 +407,7 @@ namespace LuaSpellEntry
      */
     int GetProcFlags(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->ProcFlags);
+        YLA::Push(L, entry->ProcFlags);
         return 1;
     }
 
@@ -418,7 +418,7 @@ namespace LuaSpellEntry
      */
     int GetProcChance(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->ProcChance);
+        YLA::Push(L, entry->ProcChance);
         return 1;
     }
 
@@ -429,7 +429,7 @@ namespace LuaSpellEntry
      */
     int GetProcCharges(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->ProcCharges);
+        YLA::Push(L, entry->ProcCharges);
         return 1;
     }
 
@@ -440,7 +440,7 @@ namespace LuaSpellEntry
      */
     int GetMaxLevel(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->MaxLevel);
+        YLA::Push(L, entry->MaxLevel);
         return 1;
     }
 
@@ -451,7 +451,7 @@ namespace LuaSpellEntry
      */
     int GetBaseLevel(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->BaseLevel);
+        YLA::Push(L, entry->BaseLevel);
         return 1;
     }
 
@@ -462,7 +462,7 @@ namespace LuaSpellEntry
      */
     int GetSpellLevel(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->SpellLevel);
+        YLA::Push(L, entry->SpellLevel);
         return 1;
     }
 
@@ -473,7 +473,7 @@ namespace LuaSpellEntry
      */
     int GetDurationIndex(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->DurationIndex);
+        YLA::Push(L, entry->DurationIndex);
         return 1;
     }
 
@@ -484,7 +484,7 @@ namespace LuaSpellEntry
      */
     int GetPowerType(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->PowerType);
+        YLA::Push(L, entry->PowerType);
         return 1;
     }
 
@@ -495,7 +495,7 @@ namespace LuaSpellEntry
      */
     int GetManaCost(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->ManaCost);
+        YLA::Push(L, entry->ManaCost);
         return 1;
     }
 
@@ -506,7 +506,7 @@ namespace LuaSpellEntry
      */
     int GetManaCostPerlevel(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->ManaCostPerlevel);
+        YLA::Push(L, entry->ManaCostPerlevel);
         return 1;
     }
 
@@ -517,7 +517,7 @@ namespace LuaSpellEntry
      */
     int GetManaPerSecond(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->ManaPerSecond);
+        YLA::Push(L, entry->ManaPerSecond);
         return 1;
     }
 
@@ -528,7 +528,7 @@ namespace LuaSpellEntry
      */
     int GetManaPerSecondPerLevel(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->ManaPerSecondPerLevel);
+        YLA::Push(L, entry->ManaPerSecondPerLevel);
         return 1;
     }
 
@@ -539,7 +539,7 @@ namespace LuaSpellEntry
      */
     int GetRangeIndex(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->RangeIndex);
+        YLA::Push(L, entry->RangeIndex);
         return 1;
     }
 
@@ -550,7 +550,7 @@ namespace LuaSpellEntry
      */
     int GetSpeed(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->Speed);
+        YLA::Push(L, entry->Speed);
         return 1;
     }
 
@@ -561,7 +561,7 @@ namespace LuaSpellEntry
      */
     int GetStackAmount(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->StackAmount);
+        YLA::Push(L, entry->StackAmount);
         return 1;
     }
 
@@ -578,7 +578,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->Totem.size(); ++index)
         {
-            ALE::Push(L, entry->Totem[index]);
+            YLA::Push(L, entry->Totem[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -599,7 +599,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->Reagent.size(); ++index)
         {
-            ALE::Push(L, entry->Reagent[index]);
+            YLA::Push(L, entry->Reagent[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -620,7 +620,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->ReagentCount.size(); ++index)
         {
-            ALE::Push(L, entry->ReagentCount[index]);
+            YLA::Push(L, entry->ReagentCount[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -635,7 +635,7 @@ namespace LuaSpellEntry
      */
     int GetEquippedItemClass(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->EquippedItemClass);
+        YLA::Push(L, entry->EquippedItemClass);
         return 1;
     }
 
@@ -646,7 +646,7 @@ namespace LuaSpellEntry
      */
     int GetEquippedItemSubClassMask(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->EquippedItemSubClassMask);
+        YLA::Push(L, entry->EquippedItemSubClassMask);
         return 1;
     }
 
@@ -657,7 +657,7 @@ namespace LuaSpellEntry
      */
     int GetEquippedItemInventoryTypeMask(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->EquippedItemInventoryTypeMask);
+        YLA::Push(L, entry->EquippedItemInventoryTypeMask);
         return 1;
     }
 
@@ -674,7 +674,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->Effect.size(); ++index)
         {
-            ALE::Push(L, entry->Effect[index]);
+            YLA::Push(L, entry->Effect[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -695,7 +695,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectDieSides.size(); ++index)
         {
-            ALE::Push(L, entry->EffectDieSides[index]);
+            YLA::Push(L, entry->EffectDieSides[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -716,7 +716,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectRealPointsPerLevel.size(); ++index)
         {
-            ALE::Push(L, entry->EffectRealPointsPerLevel[index]);
+            YLA::Push(L, entry->EffectRealPointsPerLevel[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -737,7 +737,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectBasePoints.size(); ++index)
         {
-            ALE::Push(L, entry->EffectBasePoints[index]);
+            YLA::Push(L, entry->EffectBasePoints[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -758,7 +758,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectMechanic.size(); ++index)
         {
-            ALE::Push(L, entry->EffectMechanic[index]);
+            YLA::Push(L, entry->EffectMechanic[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -779,7 +779,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectImplicitTargetA.size(); ++index)
         {
-            ALE::Push(L, entry->EffectImplicitTargetA[index]);
+            YLA::Push(L, entry->EffectImplicitTargetA[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -800,7 +800,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectImplicitTargetB.size(); ++index)
         {
-            ALE::Push(L, entry->EffectImplicitTargetB[index]);
+            YLA::Push(L, entry->EffectImplicitTargetB[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -821,7 +821,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectRadiusIndex.size(); ++index)
         {
-            ALE::Push(L, entry->EffectRadiusIndex[index]);
+            YLA::Push(L, entry->EffectRadiusIndex[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -842,7 +842,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectApplyAuraName.size(); ++index)
         {
-            ALE::Push(L, entry->EffectApplyAuraName[index]);
+            YLA::Push(L, entry->EffectApplyAuraName[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -863,7 +863,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectAmplitude.size(); ++index)
         {
-            ALE::Push(L, entry->EffectAmplitude[index]);
+            YLA::Push(L, entry->EffectAmplitude[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -884,7 +884,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectValueMultiplier.size(); ++index)
         {
-            ALE::Push(L, entry->EffectValueMultiplier[index]);
+            YLA::Push(L, entry->EffectValueMultiplier[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -905,7 +905,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectChainTarget.size(); ++index)
         {
-            ALE::Push(L, entry->EffectChainTarget[index]);
+            YLA::Push(L, entry->EffectChainTarget[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -926,7 +926,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectItemType.size(); ++index)
         {
-            ALE::Push(L, entry->EffectItemType[index]);
+            YLA::Push(L, entry->EffectItemType[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -947,7 +947,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectMiscValue.size(); ++index)
         {
-            ALE::Push(L, entry->EffectMiscValue[index]);
+            YLA::Push(L, entry->EffectMiscValue[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -968,7 +968,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectMiscValueB.size(); ++index)
         {
-            ALE::Push(L, entry->EffectMiscValueB[index]);
+            YLA::Push(L, entry->EffectMiscValueB[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -989,7 +989,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectTriggerSpell.size(); ++index)
         {
-            ALE::Push(L, entry->EffectTriggerSpell[index]);
+            YLA::Push(L, entry->EffectTriggerSpell[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -1010,7 +1010,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectPointsPerComboPoint.size(); ++index)
         {
-            ALE::Push(L, entry->EffectPointsPerComboPoint[index]);
+            YLA::Push(L, entry->EffectPointsPerComboPoint[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -1034,7 +1034,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectSpellClassMask.size(); ++index)
         {
-            ALE::Push(L, entry->EffectSpellClassMask[index]);
+            YLA::Push(L, entry->EffectSpellClassMask[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -1055,7 +1055,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->SpellVisual.size(); ++index)
         {
-            ALE::Push(L, entry->SpellVisual[index]);
+            YLA::Push(L, entry->SpellVisual[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -1070,7 +1070,7 @@ namespace LuaSpellEntry
      */
     int GetSpellIconID(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->SpellIconID);
+        YLA::Push(L, entry->SpellIconID);
         return 1;
     }
 
@@ -1081,7 +1081,7 @@ namespace LuaSpellEntry
      */
     int GetActiveIconID(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->ActiveIconID);
+        YLA::Push(L, entry->ActiveIconID);
         return 1;
     }
 
@@ -1092,7 +1092,7 @@ namespace LuaSpellEntry
      */
     int GetSpellPriority(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->SpellPriority);
+        YLA::Push(L, entry->SpellPriority);
         return 1;
     }
 
@@ -1109,7 +1109,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->SpellName.size(); ++index)
         {
-            ALE::Push(L, entry->SpellName[index]);
+            YLA::Push(L, entry->SpellName[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -1130,7 +1130,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->Rank.size(); ++index)
         {
-            ALE::Push(L, entry->Rank[index]);
+            YLA::Push(L, entry->Rank[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -1145,7 +1145,7 @@ namespace LuaSpellEntry
      */
     int GetManaCostPercentage(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->ManaCostPercentage);
+        YLA::Push(L, entry->ManaCostPercentage);
         return 1;
     }
 
@@ -1156,7 +1156,7 @@ namespace LuaSpellEntry
      */
     int GetStartRecoveryCategory(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->StartRecoveryCategory);
+        YLA::Push(L, entry->StartRecoveryCategory);
         return 1;
     }
 
@@ -1167,7 +1167,7 @@ namespace LuaSpellEntry
      */
     int GetStartRecoveryTime(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->StartRecoveryTime);
+        YLA::Push(L, entry->StartRecoveryTime);
         return 1;
     }
 
@@ -1178,7 +1178,7 @@ namespace LuaSpellEntry
      */
     int GetMaxTargetLevel(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->MaxTargetLevel);
+        YLA::Push(L, entry->MaxTargetLevel);
         return 1;
     }
 
@@ -1191,7 +1191,7 @@ namespace LuaSpellEntry
      */
     int GetSpellFamilyName(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->SpellFamilyName);
+        YLA::Push(L, entry->SpellFamilyName);
         return 1;
     }
 
@@ -1204,7 +1204,7 @@ namespace LuaSpellEntry
      */
     int GetSpellFamilyFlags(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->SpellFamilyFlags);
+        YLA::Push(L, entry->SpellFamilyFlags);
         return 1;
     }
 
@@ -1215,7 +1215,7 @@ namespace LuaSpellEntry
      */
     int GetMaxAffectedTargets(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->MaxAffectedTargets);
+        YLA::Push(L, entry->MaxAffectedTargets);
         return 1;
     }
 
@@ -1226,7 +1226,7 @@ namespace LuaSpellEntry
      */
     int GetDmgClass(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->DmgClass);
+        YLA::Push(L, entry->DmgClass);
         return 1;
     }
 
@@ -1237,7 +1237,7 @@ namespace LuaSpellEntry
      */
     int GetPreventionType(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->PreventionType);
+        YLA::Push(L, entry->PreventionType);
         return 1;
     }
 
@@ -1254,7 +1254,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectDamageMultiplier.size(); ++index)
         {
-            ALE::Push(L, entry->EffectDamageMultiplier[index]);
+            YLA::Push(L, entry->EffectDamageMultiplier[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -1275,7 +1275,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->TotemCategory.size(); ++index)
         {
-            ALE::Push(L, entry->TotemCategory[index]);
+            YLA::Push(L, entry->TotemCategory[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -1292,7 +1292,7 @@ namespace LuaSpellEntry
      */
     int GetAreaGroupId(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->AreaGroupId);
+        YLA::Push(L, entry->AreaGroupId);
         return 1;
     }
 
@@ -1303,7 +1303,7 @@ namespace LuaSpellEntry
      */
     int GetSchoolMask(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->SchoolMask);
+        YLA::Push(L, entry->SchoolMask);
         return 1;
     }
 
@@ -1314,7 +1314,7 @@ namespace LuaSpellEntry
      */
     int GetRuneCostID(lua_State* L, SpellEntry* entry)
     {
-        ALE::Push(L, entry->RuneCostID);
+        YLA::Push(L, entry->RuneCostID);
         return 1;
     }
 
@@ -1331,7 +1331,7 @@ namespace LuaSpellEntry
 
         for (size_t index = 0; index < entry->EffectBonusMultiplier.size(); ++index)
         {
-            ALE::Push(L, entry->EffectBonusMultiplier[index]);
+            YLA::Push(L, entry->EffectBonusMultiplier[index]);
             lua_rawseti(L, tbl, ++i);
         }
         
@@ -1346,7 +1346,7 @@ namespace LuaSpellEntry
      */
     int SetCategory(lua_State* L, SpellEntry* entry)
     {
-        uint32 category = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 category = YLA::CHECKVAL<uint32>(L, 2);
         entry->Category = category;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1364,7 +1364,7 @@ namespace LuaSpellEntry
      */
     int SetDispel(lua_State* L, SpellEntry* entry)
     {
-        uint32 dispel = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 dispel = YLA::CHECKVAL<uint32>(L, 2);
         entry->Dispel = dispel;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1382,7 +1382,7 @@ namespace LuaSpellEntry
      */
     int SetMechanic(lua_State* L, SpellEntry* entry)
     {
-        uint32 mechanic = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 mechanic = YLA::CHECKVAL<uint32>(L, 2);
         entry->Mechanic = mechanic;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1400,7 +1400,7 @@ namespace LuaSpellEntry
      */
     int SetAttributes(lua_State* L, SpellEntry* entry)
     {
-        uint32 attributes = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 attributes = YLA::CHECKVAL<uint32>(L, 2);
         entry->Attributes = attributes;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1418,7 +1418,7 @@ namespace LuaSpellEntry
      */
     int SetAttributesEx(lua_State* L, SpellEntry* entry)
     {
-        uint32 attributesEx = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 attributesEx = YLA::CHECKVAL<uint32>(L, 2);
         entry->AttributesEx = attributesEx;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1436,7 +1436,7 @@ namespace LuaSpellEntry
      */
     int SetAttributesEx2(lua_State* L, SpellEntry* entry)
     {
-        uint32 attributesEx2 = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 attributesEx2 = YLA::CHECKVAL<uint32>(L, 2);
         entry->AttributesEx2 = attributesEx2;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1454,7 +1454,7 @@ namespace LuaSpellEntry
      */
     int SetAttributesEx3(lua_State* L, SpellEntry* entry)
     {
-        uint32 attributesEx3 = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 attributesEx3 = YLA::CHECKVAL<uint32>(L, 2);
         entry->AttributesEx3 = attributesEx3;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1472,7 +1472,7 @@ namespace LuaSpellEntry
      */
     int SetAttributesEx4(lua_State* L, SpellEntry* entry)
     {
-        uint32 attributesEx4 = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 attributesEx4 = YLA::CHECKVAL<uint32>(L, 2);
         entry->AttributesEx4 = attributesEx4;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1490,7 +1490,7 @@ namespace LuaSpellEntry
      */
     int SetAttributesEx5(lua_State* L, SpellEntry* entry)
     {
-        uint32 attributesEx5 = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 attributesEx5 = YLA::CHECKVAL<uint32>(L, 2);
         entry->AttributesEx5 = attributesEx5;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1508,7 +1508,7 @@ namespace LuaSpellEntry
      */
     int SetAttributesEx6(lua_State* L, SpellEntry* entry)
     {
-        uint32 attributesEx6 = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 attributesEx6 = YLA::CHECKVAL<uint32>(L, 2);
         entry->AttributesEx6 = attributesEx6;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1526,7 +1526,7 @@ namespace LuaSpellEntry
      */
     int SetAttributesEx7(lua_State* L, SpellEntry* entry)
     {
-        uint32 attributesEx7 = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 attributesEx7 = YLA::CHECKVAL<uint32>(L, 2);
         entry->AttributesEx7 = attributesEx7;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1544,7 +1544,7 @@ namespace LuaSpellEntry
      */
     int SetStances(lua_State* L, SpellEntry* entry)
     {
-        uint32 stances = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 stances = YLA::CHECKVAL<uint32>(L, 2);
         entry->Stances = stances;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1562,7 +1562,7 @@ namespace LuaSpellEntry
      */
     int SetStancesNot(lua_State* L, SpellEntry* entry)
     {
-        uint32 stancesNot = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 stancesNot = YLA::CHECKVAL<uint32>(L, 2);
         entry->StancesNot = stancesNot;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1580,7 +1580,7 @@ namespace LuaSpellEntry
      */
     int SetTargets(lua_State* L, SpellEntry* entry)
     {
-        uint32 targets = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 targets = YLA::CHECKVAL<uint32>(L, 2);
         entry->Targets = targets;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1598,7 +1598,7 @@ namespace LuaSpellEntry
      */
     int SetTargetCreatureType(lua_State* L, SpellEntry* entry)
     {
-        uint32 targetCreatureType = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 targetCreatureType = YLA::CHECKVAL<uint32>(L, 2);
         entry->TargetCreatureType = targetCreatureType;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1616,7 +1616,7 @@ namespace LuaSpellEntry
      */
     int SetRequiresSpellFocus(lua_State* L, SpellEntry* entry)
     {
-        uint32 requiresSpellFocus = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 requiresSpellFocus = YLA::CHECKVAL<uint32>(L, 2);
         entry->RequiresSpellFocus = requiresSpellFocus;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1634,7 +1634,7 @@ namespace LuaSpellEntry
      */
     int SetFacingCasterFlags(lua_State* L, SpellEntry* entry)
     {
-        uint32 facingCasterFlags = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 facingCasterFlags = YLA::CHECKVAL<uint32>(L, 2);
         entry->FacingCasterFlags = facingCasterFlags;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1652,7 +1652,7 @@ namespace LuaSpellEntry
      */
     int SetCasterAuraState(lua_State* L, SpellEntry* entry)
     {
-        uint32 casterAuraState = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 casterAuraState = YLA::CHECKVAL<uint32>(L, 2);
         entry->CasterAuraState = casterAuraState;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1670,7 +1670,7 @@ namespace LuaSpellEntry
      */
     int SetTargetAuraState(lua_State* L, SpellEntry* entry)
     {
-        uint32 targetAuraState = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 targetAuraState = YLA::CHECKVAL<uint32>(L, 2);
         entry->TargetAuraState = targetAuraState;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1688,7 +1688,7 @@ namespace LuaSpellEntry
      */
     int SetCasterAuraStateNot(lua_State* L, SpellEntry* entry)
     {
-        uint32 casterAuraStateNot = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 casterAuraStateNot = YLA::CHECKVAL<uint32>(L, 2);
         entry->CasterAuraStateNot = casterAuraStateNot;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1706,7 +1706,7 @@ namespace LuaSpellEntry
      */
     int SetTargetAuraStateNot(lua_State* L, SpellEntry* entry)
     {
-        uint32 targetAuraStateNot = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 targetAuraStateNot = YLA::CHECKVAL<uint32>(L, 2);
         entry->TargetAuraStateNot = targetAuraStateNot;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1724,7 +1724,7 @@ namespace LuaSpellEntry
      */
     int SetCasterAuraSpell(lua_State* L, SpellEntry* entry)
     {
-        uint32 casterAuraSpell = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 casterAuraSpell = YLA::CHECKVAL<uint32>(L, 2);
         entry->CasterAuraSpell = casterAuraSpell;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1742,7 +1742,7 @@ namespace LuaSpellEntry
      */
     int SetTargetAuraSpell(lua_State* L, SpellEntry* entry)
     {
-        uint32 targetAuraSpell = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 targetAuraSpell = YLA::CHECKVAL<uint32>(L, 2);
         entry->TargetAuraSpell = targetAuraSpell;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1760,7 +1760,7 @@ namespace LuaSpellEntry
      */
     int SetExcludeCasterAuraSpell(lua_State* L, SpellEntry* entry)
     {
-        uint32 excludeCasterAuraSpell = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 excludeCasterAuraSpell = YLA::CHECKVAL<uint32>(L, 2);
         entry->ExcludeCasterAuraSpell = excludeCasterAuraSpell;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1778,7 +1778,7 @@ namespace LuaSpellEntry
      */
     int SetExcludeTargetAuraSpell(lua_State* L, SpellEntry* entry)
     {
-        uint32 excludeTargetAuraSpell = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 excludeTargetAuraSpell = YLA::CHECKVAL<uint32>(L, 2);
         entry->ExcludeTargetAuraSpell = excludeTargetAuraSpell;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1796,7 +1796,7 @@ namespace LuaSpellEntry
      */
     int SetRecoveryTime(lua_State* L, SpellEntry* entry)
     {
-        uint32 recoveryTime = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 recoveryTime = YLA::CHECKVAL<uint32>(L, 2);
         entry->RecoveryTime = recoveryTime;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1814,7 +1814,7 @@ namespace LuaSpellEntry
      */
     int SetCategoryRecoveryTime(lua_State* L, SpellEntry* entry)
     {
-        uint32 categoryRecoveryTime = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 categoryRecoveryTime = YLA::CHECKVAL<uint32>(L, 2);
         entry->CategoryRecoveryTime = categoryRecoveryTime;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1832,7 +1832,7 @@ namespace LuaSpellEntry
      */
     int SetInterruptFlags(lua_State* L, SpellEntry* entry)
     {
-        uint32 interruptFlags = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 interruptFlags = YLA::CHECKVAL<uint32>(L, 2);
         entry->InterruptFlags = interruptFlags;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1850,7 +1850,7 @@ namespace LuaSpellEntry
      */
     int SetAuraInterruptFlags(lua_State* L, SpellEntry* entry)
     {
-        uint32 auraInterruptFlags = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 auraInterruptFlags = YLA::CHECKVAL<uint32>(L, 2);
         entry->AuraInterruptFlags = auraInterruptFlags;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1868,7 +1868,7 @@ namespace LuaSpellEntry
      */
     int SetChannelInterruptFlags(lua_State* L, SpellEntry* entry)
     {
-        uint32 channelInterruptFlags = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 channelInterruptFlags = YLA::CHECKVAL<uint32>(L, 2);
         entry->ChannelInterruptFlags = channelInterruptFlags;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1886,7 +1886,7 @@ namespace LuaSpellEntry
      */
     int SetProcFlags(lua_State* L, SpellEntry* entry)
     {
-        uint32 procFlags = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 procFlags = YLA::CHECKVAL<uint32>(L, 2);
         entry->ProcFlags = procFlags;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1904,7 +1904,7 @@ namespace LuaSpellEntry
      */
     int SetProcChance(lua_State* L, SpellEntry* entry)
     {
-        uint32 procChance = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 procChance = YLA::CHECKVAL<uint32>(L, 2);
         entry->ProcChance = procChance;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1922,7 +1922,7 @@ namespace LuaSpellEntry
      */
     int SetProcCharges(lua_State* L, SpellEntry* entry)
     {
-        uint32 procCharges = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 procCharges = YLA::CHECKVAL<uint32>(L, 2);
         entry->ProcCharges = procCharges;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1940,7 +1940,7 @@ namespace LuaSpellEntry
      */
     int SetMaxLevel(lua_State* L, SpellEntry* entry)
     {
-        uint32 maxLevel = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 maxLevel = YLA::CHECKVAL<uint32>(L, 2);
         entry->MaxLevel = maxLevel;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1958,7 +1958,7 @@ namespace LuaSpellEntry
      */
     int SetBaseLevel(lua_State* L, SpellEntry* entry)
     {
-        uint32 baseLevel = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 baseLevel = YLA::CHECKVAL<uint32>(L, 2);
         entry->BaseLevel = baseLevel;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1976,7 +1976,7 @@ namespace LuaSpellEntry
      */
     int SetSpellLevel(lua_State* L, SpellEntry* entry)
     {
-        uint32 spellLevel = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 spellLevel = YLA::CHECKVAL<uint32>(L, 2);
         entry->SpellLevel = spellLevel;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -1994,7 +1994,7 @@ namespace LuaSpellEntry
      */
     int SetManaCost(lua_State* L, SpellEntry* entry)
     {
-        uint32 manaCost = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 manaCost = YLA::CHECKVAL<uint32>(L, 2);
         entry->ManaCost = manaCost;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2012,7 +2012,7 @@ namespace LuaSpellEntry
      */
     int SetPowerType(lua_State* L, SpellEntry* entry)
     {
-        uint32 powerType = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 powerType = YLA::CHECKVAL<uint32>(L, 2);
         entry->PowerType = powerType;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2030,7 +2030,7 @@ namespace LuaSpellEntry
      */
     int SetManaCostPerlevel(lua_State* L, SpellEntry* entry)
     {
-        uint32 manaCostPerlevel = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 manaCostPerlevel = YLA::CHECKVAL<uint32>(L, 2);
         entry->ManaCostPerlevel = manaCostPerlevel;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2048,7 +2048,7 @@ namespace LuaSpellEntry
      */
     int SetManaPerSecond(lua_State* L, SpellEntry* entry)
     {
-        uint32 manaPerSecond = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 manaPerSecond = YLA::CHECKVAL<uint32>(L, 2);
         entry->ManaPerSecond = manaPerSecond;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2066,7 +2066,7 @@ namespace LuaSpellEntry
      */
     int SetManaPerSecondPerLevel(lua_State* L, SpellEntry* entry)
     {
-        uint32 manaPerSecondPerLevel = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 manaPerSecondPerLevel = YLA::CHECKVAL<uint32>(L, 2);
         entry->ManaPerSecondPerLevel = manaPerSecondPerLevel;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2084,7 +2084,7 @@ namespace LuaSpellEntry
      */
     int SetSpeed(lua_State* L, SpellEntry* entry)
     {
-        float speed = ALE::CHECKVAL<float>(L, 2);
+        float speed = YLA::CHECKVAL<float>(L, 2);
         entry->Speed = speed;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2102,7 +2102,7 @@ namespace LuaSpellEntry
      */
     int SetStackAmount(lua_State* L, SpellEntry* entry)
     {
-        uint32 stackAmount = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 stackAmount = YLA::CHECKVAL<uint32>(L, 2);
         entry->StackAmount = stackAmount;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2120,7 +2120,7 @@ namespace LuaSpellEntry
      */
     int SetEquippedItemClass(lua_State* L, SpellEntry* entry)
     {
-        int32 equippedItemClass = ALE::CHECKVAL<int32>(L, 2);
+        int32 equippedItemClass = YLA::CHECKVAL<int32>(L, 2);
         entry->EquippedItemClass = equippedItemClass;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2138,7 +2138,7 @@ namespace LuaSpellEntry
      */
     int SetEquippedItemSubClassMask(lua_State* L, SpellEntry* entry)
     {
-        int32 equippedItemSubClassMask = ALE::CHECKVAL<int32>(L, 2);
+        int32 equippedItemSubClassMask = YLA::CHECKVAL<int32>(L, 2);
         entry->EquippedItemSubClassMask = equippedItemSubClassMask;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2156,7 +2156,7 @@ namespace LuaSpellEntry
      */
     int SetEquippedItemInventoryTypeMask(lua_State* L, SpellEntry* entry)
     {
-        int32 equippedItemInventoryTypeMask = ALE::CHECKVAL<int32>(L, 2);
+        int32 equippedItemInventoryTypeMask = YLA::CHECKVAL<int32>(L, 2);
         entry->EquippedItemInventoryTypeMask = equippedItemInventoryTypeMask;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2174,7 +2174,7 @@ namespace LuaSpellEntry
      */
     int SetSpellIconID(lua_State* L, SpellEntry* entry)
     {
-        uint32 spellIconID = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 spellIconID = YLA::CHECKVAL<uint32>(L, 2);
         entry->SpellIconID = spellIconID;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2192,7 +2192,7 @@ namespace LuaSpellEntry
      */
     int SetActiveIconID(lua_State* L, SpellEntry* entry)
     {
-        uint32 activeIconID = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 activeIconID = YLA::CHECKVAL<uint32>(L, 2);
         entry->ActiveIconID = activeIconID;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2210,7 +2210,7 @@ namespace LuaSpellEntry
      */
     int SetSpellPriority(lua_State* L, SpellEntry* entry)
     {
-        uint32 spellPriority = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 spellPriority = YLA::CHECKVAL<uint32>(L, 2);
         entry->SpellPriority = spellPriority;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2228,7 +2228,7 @@ namespace LuaSpellEntry
      */
     int SetManaCostPercentage(lua_State* L, SpellEntry* entry)
     {
-        uint32 manaCostPercentage = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 manaCostPercentage = YLA::CHECKVAL<uint32>(L, 2);
         entry->ManaCostPercentage = manaCostPercentage;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2246,7 +2246,7 @@ namespace LuaSpellEntry
      */
     int SetStartRecoveryCategory(lua_State* L, SpellEntry* entry)
     {
-        uint32 startRecoveryCategory = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 startRecoveryCategory = YLA::CHECKVAL<uint32>(L, 2);
         entry->StartRecoveryCategory = startRecoveryCategory;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2264,7 +2264,7 @@ namespace LuaSpellEntry
      */
     int SetStartRecoveryTime(lua_State* L, SpellEntry* entry)
     {
-        uint32 startRecoveryTime = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 startRecoveryTime = YLA::CHECKVAL<uint32>(L, 2);
         entry->StartRecoveryTime = startRecoveryTime;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2282,7 +2282,7 @@ namespace LuaSpellEntry
      */
     int SetMaxTargetLevel(lua_State* L, SpellEntry* entry)
     {
-        uint32 maxTargetLevel = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 maxTargetLevel = YLA::CHECKVAL<uint32>(L, 2);
         entry->MaxTargetLevel = maxTargetLevel;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2300,7 +2300,7 @@ namespace LuaSpellEntry
      */
     int SetSpellFamilyName(lua_State* L, SpellEntry* entry)
     {
-        uint32 spellFamilyName = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 spellFamilyName = YLA::CHECKVAL<uint32>(L, 2);
         entry->SpellFamilyName = spellFamilyName;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2318,7 +2318,7 @@ namespace LuaSpellEntry
      */
     int SetMaxAffectedTargets(lua_State* L, SpellEntry* entry)
     {
-        uint32 maxAffectedTargets = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 maxAffectedTargets = YLA::CHECKVAL<uint32>(L, 2);
         entry->MaxAffectedTargets = maxAffectedTargets;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2336,7 +2336,7 @@ namespace LuaSpellEntry
      */
     int SetDmgClass(lua_State* L, SpellEntry* entry)
     {
-        uint32 dmgClass = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 dmgClass = YLA::CHECKVAL<uint32>(L, 2);
         entry->DmgClass = dmgClass;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2354,7 +2354,7 @@ namespace LuaSpellEntry
      */
     int SetPreventionType(lua_State* L, SpellEntry* entry)
     {
-        uint32 preventionType = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 preventionType = YLA::CHECKVAL<uint32>(L, 2);
         entry->PreventionType = preventionType;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2372,7 +2372,7 @@ namespace LuaSpellEntry
      */
     int SetSchoolMask(lua_State* L, SpellEntry* entry)
     {
-        uint32 schoolMask = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 schoolMask = YLA::CHECKVAL<uint32>(L, 2);
         entry->SchoolMask = schoolMask;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
@@ -2390,7 +2390,7 @@ namespace LuaSpellEntry
      */
     int SetRuneCostID(lua_State* L, SpellEntry* entry)
     {
-        uint32 runeCostID = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 runeCostID = YLA::CHECKVAL<uint32>(L, 2);
         entry->RuneCostID = runeCostID;
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Id))
