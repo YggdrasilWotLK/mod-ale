@@ -85,9 +85,28 @@ bool YLA::OnAddonMessage(Player* sender, uint32 type, std::string& msg, Player* 
 void YLA::OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj)
 {
     LOCK_YLA_STATE;
+    // A nested timed event would push its [function, args] on top of the
+    // outer call's stack and invalidate the outer CallOneFunction indices.
+    // Refuse instead of mis-popping; the event loop re-arms repeating events.
+    if (event_level)
+    {
+        YLA_LOG_ERROR("[YLA]: Skipped nested timed event (funcRef {} delay {} calls {}) during active Lua execution.", funcRef, delay, calls);
+        ASSERT(false); // nested timed event
+        return;
+    }
     ASSERT(!event_level);
 
+    int top0 = lua_gettop(L);
+
     lua_rawgeti(L, LUA_REGISTRYINDEX, funcRef);
+    if (!lua_isfunction(L, -1))
+    {
+        YLA_LOG_ERROR("[YLA]: Skipped timed event (funcRef {}): registry value is {}, not a function.", funcRef, luaL_typename(L, -1));
+        ASSERT(false); // stack probably corrupt
+        lua_settop(L, top0);
+        InvalidateObjects();
+        return;
+    }
 
     Push(L, funcRef);
     Push(L, delay);
@@ -95,6 +114,15 @@ void YLA::OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj
     Push(L, obj);
 
     ExecuteCall(4, 0);
+
+    // The timed call must leave the stack exactly as found: any surplus or
+    // deficit here would misalign every later op on L.
+    if (lua_gettop(L) != top0)
+    {
+        YLA_LOG_ERROR("[YLA]: OnTimedEvent stack mismatch (funcRef {}): top-in {} top-out {}. Restoring.", funcRef, top0, lua_gettop(L));
+        ASSERT(false); // stack probably corrupt
+        lua_settop(L, top0);
+    }
 
     ASSERT(!event_level);
     InvalidateObjects();

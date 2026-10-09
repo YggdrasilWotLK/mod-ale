@@ -191,7 +191,14 @@ public:
             return;
 
         BindingList& list = result->second;
-        lua_checkstack(L, list.size());
+        // Diff pushed funcs against stack growth: a failed checkstack must
+        // not become a short push that SetupStack miscounts.
+        if (!lua_checkstack(L, list.size()))
+        {
+            YLA_LOG_ERROR("[YLA]: PushRefsFor refused: no stack space for {} refs.", (uint32)list.size());
+            ASSERT(false); // stack probably corrupt
+            return;
+        }
         for (auto i = list.begin(); i != list.end();)
         {
             std::unique_ptr<Binding>& binding = (*i);
