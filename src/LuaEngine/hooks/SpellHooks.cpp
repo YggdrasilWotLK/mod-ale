@@ -54,3 +54,22 @@ void YLA::OnSpellPrepare(Unit* caster, Spell* spell, SpellInfo const* spellInfo)
     Push(spell);
     CallAllFunctions(SpellEventBindings, key);
 }
+
+void YLA::OnSpellAuraApply(Unit* unit, Aura* aura)
+{
+    uint32 spellId = aura->GetSpellInfo()->GetSpellId();
+    START_HOOK(SPELL_EVENT_ON_AURA_APPLY, spellId);
+    Push(unit);
+    Push(aura);
+    CallAllFunctions(SpellEventBindings, key);
+}
+
+void YLA::OnSpellAuraRemove(Unit* unit, Aura* aura, uint8 mode)
+{
+    uint32 spellId = aura->GetSpellInfo()->GetSpellId();
+    START_HOOK(SPELL_EVENT_ON_AURA_REMOVE, spellId);
+    Push(unit);
+    Push(aura);
+    Push(mode);
+    CallAllFunctions(SpellEventBindings, key);
+}
