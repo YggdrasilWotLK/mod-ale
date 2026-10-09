@@ -18,7 +18,16 @@
 template<typename K1, typename K2>
 int YLA::SetupStack(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const K1& key1, const K2& key2, int number_of_arguments)
 {
-    ASSERT(number_of_arguments == this->push_counter);
+    // Diff the caller's arg count against the pushes actually made: with a
+    // polluted push_counter the lua_insert below would misplace event_id and
+    // the func count derived from stack growth would be wrong.
+    if (number_of_arguments != this->push_counter)
+    {
+        YLA_LOG_ERROR("[YLA]: SetupStack arg mismatch: caller {} pushed {}. Trusting pushed count.", number_of_arguments, (int)this->push_counter);
+        number_of_arguments = this->push_counter;
+    }
+    if (number_of_arguments < 0)
+        number_of_arguments = 0;
     ASSERT(key1.event_id == key2.event_id);
     // Stack: [arguments]
 
@@ -28,8 +37,13 @@ int YLA::SetupStack(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const 
     // Stack: [arguments], event_id
 
     int arguments_top = lua_gettop(L);
+    if (arguments_top < number_of_arguments)
+    {
+        YLA_LOG_ERROR("[YLA]: SetupStack underflow: need {} have {}. Popping event_id, calling nothing.", number_of_arguments, arguments_top);
+        lua_pop(L, 1); // event_id just pushed above
+        return 0;
+    }
     int first_argument_index = arguments_top - number_of_arguments + 1;
-    ASSERT(arguments_top >= number_of_arguments);
 
     lua_insert(L, first_argument_index);
     // Stack: event_id, [arguments]
@@ -39,7 +53,15 @@ int YLA::SetupStack(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const 
         bindings2->PushRefsFor(key2);
     // Stack: event_id, [arguments], [functions]
 
+    // Diff the pushed func count against actual stack growth: PushRefsFor
+    // must have added exactly the [functions] slots.
     int number_of_functions = lua_gettop(L) - arguments_top;
+    if (number_of_functions < 0)
+    {
+        YLA_LOG_ERROR("[YLA]: SetupStack func mismatch: arguments_top {} top-now {}. Restoring.", arguments_top, lua_gettop(L));
+        lua_settop(L, arguments_top);
+        return 0;
+    }
     return number_of_functions;
 }
 
@@ -49,8 +71,12 @@ int YLA::SetupStack(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const 
 template<typename T>
 void YLA::ReplaceArgument(T value, uint8 index)
 {
-    ASSERT(index < lua_gettop(L) && index > 0);
     // Stack: event_id, [arguments], [functions], [results]
+    if (index == 0 || (int)index >= lua_gettop(L))
+    {
+        YLA_LOG_ERROR("[YLA]: ReplaceArgument refused: index {} top {}.", (int)index, lua_gettop(L));
+        return;
+    }
 
     YLA::Push(L, value);
     // Stack: event_id, [arguments], [functions], [results], value

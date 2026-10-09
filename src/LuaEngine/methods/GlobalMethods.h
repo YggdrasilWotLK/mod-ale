@@ -1438,15 +1438,32 @@ namespace LuaGlobalFunctions
                     return;
                 }
                 lua_State* SL = state->L;
+                int stop0 = lua_gettop(SL);
 
                 // Get function
                 lua_rawgeti(SL, LUA_REGISTRYINDEX, funcRef);
+                if (!lua_isfunction(SL, -1))
+                {
+                    YLA_LOG_ERROR("[YLA]: Skipped DB callback (funcRef {}): registry value is {}, not a function.", funcRef, luaL_typename(SL, -1));
+                    lua_settop(SL, stop0);
+                    luaL_unref(SL, LUA_REGISTRYINDEX, funcRef);
+                    delete eq;
+                    // Decrement pending callbacks counter
+                    state->DecrementCallbacks();
+                    return;
+                }
 
                 // Push parameters
                 YLA::Push(SL, eq);
 
                 // Call function
                 state->ExecuteCall(1, 0);
+
+                if (lua_gettop(SL) != stop0)
+                {
+                    YLA_LOG_ERROR("[YLA]: DB callback stack mismatch (funcRef {}): top-in {} top-out {}. Restoring.", funcRef, stop0, lua_gettop(SL));
+                    lua_settop(SL, stop0);
+                }
 
                 luaL_unref(SL, LUA_REGISTRYINDEX, funcRef);
 

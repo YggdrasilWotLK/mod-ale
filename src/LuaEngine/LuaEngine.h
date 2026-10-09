@@ -454,7 +454,7 @@ public:
     void FreeInstanceId(uint32 instanceId);
 
     /* Custom */
-    void OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj);
+    bool OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj);
     bool OnCommand(ChatHandler& handler, const char* text);
     void OnWorldUpdate(uint32 diff);
     void OnLootItem(Player* pPlayer, Item* pItem, uint32 count, ObjectGuid guid);
