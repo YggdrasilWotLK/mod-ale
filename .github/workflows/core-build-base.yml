@@ -35,8 +35,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'YggdrasilWotLK/mod-shadows'
-          # TODO: revert to 'master' after mod-shadows rename PR merges
-          ref: 'rename/mod-yla-mod-shadows'
+          ref: 'master'
           submodules: 'recursive'
           path: 'modules/mod-shadows'
           fetch-depth: 0
