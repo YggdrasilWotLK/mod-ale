@@ -1182,6 +1182,7 @@ ALERegister<Group> GroupMethods[] =
     { "GetMainAssist", &LuaGroup::GetMainAssist },
     { "GetMemberFlags", &LuaGroup::GetMemberFlags },
     { "GetMemberRoles", &LuaGroup::GetMemberRoles },
+    { "GetMemberInfo", &LuaGroup::GetMemberInfo },
     { "GetTargetIcon", &LuaGroup::GetTargetIcon },
     { "GetTargetIconObject", &LuaGroup::GetTargetIconObject },
     { "GetGUID", &LuaGroup::GetGUID },

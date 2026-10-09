@@ -635,6 +635,50 @@ namespace LuaGroup
         return 1;
     }
 
+    /**
+     * Returns a table with info for every member, online or offline
+     *
+     * Player objects require a live player, so use this when members may
+     * be offline. Each entry holds guid, name, flags, roles, subGroup
+     * and online.
+     *
+     * @return table members : member info keyed 1..n
+     */
+    int GetMemberInfo(lua_State* L, Group* group)
+    {
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
+        for (Group::MemberSlot const& slot : group->GetMemberSlots())
+        {
+            lua_newtable(L);
+            int entry = lua_gettop(L);
+            lua_pushstring(L, "guid");
+            YLA::Push(L, slot.guid);
+            lua_settable(L, entry);
+            lua_pushstring(L, "name");
+            YLA::Push(L, slot.name);
+            lua_settable(L, entry);
+            lua_pushstring(L, "flags");
+            YLA::Push(L, slot.flags);
+            lua_settable(L, entry);
+            lua_pushstring(L, "roles");
+            YLA::Push(L, slot.roles);
+            lua_settable(L, entry);
+            lua_pushstring(L, "subGroup");
+            YLA::Push(L, slot.group);
+            lua_settable(L, entry);
+            lua_pushstring(L, "online");
+            YLA::Push(L, ObjectAccessor::FindPlayer(slot.guid) != nullptr);
+            lua_settable(L, entry);
+            lua_rawseti(L, tbl, ++i);
+        }
+
+        lua_settop(L, tbl); // push table to top of stack
+        return 1;
+    }
+
     /*int ConvertToLFG(lua_State* L, Group* group) // TODO: Implementation
     {
         group->ConvertToLFG();
