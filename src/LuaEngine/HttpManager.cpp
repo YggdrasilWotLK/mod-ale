@@ -305,7 +305,6 @@ void HttpManager::HandleHttpResponses(YLA* owner, bool isGlobal)
         if (!lua_isfunction(L, -1))
         {
             YLA_LOG_ERROR("[YLA]: Skipped HTTP callback (funcRef {}): registry value is {}, not a function.", res->funcRef, luaL_typename(L, -1));
-            ASSERT(false); // stack probably corrupt
             lua_settop(L, top0);
             luaL_unref(L, LUA_REGISTRYINDEX, res->funcRef);
             delete res;
@@ -328,7 +327,6 @@ void HttpManager::HandleHttpResponses(YLA* owner, bool isGlobal)
         if (lua_gettop(L) != top0)
         {
             YLA_LOG_ERROR("[YLA]: HTTP callback stack mismatch (funcRef {}): top-in {} top-out {}. Restoring.", res->funcRef, top0, lua_gettop(L));
-            ASSERT(false); // stack probably corrupt
             lua_settop(L, top0);
         }
 

@@ -1445,7 +1445,6 @@ namespace LuaGlobalFunctions
                 if (!lua_isfunction(SL, -1))
                 {
                     YLA_LOG_ERROR("[YLA]: Skipped DB callback (funcRef {}): registry value is {}, not a function.", funcRef, luaL_typename(SL, -1));
-                    ASSERT(false); // stack probably corrupt
                     lua_settop(SL, stop0);
                     luaL_unref(SL, LUA_REGISTRYINDEX, funcRef);
                     delete eq;
@@ -1463,7 +1462,6 @@ namespace LuaGlobalFunctions
                 if (lua_gettop(SL) != stop0)
                 {
                     YLA_LOG_ERROR("[YLA]: DB callback stack mismatch (funcRef {}): top-in {} top-out {}. Restoring.", funcRef, stop0, lua_gettop(SL));
-                    ASSERT(false); // stack probably corrupt
                     lua_settop(SL, stop0);
                 }
 

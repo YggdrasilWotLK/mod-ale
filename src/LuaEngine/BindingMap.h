@@ -196,7 +196,6 @@ public:
         if (!lua_checkstack(L, list.size()))
         {
             YLA_LOG_ERROR("[YLA]: PushRefsFor refused: no stack space for {} refs.", (uint32)list.size());
-            ASSERT(false); // stack probably corrupt
             return;
         }
         for (auto i = list.begin(); i != list.end();)

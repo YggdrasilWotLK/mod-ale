@@ -1057,11 +1057,11 @@ bool YLA::ExecuteCall(int params, int res)
     // Diff the Lua stack against the caller's func/param count before
     // touching it: a prior mis-push (or a nested entry that polluted the
     // stack) must never reach lua_insert/lua_pcall, which would corrupt
-    // this and every later op on L.
+    // this and every later op on L. Never assert here: asserts are fatal
+    // in this build, and a guard must not become the crash.
     if (params < 0 || res < 0 || base <= 0 || base > top0)
     {
         YLA_LOG_ERROR("[YLA]: ExecuteCall refused: params {} res {} top {} base {}. Stack left untouched.", params, res, top0, base);
-        ASSERT(false); // stack probably corrupt
         for (int i = 0; i < res; ++i)
             lua_pushnil(L);
         return false;
@@ -1075,7 +1075,6 @@ bool YLA::ExecuteCall(int params, int res)
         const char* pushed = luaL_tolstring(L, base, NULL);
         YLA_LOG_ERROR("[YLA]: Cannot execute call: registered value is {}, not a function.", pushed);
         lua_pop(L, 1); // tolstring result
-        ASSERT(false); // stack probably corrupt
         // Drop the [function, parameters] the caller pushed, then satisfy
         // the result contract so CallOneFunction/CleanUpStack stay balanced.
         lua_settop(L, base - 1);
@@ -1093,10 +1092,20 @@ bool YLA::ExecuteCall(int params, int res)
         // Stack: traceback, function, [parameters]
     }
 
-    // Objects are invalidated when event_level hits 0
-    ++event_level;
-    int result = lua_pcall(L, params, res, usetrace ? base : 0);
-    --event_level;
+    // Objects are invalidated when event_level hits 0. RAII: the level
+    // must return to its entry value on every exit path, including a C++
+    // exception unwinding through the pcall.
+    struct EventLevelGuard
+    {
+        explicit EventLevelGuard(uint32& level) : lvl(level) { ++lvl; }
+        ~EventLevelGuard() { --lvl; }
+        uint32& lvl;
+    };
+    int result;
+    {
+        EventLevelGuard levelGuard(event_level);
+        result = lua_pcall(L, params, res, usetrace ? base : 0);
+    }
 
     if (usetrace)
     {
@@ -1131,7 +1140,6 @@ bool YLA::ExecuteCall(int params, int res)
         if (haveTop != expectedTop)
         {
             YLA_LOG_ERROR("[YLA]: ExecuteCall stack mismatch: params {} res {} top-in {} top-out {} expected {}. Restoring.", params, res, top0, haveTop, expectedTop);
-            ASSERT(false); // stack probably corrupt
             if (expectedTop < 0)
                 expectedTop = 0;
             lua_settop(L, expectedTop);
@@ -1810,7 +1818,6 @@ void YLA::CleanUpStack(int number_of_arguments)
     if (have < want)
     {
         YLA_LOG_ERROR("[YLA]: CleanUpStack underflow: want {} have {}. Popping what exists.", want, have);
-        ASSERT(false); // stack probably corrupt
         want = have;
     }
     if (want > 0) // lua_pop(L, 0) would pop one slot; never pop an empty stack
@@ -1839,7 +1846,6 @@ int YLA::CallOneFunction(int number_of_functions, int number_of_arguments, int n
         top0 < number_of_arguments + number_of_functions)
     {
         YLA_LOG_ERROR("[YLA]: CallOneFunction refused: funcs {} args {} results {} top {}. Pushing nils.", number_of_functions, number_of_arguments, number_of_results, top0);
-        ASSERT(false); // stack probably corrupt
         if (number_of_results < 0)
             number_of_results = 0;
         for (int i = 0; i < number_of_results; ++i)
@@ -1849,7 +1855,6 @@ int YLA::CallOneFunction(int number_of_functions, int number_of_arguments, int n
     if (!lua_checkstack(L, number_of_arguments))
     {
         YLA_LOG_ERROR("[YLA]: CallOneFunction: no stack space for {} arg copies. Pushing nils.", number_of_arguments);
-        ASSERT(false); // stack probably corrupt
         for (int i = 0; i < number_of_results; ++i)
             lua_pushnil(L);
         return lua_gettop(L) - number_of_results + 1;
@@ -1879,7 +1884,6 @@ int YLA::CallOneFunction(int number_of_functions, int number_of_arguments, int n
         {
             YLA_LOG_ERROR("[YLA]: CallOneFunction stack mismatch: funcs {} args {} results {} top-in {} top-out {} expected {}. Restoring.",
                 number_of_functions, number_of_arguments, number_of_results, top0, haveTop, expectedTop);
-            ASSERT(false); // stack probably corrupt
             if (expectedTop < 0)
                 expectedTop = 0;
             lua_settop(L, expectedTop);

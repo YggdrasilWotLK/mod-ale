@@ -172,12 +172,16 @@ void YLAEventProcessor::Update(uint32 diff)
         // null and are skipped: no raw slot is ever dereferenced. Locking
         // mirrors LOCK_YLA_STATE for the resolved state (global -> state
         // in compat, state-only in multistate).
+        // A refused (nested/stale) call counts as not run: it is re-armed
+        // below instead of being dropped, so no event is ever lost to a
+        // skip (one-shots included).
+        bool ran = false;
         if (auto state = YLA::LockStateRef(call.owner))
         {
             YLA::Guard globalGuard(YLAConfig::GetInstance().IsCompatibilityModeEnabled() ? YLA::GetLock() : YLA::GetNoopLock());
             YLA::Guard stateGuard(state->GetStateLock());
             if (state->HasLuaState())
-                state->OnTimedEvent(call.luaEvent->funcRef, call.delay, call.repeatsArg, call.liveObj);
+                ran = state->OnTimedEvent(call.luaEvent->funcRef, call.delay, call.repeatsArg, call.liveObj);
         }
 
         {
@@ -187,7 +191,7 @@ void YLAEventProcessor::Update(uint32 diff)
             // the call (sole ownership returns to the containers exactly
             // once). Anything else is deleted below.
             firing = nullptr;
-            if (!call.remove && !dead && call.luaEvent->state == LUAEVENT_STATE_RUN &&
+            if ((!call.remove || !ran) && !dead && call.luaEvent->state == LUAEVENT_STATE_RUN &&
                 massSweep.load(std::memory_order_acquire) == call.sweep)
                 AddEvent(call.luaEvent);
             else

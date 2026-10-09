@@ -82,19 +82,19 @@ bool YLA::OnAddonMessage(Player* sender, uint32 type, std::string& msg, Player* 
     return CallAllFunctionsBool(ServerEventBindings, key, true);
 }
 
-void YLA::OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj)
+bool YLA::OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj)
 {
     LOCK_YLA_STATE;
     // A nested timed event would push its [function, args] on top of the
     // outer call's stack and invalidate the outer CallOneFunction indices.
-    // Refuse instead of mis-popping; the event loop re-arms repeating events.
+    // Refuse (the event loop re-arms it for a later tick) instead of
+    // mis-popping. Never assert here: asserts are fatal in this build.
+    // event_level is logged to distinguish genuine nesting from a leak.
     if (event_level)
     {
-        YLA_LOG_ERROR("[YLA]: Skipped nested timed event (funcRef {} delay {} calls {}) during active Lua execution.", funcRef, delay, calls);
-        ASSERT(false); // nested timed event
-        return;
+        YLA_LOG_ERROR("[YLA]: Skipped nested timed event (funcRef {} delay {} calls {}) during active Lua execution (event_level {}).", funcRef, delay, calls, event_level);
+        return false;
     }
-    ASSERT(!event_level);
 
     int top0 = lua_gettop(L);
 
@@ -102,10 +102,9 @@ void YLA::OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj
     if (!lua_isfunction(L, -1))
     {
         YLA_LOG_ERROR("[YLA]: Skipped timed event (funcRef {}): registry value is {}, not a function.", funcRef, luaL_typename(L, -1));
-        ASSERT(false); // stack probably corrupt
         lua_settop(L, top0);
         InvalidateObjects();
-        return;
+        return false;
     }
 
     Push(L, funcRef);
@@ -120,12 +119,11 @@ void YLA::OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj
     if (lua_gettop(L) != top0)
     {
         YLA_LOG_ERROR("[YLA]: OnTimedEvent stack mismatch (funcRef {}): top-in {} top-out {}. Restoring.", funcRef, top0, lua_gettop(L));
-        ASSERT(false); // stack probably corrupt
         lua_settop(L, top0);
     }
 
-    ASSERT(!event_level);
     InvalidateObjects();
+    return true;
 }
 
 // WORLD

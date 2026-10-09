@@ -24,7 +24,6 @@ int YLA::SetupStack(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const 
     if (number_of_arguments != this->push_counter)
     {
         YLA_LOG_ERROR("[YLA]: SetupStack arg mismatch: caller {} pushed {}. Trusting pushed count.", number_of_arguments, (int)this->push_counter);
-        ASSERT(false); // stack probably corrupt
         number_of_arguments = this->push_counter;
     }
     if (number_of_arguments < 0)
@@ -41,7 +40,6 @@ int YLA::SetupStack(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const 
     if (arguments_top < number_of_arguments)
     {
         YLA_LOG_ERROR("[YLA]: SetupStack underflow: need {} have {}. Popping event_id, calling nothing.", number_of_arguments, arguments_top);
-        ASSERT(false); // stack probably corrupt
         lua_pop(L, 1); // event_id just pushed above
         return 0;
     }
@@ -61,7 +59,6 @@ int YLA::SetupStack(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const 
     if (number_of_functions < 0)
     {
         YLA_LOG_ERROR("[YLA]: SetupStack func mismatch: arguments_top {} top-now {}. Restoring.", arguments_top, lua_gettop(L));
-        ASSERT(false); // stack probably corrupt
         lua_settop(L, arguments_top);
         return 0;
     }
@@ -78,7 +75,6 @@ void YLA::ReplaceArgument(T value, uint8 index)
     if (index == 0 || (int)index >= lua_gettop(L))
     {
         YLA_LOG_ERROR("[YLA]: ReplaceArgument refused: index {} top {}.", (int)index, lua_gettop(L));
-        ASSERT(false); // stack probably corrupt
         return;
     }
 
