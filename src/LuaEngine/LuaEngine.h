@@ -684,6 +684,8 @@ public:
     void OnSpellPrepare(Unit* caster, Spell* spell, SpellInfo const* spellInfo);
     void OnSpellCast(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bool skipCheck);
     void OnSpellCastCancel(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bool bySelf);
+    void OnSpellAuraApply(Unit* unit, Aura* aura);
+    void OnSpellAuraRemove(Unit* unit, Aura* aura, uint8 mode);
 
     /* AllCreature */
     void OnAllCreatureAddToWorld(Creature* creature);

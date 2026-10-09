@@ -1308,6 +1308,8 @@ namespace LuaGlobalFunctions
      * @values [1, SPELL_EVENT_ON_PREPARE, "MAP", <event: number, caster: WorldObject, spell: Spell>, ""]
      * @values [2, SPELL_EVENT_ON_CAST, "MAP", <event: number, caster: WorldObject, spell: Spell, skipCheck: boolean>, ""]
      * @values [3, SPELL_EVENT_ON_CAST_CANCEL, "MAP", <event: number, caster: WorldObject, spell: Spell, bySelf: boolean>, ""]
+     * @values [4, SPELL_EVENT_ON_AURA_APPLY, "MAP", <event: number, unit: WorldObject, aura: Aura>, "Fires for the aura spell ID given as entry"]
+     * @values [5, SPELL_EVENT_ON_AURA_REMOVE, "MAP", <event: number, unit: WorldObject, aura: Aura, mode: number>, "Fires for the aura spell ID given as entry. Mode: 0 none, 1 default, 2 cancel, 3 enemy spell (dispel), 4 expire, 5 death"]
      *
      * @param uint32 entry : [Spell] entry Id
      * @param uint32 event : event ID, refer to table above
