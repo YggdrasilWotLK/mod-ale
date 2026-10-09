@@ -19,7 +19,11 @@ using namespace Hooks;
     auto key = EventKey<PlayerEvents>(EVENT);\
     if (!PlayerEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE
+    LOCK_ALE;\
+    /* WORLD dispatch runs Lua on this state: hold its lock too
+       (global -> state order). In multistate the global lock alone
+       does not serialize against map threads on the same L. */\
+    YLA::Guard __yla_world_state_guard(this->GetStateLock());
 
 #define START_HOOK_WORLD_WITH_RETVAL(EVENT, RETVAL) \
     if (!YLAConfig::GetInstance().IsALEEnabled())\
@@ -27,7 +31,11 @@ using namespace Hooks;
     auto key = EventKey<PlayerEvents>(EVENT);\
     if (!PlayerEventBindings->HasBindingsFor(key))\
         return RETVAL;\
-    LOCK_ALE
+    LOCK_ALE;\
+    /* WORLD dispatch runs Lua on this state: hold its lock too
+       (global -> state order). In multistate the global lock alone
+       does not serialize against map threads on the same L. */\
+    YLA::Guard __yla_world_state_guard(this->GetStateLock());
 
 #define START_HOOK_MAP(EVENT) \
     if (!YLAConfig::GetInstance().IsALEEnabled())\

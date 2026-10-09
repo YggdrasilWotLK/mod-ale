@@ -21,7 +21,11 @@ using namespace Hooks;
     auto key = EventKey<ServerEvents>(EVENT);\
     if (!ServerEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE
+    LOCK_ALE;\
+    /* WORLD dispatch runs Lua on this state: hold its lock too
+       (global -> state order). In multistate the global lock alone
+       does not serialize against map threads on the same L. */\
+    YLA::Guard __yla_world_state_guard(this->GetStateLock());
 
 #define START_HOOK_WORLD_WITH_RETVAL(EVENT, RETVAL) \
     if (!YLAConfig::GetInstance().IsALEEnabled())\
@@ -29,7 +33,11 @@ using namespace Hooks;
     auto key = EventKey<ServerEvents>(EVENT);\
     if (!ServerEventBindings->HasBindingsFor(key))\
         return RETVAL;\
-    LOCK_ALE
+    LOCK_ALE;\
+    /* WORLD dispatch runs Lua on this state: hold its lock too
+       (global -> state order). In multistate the global lock alone
+       does not serialize against map threads on the same L. */\
+    YLA::Guard __yla_world_state_guard(this->GetStateLock());
 
 #define START_HOOK_MAP(EVENT) \
     if (!YLAConfig::GetInstance().IsALEEnabled())\
@@ -82,10 +90,17 @@ bool YLA::OnAddonMessage(Player* sender, uint32 type, std::string& msg, Player* 
     return CallAllFunctionsBool(ServerEventBindings, key, true);
 }
 
-void YLA::OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj)
+bool YLA::OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj)
 {
     LOCK_YLA_STATE;
-    ASSERT(!event_level);
+    // A nested entry would push a second [function, args] frame onto the
+    // outer call's stack. Refuse; the event loop re-arms it for later.
+    // (No assert: asserts are fatal in this build, and nesting happens.)
+    if (event_level)
+    {
+        YLA_LOG_ERROR("[YLA]: Skipped nested timed event (funcRef {} delay {} calls {}) during active Lua execution (event_level {}).", funcRef, delay, calls, event_level);
+        return false;
+    }
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, funcRef);
 
@@ -96,8 +111,8 @@ void YLA::OnTimedEvent(int funcRef, uint32 delay, uint32 calls, WorldObject* obj
 
     ExecuteCall(4, 0);
 
-    ASSERT(!event_level);
     InvalidateObjects();
+    return true;
 }
 
 // WORLD

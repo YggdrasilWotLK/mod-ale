@@ -18,7 +18,11 @@ using namespace Hooks;
     auto key = EventKey<GuildEvents>(EVENT);\
     if (!GuildEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE
+    LOCK_ALE;\
+    /* WORLD dispatch runs Lua on this state: hold its lock too
+       (global -> state order). In multistate the global lock alone
+       does not serialize against map threads on the same L. */\
+    YLA::Guard __yla_world_state_guard(this->GetStateLock());
 
 void YLA::OnAddMember(Guild* guild, Player* player, uint32 plRank)
 {

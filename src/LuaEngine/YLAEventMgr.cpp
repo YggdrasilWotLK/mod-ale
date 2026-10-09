@@ -143,23 +143,11 @@ void YLAEventProcessor::Update(uint32 diff)
         }
     }
 
-    for (DueCall& call : due)
+    // Fire one due call on its owning state. Returns true when its Lua
+    // ran. Refused (nested) or unresolvable calls return false and stay
+    // sole-owned by the caller: re-arm or drop via RearmOrDrop.
+    auto fireOne = [&](DueCall& call) -> bool
     {
-        bool fire = true;
-        {
-            Guard guard(mutex);
-            // Another thread may have aborted it after it became due, or
-            // the processor may have started destruction. Dead targets
-            // stay skipped; unrepeatable leftovers are deleted below.
-            if (dead || call.luaEvent->state != LUAEVENT_STATE_RUN || call.deadTarget)
-            {
-                fire = false;
-                dropped.push_back(call.luaEvent);
-            }
-        }
-        if (!fire)
-            continue;
-
         // Publish the in-flight event so targeted SetState from Lua
         // (self-removal) reaches it: it was popped from the containers.
         {
@@ -172,27 +160,69 @@ void YLAEventProcessor::Update(uint32 diff)
         // null and are skipped: no raw slot is ever dereferenced. Locking
         // mirrors LOCK_YLA_STATE for the resolved state (global -> state
         // in compat, state-only in multistate).
+        bool ran = false;
         if (auto state = YLA::LockStateRef(call.owner))
         {
             YLA::Guard globalGuard(YLAConfig::GetInstance().IsCompatibilityModeEnabled() ? YLA::GetLock() : YLA::GetNoopLock());
             YLA::Guard stateGuard(state->GetStateLock());
             if (state->HasLuaState())
-                state->OnTimedEvent(call.luaEvent->funcRef, call.delay, call.repeatsArg, call.liveObj);
+                ran = state->OnTimedEvent(call.luaEvent->funcRef, call.delay, call.repeatsArg, call.liveObj);
         }
 
         {
             Guard guard(mutex);
-            // Re-add only when still scheduled to run, nobody tore the
-            // processor down meanwhile, and no mass removal swept during
-            // the call (sole ownership returns to the containers exactly
-            // once). Anything else is deleted below.
             firing = nullptr;
-            if (!call.remove && !dead && call.luaEvent->state == LUAEVENT_STATE_RUN &&
-                massSweep.load(std::memory_order_acquire) == call.sweep)
-                AddEvent(call.luaEvent);
-            else
-                dropped.push_back(call.luaEvent);
         }
+        return ran;
+    };
+
+    // A refused call counts as not run: it is re-armed instead of dropped,
+    // so no event is ever lost to a skip (one-shots included). Sole
+    // ownership returns to the containers exactly once here.
+    auto rearmOrDrop = [&](DueCall& call, bool ran)
+    {
+        Guard guard(mutex);
+        if ((!call.remove || !ran) && !dead && call.luaEvent->state == LUAEVENT_STATE_RUN &&
+            massSweep.load(std::memory_order_acquire) == call.sweep)
+            AddEvent(call.luaEvent);
+        else
+            dropped.push_back(call.luaEvent);
+    };
+
+    auto eligible = [&](DueCall& call) -> bool
+    {
+        Guard guard(mutex);
+        // Another thread may have aborted it after it became due, or
+        // the processor may have started destruction. Dead targets
+        // stay skipped; unrepeatable leftovers are deleted below.
+        if (dead || call.luaEvent->state != LUAEVENT_STATE_RUN || call.deadTarget)
+        {
+            dropped.push_back(call.luaEvent);
+            return false;
+        }
+        return true;
+    };
+
+    std::vector<DueCall> retry;
+    retry.reserve(due.size());
+    for (DueCall& call : due)
+    {
+        if (!eligible(call))
+            continue;
+        if (fireOne(call))
+            rearmOrDrop(call, true);
+        else
+            retry.push_back(call);
+    }
+
+    // Same-tick retry, later in this same Update pass: anything whose outer
+    // call has since finished runs now instead of waiting a full tick.
+    // Bounded to one sweep; whatever still refuses re-arms normally.
+    for (DueCall& call : retry)
+    {
+        if (!eligible(call))
+            continue;
+        rearmOrDrop(call, fireOne(call));
     }
 
     for (LuaEvent* luaEvent : dropped)
