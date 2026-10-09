@@ -9,6 +9,7 @@
 
 #include "Chat.h"
 #include "GameTime.h"
+#include "AuctionHouseSearcher.h"
 #include "GossipDef.h"
 #include "YlaDefer.h"
 
