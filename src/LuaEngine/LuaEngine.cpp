@@ -295,14 +295,25 @@ void YLA::_ReloadALE()
     else
         ChatHandler(nullptr).SendGMText(SERVER_MSG_STRING, "Reloading YLA...");
 
-    sALE->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
     sALE->httpManager.DropPending();
-    sALE->CloseLua();
 
-    LoadScriptPaths();
+    {
+        // GALE's state lock MUST be held across close/open/run: map threads
+        // fire global-owned timers on GALE under this same lock (multistate
+        // takes no global lock there), and closing lua_State out from under
+        // an in-flight pcall is use-after-free (garbage stack tops, then a
+        // segfault in lj_state_growstack). In-flight calls drain on the lock
+        // first; later ones block, then run on the new state. Lock order is
+        // global -> state, matching every other path.
+        Guard galeGuard(sALE->GetStateLock());
+        sALE->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
+        sALE->CloseLua();
 
-    sALE->OpenLua();
-    sALE->RunScriptsLocked();
+        LoadScriptPaths();
+
+        sALE->OpenLua();
+        sALE->RunScriptsLocked();
+    }
 
     {
         std::shared_lock lock(g_states_mutex);
