@@ -3428,7 +3428,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
 
-            YLA* E = YLA::GetALE(L);
+            YLA* E = YLA::GetYLA(L);
             for (uint32 i = 1; i < Hooks::AURA_EVENT_COUNT; ++i)
                 E->AuraEventBindings->Clear(Key((Hooks::AuraEvents)i, entry));
         }
@@ -3436,7 +3436,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
-            YLA::GetALE(L)->AuraEventBindings->Clear(Key((Hooks::AuraEvents)event_type, entry));
+            YLA::GetYLA(L)->AuraEventBindings->Clear(Key((Hooks::AuraEvents)event_type, entry));
         }
         return 0;
     }
