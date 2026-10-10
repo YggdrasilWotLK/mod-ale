@@ -13,21 +13,25 @@
 
 using namespace Hooks;
 
-#define START_HOOK(BINDINGS, EVENT, ENTRY) \
+#define START_HOOK(BINDINGS, EVENT, ENTRY)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
-    auto key = EntryKey<GossipEvents>(EVENT, ENTRY);\
-    if (!BINDINGS->HasBindingsFor(key))\
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
         return;\
-    LOCK_YLA_STATE
+    auto key = EntryKey<GossipEvents>(EVENT, ENTRY);\
+    if ((!BINDINGS || !BINDINGS->HasBindingsFor(key)))\
+        return;
 
-#define START_HOOK_WITH_RETVAL(BINDINGS, EVENT, ENTRY, RETVAL) \
+#define START_HOOK_WITH_RETVAL(BINDINGS, EVENT, ENTRY, RETVAL)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
         return RETVAL;\
-    auto key = EntryKey<GossipEvents>(EVENT, ENTRY);\
-    if (!BINDINGS->HasBindingsFor(key))\
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
         return RETVAL;\
-    LOCK_YLA_STATE
+    auto key = EntryKey<GossipEvents>(EVENT, ENTRY);\
+    if ((!BINDINGS || !BINDINGS->HasBindingsFor(key)))\
+        return RETVAL;
 
 bool YLA::OnGossipHello(Player* pPlayer, GameObject* pGameObject)
 {

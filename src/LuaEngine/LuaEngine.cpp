@@ -112,6 +112,10 @@ void YLA::Uninitialize()
     LOCK_YLA;
     ASSERT(IsInitialized());
 
+    // Flip first: hooks re-check this under their locks, so none can
+    // start on a state being torn down; in-flight Lua drains below.
+    initialized = false;
+
     if (fileWatcher)
     {
         fileWatcher->StopWatching();
@@ -152,8 +156,6 @@ void YLA::Uninitialize()
     lua_extensions.clear();
 
     ClearGlobalCache();
-
-    initialized = false;
 }
 
 std::shared_ptr<YLA> YLA::LockStateRef(const YlaStateRef& ref)
@@ -1791,7 +1793,13 @@ void YLA::CleanUpStack(int number_of_arguments)
 {
     // Stack: event_id, [arguments]
 
-    lua_pop(L, number_of_arguments + 1); // Add 1 because the caller doesn't know about `event_id`.
+    // Never pop more than the stack holds.
+    int have = lua_gettop(L);
+    int want = number_of_arguments + 1; // Add 1 because the caller doesn't know about `event_id`.
+    if (want > have)
+        want = have > 0 ? have : 0;
+    if (want > 0)
+        lua_pop(L, want);
     // Stack: (empty)
 
     if (event_level == 0)

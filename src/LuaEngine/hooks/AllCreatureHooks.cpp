@@ -13,21 +13,25 @@
 
 using namespace Hooks;
 
-#define START_HOOK(EVENT) \
+#define START_HOOK(EVENT)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
-    auto key = EventKey<AllCreatureEvents>(EVENT);\
-    if (!AllCreatureEventBindings->HasBindingsFor(key))\
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
         return;\
-    LOCK_YLA_STATE
+    auto key = EventKey<AllCreatureEvents>(EVENT);\
+    if ((!AllCreatureEventBindings || !AllCreatureEventBindings->HasBindingsFor(key)))\
+        return;
 
-#define START_HOOK_WITH_RETVAL(EVENT, RETVAL) \
+#define START_HOOK_WITH_RETVAL(EVENT, RETVAL)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
         return RETVAL;\
-    auto key = EventKey<AllCreatureEvents>(EVENT);\
-    if (!AllCreatureEventBindings->HasBindingsFor(key))\
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
         return RETVAL;\
-    LOCK_YLA_STATE
+    auto key = EventKey<AllCreatureEvents>(EVENT);\
+    if ((!AllCreatureEventBindings || !AllCreatureEventBindings->HasBindingsFor(key)))\
+        return RETVAL;
 
 void YLA::OnAllCreatureAddToWorld(Creature* creature)
 {

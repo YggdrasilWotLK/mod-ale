@@ -13,13 +13,15 @@
 
 using namespace Hooks;
 
-#define START_HOOK(EVENT, ENTRY) \
+#define START_HOOK(EVENT, ENTRY)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
-    auto key = EntryKey<AuraEvents>(EVENT, ENTRY);\
-    if (!AuraEventBindings->HasBindingsFor(key))\
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
         return;\
-    LOCK_YLA_STATE
+    auto key = EntryKey<AuraEvents>(EVENT, ENTRY);\
+    if ((!AuraEventBindings || !AuraEventBindings->HasBindingsFor(key)))\
+        return;
 
 void YLA::OnAuraEventApply(Unit* unit, Aura* aura)
 {

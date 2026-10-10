@@ -12,13 +12,15 @@
 
 using namespace Hooks;
 
-#define START_HOOK(EVENT) \
+#define START_HOOK(EVENT)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
-    auto key = EventKey<VehicleEvents>(EVENT);\
-    if (!VehicleEventBindings->HasBindingsFor(key))\
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
         return;\
-    LOCK_YLA_STATE
+    auto key = EventKey<VehicleEvents>(EVENT);\
+    if ((!VehicleEventBindings || !VehicleEventBindings->HasBindingsFor(key)))\
+        return;
 
 void YLA::OnInstall(Vehicle* vehicle)
 {
