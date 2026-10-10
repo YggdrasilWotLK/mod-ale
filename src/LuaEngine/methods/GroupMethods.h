@@ -425,6 +425,260 @@ namespace LuaGroup
         return 0;
     }
 
+    /**
+     * Returns the GUID marked with the given raid target icon, or 0 if unset
+     *
+     * Icons: 0 Star, 1 Circle, 2 Diamond, 3 Triangle, 4 Moon, 5 Square, 6 Cross, 7 Skull
+     *
+     * @param uint8 icon : the raid target icon
+     * @return ObjectGuid targetGUID : GUID of the marked target, 0 when the icon is unset
+     */
+    int GetTargetIcon(lua_State* L, Group* group)
+    {
+        uint8 icon = YLA::CHECKVAL<uint8>(L, 2);
+
+        if (icon >= TARGETICONCOUNT)
+            return luaL_argerror(L, 2, "valid target icon expected");
+
+        YLA::Push(L, group->GetTargetIcon(icon));
+        return 1;
+    }
+
+    /**
+     * Returns the object marked with the given raid target icon, or nil
+     *
+     * Player marks resolve on any map. Other marks resolve on the maps of
+     * online group members, so a mark in an instance the group has left
+     * returns nil.
+     *
+     * Icons: 0 Star, 1 Circle, 2 Diamond, 3 Triangle, 4 Moon, 5 Square, 6 Cross, 7 Skull
+     *
+     * @param uint8 icon : the raid target icon
+     * @return [WorldObject] target : the marked object, nil when unset or not found
+     */
+    int GetTargetIconObject(lua_State* L, Group* group)
+    {
+        uint8 icon = YLA::CHECKVAL<uint8>(L, 2);
+
+        if (icon >= TARGETICONCOUNT)
+            return luaL_argerror(L, 2, "valid target icon expected");
+
+        ObjectGuid target = group->GetTargetIcon(icon);
+        if (target.IsEmpty())
+        {
+            YLA::Push(L);
+            return 1;
+        }
+
+        if (target.IsPlayer())
+        {
+            YLA::Push(L, ObjectAccessor::FindPlayer(target));
+            return 1;
+        }
+
+        for (GroupReference* itr = group->GetFirstMember(); itr; itr = itr->next())
+        {
+            Player* member = itr->GetSource();
+            if (!member || !member->IsInWorld())
+                continue;
+            if (WorldObject* obj = ObjectAccessor::GetWorldObject(*member, target))
+            {
+                YLA::Push(L, obj);
+                return 1;
+            }
+        }
+
+        YLA::Push(L);
+        return 1;
+    }
+
+    /**
+     * Returns the [Group] leader, or nil when offline
+     *
+     * @return [Player] leader : the group leader, nil when offline
+     */
+    int GetLeader(lua_State* L, Group* group)
+    {
+        YLA::Push(L, group->GetLeader());
+        return 1;
+    }
+
+    /**
+     * Returns a table with the online assistant [Player]s in this [Group]
+     *
+     * @return table assistants : table of assistant [Player]s
+     */
+    int GetAssistants(lua_State* L, Group* group)
+    {
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
+        for (Group::MemberSlot const& slot : group->GetMemberSlots())
+        {
+            if (!(slot.flags & MEMBER_FLAG_ASSISTANT))
+                continue;
+            if (Player* member = ObjectAccessor::FindPlayer(slot.guid))
+            {
+                YLA::Push(L, member);
+                lua_rawseti(L, tbl, ++i);
+            }
+        }
+
+        lua_settop(L, tbl); // push table to top of stack
+        return 1;
+    }
+
+    /**
+     * Returns the [Player] flagged as main tank, or nil when unset or offline
+     *
+     * @return [Player] mainTank : the main tank, nil when unset or offline
+     */
+    int GetMainTank(lua_State* L, Group* group)
+    {
+        for (Group::MemberSlot const& slot : group->GetMemberSlots())
+        {
+            if (slot.flags & MEMBER_FLAG_MAINTANK)
+            {
+                YLA::Push(L, ObjectAccessor::FindPlayer(slot.guid));
+                return 1;
+            }
+        }
+
+        YLA::Push(L);
+        return 1;
+    }
+
+    /**
+     * Returns the [Player] flagged as main assist, or nil when unset or offline
+     *
+     * @return [Player] mainAssist : the main assist, nil when unset or offline
+     */
+    int GetMainAssist(lua_State* L, Group* group)
+    {
+        for (Group::MemberSlot const& slot : group->GetMemberSlots())
+        {
+            if (slot.flags & MEMBER_FLAG_MAINASSIST)
+            {
+                YLA::Push(L, ObjectAccessor::FindPlayer(slot.guid));
+                return 1;
+            }
+        }
+
+        YLA::Push(L);
+        return 1;
+    }
+
+    /**
+     * Returns a member's group flags (assistant, main tank, main assist)
+     *
+     * <pre>
+     * enum GroupMemberFlags
+     * {
+     *     MEMBER_FLAG_ASSISTANT   = 0x01,
+     *     MEMBER_FLAG_MAINTANK    = 0x02,
+     *     MEMBER_FLAG_MAINASSIST  = 0x04,
+     * };
+     * </pre>
+     *
+     * @param ObjectGuid guid : guid of the member
+     * @return uint8 flags : the member's flags, 0 when not a member
+     */
+    int GetMemberFlags(lua_State* L, Group* group)
+    {
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
+
+        for (Group::MemberSlot const& slot : group->GetMemberSlots())
+        {
+            if (slot.guid == guid)
+            {
+                YLA::Push(L, slot.flags);
+                return 1;
+            }
+        }
+
+        YLA::Push(L, uint8(0));
+        return 1;
+    }
+
+    /**
+     * Returns a member's LFG roles bitmask
+     *
+     * <pre>
+     * enum LfgRoles
+     * {
+     *     PLAYER_ROLE_NONE   = 0x00,
+     *     PLAYER_ROLE_LEADER = 0x01,
+     *     PLAYER_ROLE_TANK   = 0x02,
+     *     PLAYER_ROLE_HEALER = 0x04,
+     *     PLAYER_ROLE_DAMAGE = 0x08
+     * };
+     * </pre>
+     *
+     * @param ObjectGuid guid : guid of the member
+     * @return uint8 roles : the member's LFG roles, 0 when not a member
+     */
+    int GetMemberRoles(lua_State* L, Group* group)
+    {
+        ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 2);
+
+        for (Group::MemberSlot const& slot : group->GetMemberSlots())
+        {
+            if (slot.guid == guid)
+            {
+                YLA::Push(L, slot.roles);
+                return 1;
+            }
+        }
+
+        YLA::Push(L, uint8(0));
+        return 1;
+    }
+
+    /**
+     * Returns a table with info for every member, online or offline
+     *
+     * Player objects require a live player, so use this when members may
+     * be offline. Each entry holds guid, name, flags, roles, subGroup
+     * and online.
+     *
+     * @return table members : member info keyed 1..n
+     */
+    int GetMemberInfo(lua_State* L, Group* group)
+    {
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
+        for (Group::MemberSlot const& slot : group->GetMemberSlots())
+        {
+            lua_newtable(L);
+            int entry = lua_gettop(L);
+            lua_pushstring(L, "guid");
+            YLA::Push(L, slot.guid);
+            lua_settable(L, entry);
+            lua_pushstring(L, "name");
+            YLA::Push(L, slot.name);
+            lua_settable(L, entry);
+            lua_pushstring(L, "flags");
+            YLA::Push(L, slot.flags);
+            lua_settable(L, entry);
+            lua_pushstring(L, "roles");
+            YLA::Push(L, slot.roles);
+            lua_settable(L, entry);
+            lua_pushstring(L, "subGroup");
+            YLA::Push(L, slot.group);
+            lua_settable(L, entry);
+            lua_pushstring(L, "online");
+            YLA::Push(L, ObjectAccessor::FindPlayer(slot.guid) != nullptr);
+            lua_settable(L, entry);
+            lua_rawseti(L, tbl, ++i);
+        }
+
+        lua_settop(L, tbl); // push table to top of stack
+        return 1;
+    }
+
     /*int ConvertToLFG(lua_State* L, Group* group) // TODO: Implementation
     {
         group->ConvertToLFG();
