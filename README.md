@@ -79,5 +79,5 @@ YLA is built upon mod-ale, which in turn is built upon the original [Eluna](http
 
 ## License
 
-- Source: Contrary to some of the source documentation and previous information distributed by AzerothCore, all Yggdrasilcore source components are licensed under GNU GPL v2.
+- Source: This repository is distributed under a GNU General Public License v3.0.
 - Intellectual property: YLA is not related to Blizzard Entertainment. Yggdrasil WoW and its derivative projects lay no claim to Blizzard Entertainment's copyrights and intellectual property, and operate this project solely as an avenue for exploring the functionality of the abandonware WotLK 3.3.5a client in an educational capacity.
