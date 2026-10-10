@@ -148,7 +148,7 @@ namespace LuaGlobalFunctions
      */
     int GetStateMap(lua_State* L)
     {
-        YLA* E = YLA::GetALE(L);
+        YLA* E = YLA::GetYLA(L);
         if (E->GetStateMapId() == YLA_GLOBAL_STATE)
         {
             YLA::Push(L);
@@ -167,7 +167,7 @@ namespace LuaGlobalFunctions
      */
     int GetStateMapId(lua_State* L)
     {
-        YLA* E = YLA::GetALE(L);
+        YLA* E = YLA::GetYLA(L);
         if (E->GetStateMapId() == YLA_GLOBAL_STATE)
         {
             YLA::Push(L, -1);
@@ -184,7 +184,7 @@ namespace LuaGlobalFunctions
      */
     int GetStateInstanceId(lua_State* L)
     {
-        YLA* E = YLA::GetALE(L);
+        YLA* E = YLA::GetYLA(L);
         if (E->GetStateMapId() == YLA_GLOBAL_STATE)
         {
             YLA::Push(L, 0);
@@ -622,7 +622,7 @@ namespace LuaGlobalFunctions
         lua_pushvalue(L, 3);
         int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
         if (functionRef >= 0)
-            return YLA::GetALE(L)->Register(L, regtype, id, ObjectGuid(), 0, ev, functionRef, shots);
+            return YLA::GetYLA(L)->Register(L, regtype, id, ObjectGuid(), 0, ev, functionRef, shots);
         else
             luaL_argerror(L, 3, "unable to make a ref to function");
         return 0;
@@ -637,7 +637,7 @@ namespace LuaGlobalFunctions
         lua_pushvalue(L, 2);
         int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
         if (functionRef >= 0)
-            return YLA::GetALE(L)->Register(L, regtype, 0, ObjectGuid(), 0, ev, functionRef, shots);
+            return YLA::GetYLA(L)->Register(L, regtype, 0, ObjectGuid(), 0, ev, functionRef, shots);
         else
             luaL_argerror(L, 2, "unable to make a ref to function");
         return 0;
@@ -654,7 +654,7 @@ namespace LuaGlobalFunctions
         lua_pushvalue(L, 4);
         int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
         if (functionRef >= 0)
-            return YLA::GetALE(L)->Register(L, regtype, 0, guid, instanceId, ev, functionRef, shots);
+            return YLA::GetYLA(L)->Register(L, regtype, 0, guid, instanceId, ev, functionRef, shots);
         else
             luaL_argerror(L, 4, "unable to make a ref to function");
         return 0;
@@ -1398,7 +1398,7 @@ namespace LuaGlobalFunctions
         }
 
 	    // Increment pending callbacks counter
-        YLA* E = YLA::GetALE(L);
+        YLA* E = YLA::GetYLA(L);
 
         // Increment pending callbacks counter
         E->IncrementCallbacks();
@@ -1415,7 +1415,7 @@ namespace LuaGlobalFunctions
             {
                 ALEQuery* eq = result ? new ALEQuery(result) : nullptr;
 
-                LOCK_ALE;
+                LOCK_YLA;
                 auto state = YLA::LockStateRef(owner);
                 if (!state)
                 {
@@ -1431,7 +1431,7 @@ namespace LuaGlobalFunctions
                     delete eq;
                     return;
                 }
-                // Global -> state order (LOCK_ALE held, state taken here);
+                // Global -> state order (LOCK_YLA held, state taken here);
                 // the world drain holds the same nesting, never the reverse.
                 YLA::Guard stateGuard(state->GetStateLock());
                 if (!state->HasLuaState())
@@ -1726,7 +1726,7 @@ namespace LuaGlobalFunctions
         int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
         if (functionRef != LUA_REFNIL && functionRef != LUA_NOREF)
         {
-            YLA* callingE = YLA::GetALE(L);
+            YLA* callingE = YLA::GetYLA(L);
             callingE->eventMgr->globalProcessor->AddEvent(functionRef, min, max, repeats, callingE->GetSelfRef());
             YLA::Push(L, functionRef);
         }
@@ -1746,9 +1746,9 @@ namespace LuaGlobalFunctions
 
         // not thread safe
         if (all_Events)
-            YLA::GetALE(L)->eventMgr->SetState(eventId, LUAEVENT_STATE_ABORT);
+            YLA::GetYLA(L)->eventMgr->SetState(eventId, LUAEVENT_STATE_ABORT);
         else
-            YLA::GetALE(L)->eventMgr->globalProcessor->SetState(eventId, LUAEVENT_STATE_ABORT);
+            YLA::GetYLA(L)->eventMgr->globalProcessor->SetState(eventId, LUAEVENT_STATE_ABORT);
         return 0;
     }
 
@@ -1763,9 +1763,9 @@ namespace LuaGlobalFunctions
 
         // not thread safe
         if (all_Events)
-            YLA::GetALE(L)->eventMgr->SetStates(LUAEVENT_STATE_ABORT);
+            YLA::GetYLA(L)->eventMgr->SetStates(LUAEVENT_STATE_ABORT);
         else
-            YLA::GetALE(L)->eventMgr->globalProcessor->SetStates(LUAEVENT_STATE_ABORT);
+            YLA::GetYLA(L)->eventMgr->globalProcessor->SetStates(LUAEVENT_STATE_ABORT);
         return 0;
     }
 
@@ -1803,7 +1803,7 @@ namespace LuaGlobalFunctions
         // Map-state Lua may only spawn into its own map+instance: anything
         // else inserts objects into a map owned by another worker.
         // Global-state callers keep existing behavior either way.
-        YLA* callingE = YLA::GetALE(L);
+        YLA* callingE = YLA::GetYLA(L);
         if (callingE->GetStateMapId() != YLA_GLOBAL_STATE &&
             (mapID != callingE->GetStateMapId() || instanceID != callingE->GetStateInstanceId()))
         {
@@ -2707,10 +2707,10 @@ namespace LuaGlobalFunctions
         int funcRef = luaL_ref(L, LUA_REGISTRYINDEX);
         if (funcRef >= 0)
         {
-            // Bound to the calling state (not GALE): the response must run
+            // Bound to the calling state (not GYLA): the response must run
             // on the registry that owns funcRef. Queues are mutex-guarded,
             // so pushes from any map worker are safe.
-            YLA* callingE = YLA::GetALE(L);
+            YLA* callingE = YLA::GetYLA(L);
             callingE->httpManager.PushRequest(new HttpWorkItem(funcRef, callingE->GetSelfRef(),
                 callingE->luaGen.load(std::memory_order_acquire), httpVerb, url, body, bodyContentType, headers));
         }
@@ -2803,12 +2803,12 @@ namespace LuaGlobalFunctions
 
         if (lua_isnoneornil(L, 1))
         {
-            YLA::GetALE(L)->BGEventBindings->Clear();
+            YLA::GetYLA(L)->BGEventBindings->Clear();
         }
         else
         {
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 1);
-            YLA::GetALE(L)->BGEventBindings->Clear(Key((Hooks::BGEvents)event_type));
+            YLA::GetYLA(L)->BGEventBindings->Clear(Key((Hooks::BGEvents)event_type));
         }
         return 0;
     }
@@ -2836,7 +2836,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
 
-            YLA* E = YLA::GetALE(L);
+            YLA* E = YLA::GetYLA(L);
             for (uint32 i = 1; i < Hooks::CREATURE_EVENT_COUNT; ++i)
                 E->CreatureEventBindings->Clear(Key((Hooks::CreatureEvents)i, entry));
         }
@@ -2844,7 +2844,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
-            YLA::GetALE(L)->CreatureEventBindings->Clear(Key((Hooks::CreatureEvents)event_type, entry));
+            YLA::GetYLA(L)->CreatureEventBindings->Clear(Key((Hooks::CreatureEvents)event_type, entry));
         }
         return 0;
     }
@@ -2874,7 +2874,7 @@ namespace LuaGlobalFunctions
             ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 1);
             uint32 instanceId = YLA::CHECKVAL<uint32>(L, 2);
 
-            YLA* E = YLA::GetALE(L);
+            YLA* E = YLA::GetYLA(L);
             for (uint32 i = 1; i < Hooks::CREATURE_EVENT_COUNT; ++i)
                 E->CreatureUniqueBindings->Clear(Key((Hooks::CreatureEvents)i, guid, instanceId));
         }
@@ -2883,7 +2883,7 @@ namespace LuaGlobalFunctions
             ObjectGuid guid = YLA::CHECKVAL<ObjectGuid>(L, 1);
             uint32 instanceId = YLA::CHECKVAL<uint32>(L, 2);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 3);
-            YLA::GetALE(L)->CreatureUniqueBindings->Clear(Key((Hooks::CreatureEvents)event_type, guid, instanceId));
+            YLA::GetYLA(L)->CreatureUniqueBindings->Clear(Key((Hooks::CreatureEvents)event_type, guid, instanceId));
         }
         return 0;
     }
@@ -2911,7 +2911,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
 
-            YLA* E = YLA::GetALE(L);
+            YLA* E = YLA::GetYLA(L);
             for (uint32 i = 1; i < Hooks::GOSSIP_EVENT_COUNT; ++i)
                 E->CreatureGossipBindings->Clear(Key((Hooks::GossipEvents)i, entry));
         }
@@ -2919,7 +2919,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
-            YLA::GetALE(L)->CreatureGossipBindings->Clear(Key((Hooks::GossipEvents)event_type, entry));
+            YLA::GetYLA(L)->CreatureGossipBindings->Clear(Key((Hooks::GossipEvents)event_type, entry));
         }
         return 0;
     }
@@ -2947,7 +2947,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
 
-            YLA* E = YLA::GetALE(L);
+            YLA* E = YLA::GetYLA(L);
             for (uint32 i = 1; i < Hooks::GAMEOBJECT_EVENT_COUNT; ++i)
                 E->GameObjectEventBindings->Clear(Key((Hooks::GameObjectEvents)i, entry));
         }
@@ -2955,7 +2955,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
-            YLA::GetALE(L)->GameObjectEventBindings->Clear(Key((Hooks::GameObjectEvents)event_type, entry));
+            YLA::GetYLA(L)->GameObjectEventBindings->Clear(Key((Hooks::GameObjectEvents)event_type, entry));
         }
         return 0;
     }
@@ -2983,7 +2983,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
 
-            YLA* E = YLA::GetALE(L);
+            YLA* E = YLA::GetYLA(L);
             for (uint32 i = 1; i < Hooks::GOSSIP_EVENT_COUNT; ++i)
                 E->GameObjectGossipBindings->Clear(Key((Hooks::GossipEvents)i, entry));
         }
@@ -2991,7 +2991,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
-            YLA::GetALE(L)->GameObjectGossipBindings->Clear(Key((Hooks::GossipEvents)event_type, entry));
+            YLA::GetYLA(L)->GameObjectGossipBindings->Clear(Key((Hooks::GossipEvents)event_type, entry));
         }
         return 0;
     }
@@ -3013,12 +3013,12 @@ namespace LuaGlobalFunctions
 
         if (lua_isnoneornil(L, 1))
         {
-            YLA::GetALE(L)->GroupEventBindings->Clear();
+            YLA::GetYLA(L)->GroupEventBindings->Clear();
         }
         else
         {
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 1);
-            YLA::GetALE(L)->GroupEventBindings->Clear(Key((Hooks::GroupEvents)event_type));
+            YLA::GetYLA(L)->GroupEventBindings->Clear(Key((Hooks::GroupEvents)event_type));
         }
         return 0;
     }
@@ -3040,12 +3040,12 @@ namespace LuaGlobalFunctions
 
         if (lua_isnoneornil(L, 1))
         {
-            YLA::GetALE(L)->GuildEventBindings->Clear();
+            YLA::GetYLA(L)->GuildEventBindings->Clear();
         }
         else
         {
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 1);
-            YLA::GetALE(L)->GuildEventBindings->Clear(Key((Hooks::GuildEvents)event_type));
+            YLA::GetYLA(L)->GuildEventBindings->Clear(Key((Hooks::GuildEvents)event_type));
         }
         return 0;
     }
@@ -3073,7 +3073,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
 
-            YLA* E = YLA::GetALE(L);
+            YLA* E = YLA::GetYLA(L);
             for (uint32 i = 1; i < Hooks::ITEM_EVENT_COUNT; ++i)
                 E->ItemEventBindings->Clear(Key((Hooks::ItemEvents)i, entry));
         }
@@ -3081,7 +3081,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
-            YLA::GetALE(L)->ItemEventBindings->Clear(Key((Hooks::ItemEvents)event_type, entry));
+            YLA::GetYLA(L)->ItemEventBindings->Clear(Key((Hooks::ItemEvents)event_type, entry));
         }
         return 0;
     }
@@ -3109,7 +3109,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
 
-            YLA* E = YLA::GetALE(L);
+            YLA* E = YLA::GetYLA(L);
             for (uint32 i = 1; i < Hooks::GOSSIP_EVENT_COUNT; ++i)
                 E->ItemGossipBindings->Clear(Key((Hooks::GossipEvents)i, entry));
         }
@@ -3117,7 +3117,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
-            YLA::GetALE(L)->ItemGossipBindings->Clear(Key((Hooks::GossipEvents)event_type, entry));
+            YLA::GetYLA(L)->ItemGossipBindings->Clear(Key((Hooks::GossipEvents)event_type, entry));
         }
         return 0;
     }
@@ -3142,7 +3142,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
 
-            YLA* E = YLA::GetALE(L);
+            YLA* E = YLA::GetYLA(L);
             for (uint32 i = 1; i < Hooks::PACKET_EVENT_COUNT; ++i)
                 E->PacketEventBindings->Clear(Key((Hooks::PacketEvents)i, entry));
         }
@@ -3150,7 +3150,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
-            YLA::GetALE(L)->PacketEventBindings->Clear(Key((Hooks::PacketEvents)event_type, entry));
+            YLA::GetYLA(L)->PacketEventBindings->Clear(Key((Hooks::PacketEvents)event_type, entry));
         }
         return 0;
     }
@@ -3172,12 +3172,12 @@ namespace LuaGlobalFunctions
 
         if (lua_isnoneornil(L, 1))
         {
-            YLA::GetALE(L)->PlayerEventBindings->Clear();
+            YLA::GetYLA(L)->PlayerEventBindings->Clear();
         }
         else
         {
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 1);
-            YLA::GetALE(L)->PlayerEventBindings->Clear(Key((Hooks::PlayerEvents)event_type));
+            YLA::GetYLA(L)->PlayerEventBindings->Clear(Key((Hooks::PlayerEvents)event_type));
         }
         return 0;
     }
@@ -3202,7 +3202,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
 
-            YLA* E = YLA::GetALE(L);
+            YLA* E = YLA::GetYLA(L);
             for (uint32 i = 1; i < Hooks::GOSSIP_EVENT_COUNT; ++i)
                 E->PlayerGossipBindings->Clear(Key((Hooks::GossipEvents)i, entry));
         }
@@ -3210,7 +3210,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
-            YLA::GetALE(L)->PlayerGossipBindings->Clear(Key((Hooks::GossipEvents)event_type, entry));
+            YLA::GetYLA(L)->PlayerGossipBindings->Clear(Key((Hooks::GossipEvents)event_type, entry));
         }
         return 0;
     }
@@ -3232,12 +3232,12 @@ namespace LuaGlobalFunctions
 
         if (lua_isnoneornil(L, 1))
         {
-            YLA::GetALE(L)->ServerEventBindings->Clear();
+            YLA::GetYLA(L)->ServerEventBindings->Clear();
         }
         else
         {
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 1);
-            YLA::GetALE(L)->ServerEventBindings->Clear(Key((Hooks::ServerEvents)event_type));
+            YLA::GetYLA(L)->ServerEventBindings->Clear(Key((Hooks::ServerEvents)event_type));
         }
         return 0;
     }
@@ -3262,7 +3262,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
 
-            YLA* E = YLA::GetALE(L);
+            YLA* E = YLA::GetYLA(L);
             for (uint32 i = 1; i < Hooks::INSTANCE_EVENT_COUNT; ++i)
                 E->MapEventBindings->Clear(Key((Hooks::InstanceEvents)i, entry));
         }
@@ -3270,7 +3270,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
-            YLA::GetALE(L)->MapEventBindings->Clear(Key((Hooks::InstanceEvents)event_type, entry));
+            YLA::GetYLA(L)->MapEventBindings->Clear(Key((Hooks::InstanceEvents)event_type, entry));
         }
 
         return 0;
@@ -3296,7 +3296,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
 
-            YLA* E = YLA::GetALE(L);
+            YLA* E = YLA::GetYLA(L);
             for (uint32 i = 1; i < Hooks::INSTANCE_EVENT_COUNT; ++i)
                 E->InstanceEventBindings->Clear(Key((Hooks::InstanceEvents)i, entry));
         }
@@ -3304,7 +3304,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
-            YLA::GetALE(L)->InstanceEventBindings->Clear(Key((Hooks::InstanceEvents)event_type, entry));
+            YLA::GetYLA(L)->InstanceEventBindings->Clear(Key((Hooks::InstanceEvents)event_type, entry));
         }
 
         return 0;
@@ -3327,12 +3327,12 @@ namespace LuaGlobalFunctions
 
         if (lua_isnoneornil(L, 1))
         {
-            YLA::GetALE(L)->TicketEventBindings->Clear();
+            YLA::GetYLA(L)->TicketEventBindings->Clear();
         }
         else
         {
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 1);
-            YLA::GetALE(L)->TicketEventBindings->Clear(Key((Hooks::TicketEvents)event_type));
+            YLA::GetYLA(L)->TicketEventBindings->Clear(Key((Hooks::TicketEvents)event_type));
         }
         return 0;
     }
@@ -3358,7 +3358,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
 
-            YLA* E = YLA::GetALE(L);
+            YLA* E = YLA::GetYLA(L);
             for (uint32 i = 1; i < Hooks::SPELL_EVENT_COUNT; ++i)
                 E->SpellEventBindings->Clear(Key((Hooks::SpellEvents)i, entry));
         }
@@ -3366,7 +3366,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
-            YLA::GetALE(L)->SpellEventBindings->Clear(Key((Hooks::SpellEvents)event_type, entry));
+            YLA::GetYLA(L)->SpellEventBindings->Clear(Key((Hooks::SpellEvents)event_type, entry));
         }
         return 0;
     }
@@ -3388,12 +3388,12 @@ namespace LuaGlobalFunctions
 
         if (lua_isnoneornil(L, 1))
         {
-            YLA::GetALE(L)->AllCreatureEventBindings->Clear();
+            YLA::GetYLA(L)->AllCreatureEventBindings->Clear();
         }
         else
         {
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 1);
-            YLA::GetALE(L)->AllCreatureEventBindings->Clear(Key((Hooks::AllCreatureEvents)event_type));
+            YLA::GetYLA(L)->AllCreatureEventBindings->Clear(Key((Hooks::AllCreatureEvents)event_type));
         }
         return 0;
     }
@@ -3918,7 +3918,7 @@ namespace LuaGlobalFunctions
     /** SetMapData(key, value): owning map state only (owner pinned from caller); nil erases. Fire-and-forget, readers see last value. */
     int SetMapData(lua_State* L)
     {
-        YLA* E = YLA::GetALE(L);
+        YLA* E = YLA::GetYLA(L);
         const char* key = YLA::CHECKVAL<const char*>(L, 1);
         uint64 box = ALEMapStateKey(E->GetStateMapId(), E->GetStateInstanceId());
         // Marshal before locking: value size is unbounded, lock covers the insert only.

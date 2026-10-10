@@ -21,7 +21,7 @@ using namespace Hooks;
     auto key = EventKey<ServerEvents>(EVENT);\
     if (!ServerEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE;\
+    LOCK_YLA;\
     /* WORLD dispatch runs Lua on this state: hold its lock too
        (global -> state order). In multistate the global lock alone
        does not serialize against map threads on the same L. */\
@@ -33,7 +33,7 @@ using namespace Hooks;
     auto key = EventKey<ServerEvents>(EVENT);\
     if (!ServerEventBindings->HasBindingsFor(key))\
         return RETVAL;\
-    LOCK_ALE;\
+    LOCK_YLA;\
     /* WORLD dispatch runs Lua on this state: hold its lock too
        (global -> state order). In multistate the global lock alone
        does not serialize against map threads on the same L. */\
@@ -287,20 +287,20 @@ void YLA::OnShutdownCancel()
 void YLA::OnWorldUpdate(uint32 diff)
 {
     {
-        LOCK_ALE;
+        LOCK_YLA;
         if (ShouldReload())
             _ReloadALE();
     }
 
     // Deferred far teleports/logouts (maps idle here). Deliberately without
-    // LOCK_ALE: the queue has its own mutex, and holding global across the
+    // LOCK_YLA: the queue has its own mutex, and holding global across the
     // hooks below would invert the lock order (global -> state here vs
     // state-first on Lua entry paths).
     YlaDefer::Drain();
 
     eventMgr->globalProcessor->Update(diff);
     {
-        LOCK_ALE;
+        LOCK_YLA;
         std::lock_guard<std::recursive_mutex> qguard(queryMutex);
         httpManager.HandleHttpResponses(this, true);
         queryProcessor.ProcessReadyCallbacks();
@@ -319,7 +319,7 @@ void YLA::OnWorldUpdate(uint32 diff)
         }
         for (auto& state : states)
         {
-            LOCK_ALE;
+            LOCK_YLA;
             Guard stateGuard(state->GetStateLock());
             std::lock_guard<std::recursive_mutex> qguard(state->queryMutex);
             state->httpManager.HandleHttpResponses(state.get(), false);

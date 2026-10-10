@@ -19,7 +19,7 @@ using namespace Hooks;
     auto key = EventKey<TicketEvents>(EVENT);\
     if (!TicketEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE;\
+    LOCK_YLA;\
     /* WORLD dispatch runs Lua on this state: hold its lock too
        (global -> state order). In multistate the global lock alone
        does not serialize against map threads on the same L. */\

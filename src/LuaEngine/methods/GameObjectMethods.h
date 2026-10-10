@@ -303,7 +303,7 @@ namespace LuaGameObject
         go->SetRespawnTime(0);
         go->Delete();
 
-        YLA::CHECKOBJ<ALEObject>(L, 1)->Invalidate();
+        YLA::CHECKOBJ<YLAObject>(L, 1)->Invalidate();
         return 0;
     }
 

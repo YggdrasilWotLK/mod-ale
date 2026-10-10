@@ -47,7 +47,7 @@ YLA::ScriptList YLA::lua_extensions;
 std::string YLA::lua_folderpath;
 std::string YLA::lua_requirepath;
 std::string YLA::lua_requirecpath;
-YLA* YLA::GALE = NULL;
+YLA* YLA::GYLA = NULL;
 std::shared_ptr<YLA> YLA::GALE_HOLDER;
 std::atomic<bool> YLA::reload{false};
 bool YLA::initialized = false;
@@ -78,7 +78,7 @@ extern void RegisterFunctions(YLA* E);
 
 void YLA::Initialize()
 {
-    LOCK_ALE;
+    LOCK_YLA;
     ASSERT(!IsInitialized());
 
     // For instance data the data column needs to be able to hold more than 255 characters (tinytext)
@@ -87,15 +87,15 @@ void YLA::Initialize()
 
     LoadScriptPaths();
 
-    // Must be before creating GALE
+    // Must be before creating GYLA
     // This is checked on YLA creation
     initialized = true;
 
-    // Create global YLA (shared-owned; GALE mirrors it raw)
+    // Create global YLA (shared-owned; GYLA mirrors it raw)
     {
         YlaStateRef globalRef;
         GALE_HOLDER = std::shared_ptr<YLA>(new YLA(globalRef, YLA_GLOBAL_STATE));
-        GALE = GALE_HOLDER.get();
+        GYLA = GALE_HOLDER.get();
     }
 
     // Start file watcher if enabled
@@ -109,7 +109,7 @@ void YLA::Initialize()
 
 void YLA::Uninitialize()
 {
-    LOCK_ALE;
+    LOCK_YLA;
     ASSERT(IsInitialized());
 
     if (fileWatcher)
@@ -142,11 +142,11 @@ void YLA::Uninitialize()
     }
 
     {
-        Guard galeGuard(GALE->GetStateLock());
-        GALE->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
+        Guard galeGuard(GYLA->GetStateLock());
+        GYLA->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
     }
     GALE_HOLDER.reset();
-    GALE = NULL;
+    GYLA = NULL;
 
     lua_scripts.clear();
     lua_extensions.clear();
@@ -171,7 +171,7 @@ std::shared_ptr<YLA> YLA::OwningRef(YLA* raw)
 {
     if (!raw)
         return nullptr;
-    if (raw == GALE)
+    if (raw == GYLA)
         return GALE_HOLDER;
     std::shared_lock lock(g_states_mutex);
     for (auto& [key, state] : g_states)
@@ -187,7 +187,7 @@ std::shared_ptr<YLA> YLA::CreateMapState(uint32 mapId, uint32 instanceId)
 
     // Strict global -> g_states -> state nesting, matching Uninitialize
     // and _ReloadALE, so no path ever takes global while holding a state.
-    LOCK_ALE;
+    LOCK_YLA;
     uint64 key = ALEMapStateKey(mapId, instanceId);
     uint64 seq = ++s_stateSeq;
     YlaStateRef ref{ false, mapId, instanceId, seq };
@@ -281,12 +281,12 @@ void YLA::LoadScriptPaths()
 
 void YLA::_ReloadALE()
 {
-    LOCK_ALE;
+    LOCK_YLA;
     ASSERT(IsInitialized());
 
-    if (!sALE->CanReload())
+    if (!sYLA->CanReload())
     {
-        sALE->reloadScheduled = true;
+        sYLA->reloadScheduled = true;
         return;
     }
 
@@ -295,19 +295,19 @@ void YLA::_ReloadALE()
     else
         ChatHandler(nullptr).SendGMText(SERVER_MSG_STRING, "Reloading YLA...");
 
-    sALE->httpManager.DropPending();
+    sYLA->httpManager.DropPending();
 
     {
-        // Hold GALE's state lock across close/open/run: map threads fire
+        // Hold GYLA's state lock across close/open/run: map threads fire
         // global-owned timers under this same lock.
-        Guard galeGuard(sALE->GetStateLock());
-        sALE->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
-        sALE->CloseLua();
+        Guard galeGuard(sYLA->GetStateLock());
+        sYLA->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
+        sYLA->CloseLua();
 
         LoadScriptPaths();
 
-        sALE->OpenLua();
-        sALE->RunScriptsLocked();
+        sYLA->OpenLua();
+        sYLA->RunScriptsLocked();
     }
 
     {
@@ -329,7 +329,7 @@ void YLA::_ReloadALE()
         }
     }
 
-    sALE->reloadScheduled = false;
+    sYLA->reloadScheduled = false;
     reload = false;
 }
 
@@ -874,7 +874,7 @@ static bool ScriptPathComparator(const LuaScript& first, const LuaScript& second
 
 void YLA::RunScripts()
 {
-    LOCK_ALE;
+    LOCK_YLA;
     RunScriptsLocked();
 }
 
@@ -1050,7 +1050,7 @@ int YLA::StackTrace(lua_State *_L)
 
     // dirty stack?
     // Stack: errmsg, debug, tracemsg
-    sALE->OnError(std::string(lua_tostring(_L, -1)));
+    sYLA->OnError(std::string(lua_tostring(_L, -1)));
     return 1;
 }
 
@@ -1434,12 +1434,12 @@ template<> Unit* YLA::CHECKOBJ<Unit>(lua_State* luastate, int narg, bool error)
     return obj;
 }
 
-template<> ALEObject* YLA::CHECKOBJ<ALEObject>(lua_State* luastate, int narg, bool error)
+template<> YLAObject* YLA::CHECKOBJ<YLAObject>(lua_State* luastate, int narg, bool error)
 {
     return CHECKTYPE(luastate, narg, NULL, error);
 }
 
-ALEObject* YLA::CHECKTYPE(lua_State* luastate, int narg, const char* tname, bool error)
+YLAObject* YLA::CHECKTYPE(lua_State* luastate, int narg, const char* tname, bool error)
 {
     if (lua_islightuserdata(luastate, narg))
     {
@@ -1448,14 +1448,14 @@ ALEObject* YLA::CHECKTYPE(lua_State* luastate, int narg, const char* tname, bool
         return NULL;
     }
 
-    ALEObject** ptrHold = static_cast<ALEObject**>(lua_touserdata(luastate, narg));
+    YLAObject** ptrHold = static_cast<YLAObject**>(lua_touserdata(luastate, narg));
 
     if (!ptrHold || (tname && (*ptrHold)->GetTypeName() != tname))
     {
         if (error)
         {
             char buff[256];
-            snprintf(buff, 256, "bad argument : %s expected, got %s", tname ? tname : "ALEObject", ptrHold ? (*ptrHold)->GetTypeName() : luaL_typename(luastate, narg));
+            snprintf(buff, 256, "bad argument : %s expected, got %s", tname ? tname : "YLAObject", ptrHold ? (*ptrHold)->GetTypeName() : luaL_typename(luastate, narg));
             luaL_argerror(luastate, narg, buff);
         }
         return NULL;

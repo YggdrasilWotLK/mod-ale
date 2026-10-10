@@ -162,7 +162,7 @@ namespace LuaAura
     int Remove(lua_State* L, Aura* aura)
     {
         aura->Remove();
-        YLA::CHECKOBJ<ALEObject>(L, 1)->Invalidate();
+        YLA::CHECKOBJ<YLAObject>(L, 1)->Invalidate();
         return 0;
     }
 };

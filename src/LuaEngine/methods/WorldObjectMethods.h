@@ -769,7 +769,7 @@ namespace LuaWorldObject
         int functionRef = luaL_ref(L, LUA_REGISTRYINDEX);
         if (functionRef != LUA_REFNIL && functionRef != LUA_NOREF)
         {
-            YLA* callingE = YLA::GetALE(L);
+            YLA* callingE = YLA::GetYLA(L);
             obj->YLAEvents->AddEvent(functionRef, min, max, repeats, callingE->GetSelfRef());
             YLA::Push(L, functionRef);
         }

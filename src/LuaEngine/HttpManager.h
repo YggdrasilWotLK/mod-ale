@@ -14,7 +14,7 @@ public:
 
     int funcRef;
     // Owning-state identity + registry generation: the callback must run
-    // on the state whose registry owns funcRef, never blindly on GALE.
+    // on the state whose registry owns funcRef, never blindly on GYLA.
     YlaStateRef owner;
     uint64 gen = 0;
     std::string httpVerb;
@@ -68,7 +68,7 @@ private:
     std::condition_variable condVar;
     std::mutex condVarMutex;
     // The SPSC queues assume a single producer; Lua runs on many threads
-    // (one per map worker in multistate, N workers on GALE in compat), so
+    // (one per map worker in multistate, N workers on GYLA in compat), so
     // every push/pop is serialized here.
     std::mutex queueMutex;
     std::regex parseUrlRegex;

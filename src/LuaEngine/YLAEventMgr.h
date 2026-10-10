@@ -27,7 +27,7 @@ class WorldObject;
 // Never a raw pointer: resolved via YLA::LockStateRef into a shared_ptr
 // that keeps the state alive for the duration of use. Recreating a map
 // state yields a new seq, so stale refs resolve to null instead of a new
-// state. (Global states resolve via the GALE holder.)
+// state. (Global states resolve via the GYLA holder.)
 struct YlaStateRef
 {
     bool global = true;

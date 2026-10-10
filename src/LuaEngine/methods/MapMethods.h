@@ -23,7 +23,7 @@ namespace LuaMap
     // callers run with maps idle and keep existing behavior either way.
     static bool IsOwnMap(lua_State* L, Map* map)
     {
-        YLA* callingE = YLA::GetALE(L);
+        YLA* callingE = YLA::GetYLA(L);
         return callingE->GetStateMapId() == YLA_GLOBAL_STATE ||
             (map->GetId() == callingE->GetStateMapId() && map->GetInstanceId() == callingE->GetStateInstanceId());
     }
@@ -283,7 +283,7 @@ namespace LuaMap
             iAI = dynamic_cast<YLAInstanceAI*>(inst->GetInstanceScript());
 
         if (iAI)
-            YLA::GetALE(L)->PushInstanceData(L, iAI, false);
+            YLA::GetYLA(L)->PushInstanceData(L, iAI, false);
         else
             YLA::Push(L); // nil
 

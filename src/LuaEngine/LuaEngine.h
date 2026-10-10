@@ -72,7 +72,7 @@ class Vehicle;
 
 struct lua_State;
 class EventMgr;
-class ALEObject;
+class YLAObject;
 template<typename T> class YLATemplate;
 
 template<typename K> class BindingMap;
@@ -103,7 +103,7 @@ struct LuaScript
 };
 
 #define YLA_STATE_PTR "YLA State Ptr"
-#define LOCK_ALE YLA::Guard __guard(YLA::GetLock())
+#define LOCK_YLA YLA::Guard __guard(YLA::GetLock())
 #define LOCK_YLA_STATE \
     YLA::Guard __ale_guard(YLAConfig::GetInstance().IsCompatibilityModeEnabled() ? YLA::GetLock() : YLA::GetNoopLock()); \
     YLA::Guard __ale_state_guard(this->GetStateLock())
@@ -124,7 +124,7 @@ public:
         pendingCallbacks--;
         if (pendingCallbacks == 0 && reloadScheduled)
         {
-            LOCK_ALE;
+            LOCK_YLA;
             _ReloadALE();
         }
     }
@@ -146,7 +146,7 @@ public:
     uint64 GetCallstackId() const { return callstackid; }
 
     // Resolves a state ref into an owning reference (null when the state
-    // is gone or was recreated). Global refs resolve via the GALE holder.
+    // is gone or was recreated). Global refs resolve via the GYLA holder.
     static std::shared_ptr<YLA> LockStateRef(const YlaStateRef& ref);
     // Owning reference for a raw state pointer (scan under g_states shared).
     // Null when the pointer is not a live state.
@@ -154,7 +154,7 @@ public:
 
     static void RunScriptsOnAllMapStates()
     {
-        LOCK_ALE;
+        LOCK_YLA;
         std::vector<std::shared_ptr<YLA>> states;
         {
             std::shared_lock lock(g_states_mutex);
@@ -241,7 +241,7 @@ private:
     // script-side users keep a state alive across concurrent destroy.
     static std::map<uint64, std::shared_ptr<YLA>> g_states;
     static std::shared_mutex g_states_mutex;
-    // Shared ownership of the global state (GALE mirrors it raw).
+    // Shared ownership of the global state (GYLA mirrors it raw).
     static std::shared_ptr<YLA> GALE_HOLDER;
 
     uint64 callstackid = 2;
@@ -322,7 +322,7 @@ private:
     void Push(T const* ptr)                     { Push(L, ptr); ++push_counter; }
 
 public:
-    static YLA* GALE;
+    static YLA* GYLA;
 
     lua_State* L;
     EventMgr* eventMgr;
@@ -355,7 +355,7 @@ public:
 
     static void Initialize();
     static void Uninitialize();
-    // Lock-free set; the flag is consumed under LOCK_ALE in OnWorldUpdate.
+    // Lock-free set; the flag is consumed under LOCK_YLA in OnWorldUpdate.
     // Must not take locks: callable from Lua callbacks holding state locks
     // (lock order everywhere else is global -> state, never the reverse).
     static void ReloadALE() { reload = true; }
@@ -383,7 +383,7 @@ public:
     static std::shared_ptr<YLA> CreateMapState(uint32 mapId, uint32 instanceId = 0);
     static void DestroyMapState(uint32 mapId, uint32 instanceId = 0);
 
-    static YLA* GetALE(lua_State* L)
+    static YLA* GetYLA(lua_State* L)
     {
         lua_pushstring(L, YLA_STATE_PTR);
         lua_rawget(L, LUA_REGISTRYINDEX);
@@ -430,7 +430,7 @@ public:
     void PushInstanceData(lua_State* L, YLAInstanceAI* ai, bool incrementCounter = true);
 
     void RunScripts();
-    // Same as RunScripts but assumes the caller already holds LOCK_ALE
+    // Same as RunScripts but assumes the caller already holds LOCK_YLA
     // (and this state's lock where applicable). Never takes global itself,
     // so it preserves the global -> state lock order.
     void RunScriptsLocked();
@@ -447,7 +447,7 @@ public:
     {
         return YLATemplate<T>::Check(luastate, narg, error);
     }
-    static ALEObject* CHECKTYPE(lua_State* luastate, int narg, const char *tname, bool error = true);
+    static YLAObject* CHECKTYPE(lua_State* luastate, int narg, const char *tname, bool error = true);
 
     CreatureAI* GetAI(Creature* creature);
     InstanceData* GetInstanceData(Map* map);
@@ -697,8 +697,8 @@ public:
 template<> Unit* YLA::CHECKOBJ<Unit>(lua_State* L, int narg, bool error);
 template<> Object* YLA::CHECKOBJ<Object>(lua_State* L, int narg, bool error);
 template<> WorldObject* YLA::CHECKOBJ<WorldObject>(lua_State* L, int narg, bool error);
-template<> ALEObject* YLA::CHECKOBJ<ALEObject>(lua_State* L, int narg, bool error);
+template<> YLAObject* YLA::CHECKOBJ<YLAObject>(lua_State* L, int narg, bool error);
 
-#define sALE YLA::GALE
-#define gALE YLA::GALE
+#define sYLA YLA::GYLA
+#define gYLA YLA::GYLA
 #endif

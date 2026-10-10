@@ -50,7 +50,7 @@ extern "C"
 #include "GemPropertiesEntryMethods.h"
 #include "SpellEntryMethods.h"
 
-ALEGlobalRegister GlobalMethods[] =
+YLAGlobalRegister GlobalMethods[] =
 {
     // Hooks
     { "RegisterPacketEvent", &LuaGlobalFunctions::RegisterPacketEvent },
@@ -207,7 +207,7 @@ ALEGlobalRegister GlobalMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Object> ObjectMethods[] =
+YLARegister<Object> ObjectMethods[] =
 {
     // Getters
     { "GetEntry", &LuaObject::GetEntry },
@@ -250,7 +250,7 @@ ALERegister<Object> ObjectMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<WorldObject> WorldObjectMethods[] =
+YLARegister<WorldObject> WorldObjectMethods[] =
 {
     // Getters
     { "GetName", &LuaWorldObject::GetName },
@@ -316,7 +316,7 @@ ALERegister<WorldObject> WorldObjectMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Unit> UnitMethods[] =
+YLARegister<Unit> UnitMethods[] =
 {
     // Getters
     { "GetLevel", &LuaUnit::GetLevel },
@@ -510,7 +510,7 @@ ALERegister<Unit> UnitMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Player> PlayerMethods[] =
+YLARegister<Player> PlayerMethods[] =
 {
     // Getters
     { "GetSelection", &LuaPlayer::GetSelection },
@@ -877,7 +877,7 @@ ALERegister<Player> PlayerMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Creature> CreatureMethods[] =
+YLARegister<Creature> CreatureMethods[] =
 {
     // Getters
     { "GetAITarget", &LuaCreature::GetAITarget },
@@ -981,7 +981,7 @@ ALERegister<Creature> CreatureMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<GameObject> GameObjectMethods[] =
+YLARegister<GameObject> GameObjectMethods[] =
 {
     // Getters
     { "GetDisplayId", &LuaGameObject::GetDisplayId },
@@ -1015,7 +1015,7 @@ ALERegister<GameObject> GameObjectMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Item> ItemMethods[] =
+YLARegister<Item> ItemMethods[] =
 {
     // Getters
     { "GetOwnerGUID", &LuaItem::GetOwnerGUID },
@@ -1084,7 +1084,7 @@ ALERegister<Item> ItemMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<ItemTemplate> ItemTemplateMethods[] =
+YLARegister<ItemTemplate> ItemTemplateMethods[] =
 {
     { "GetItemId", &LuaItemTemplate::GetItemId },
     { "GetClass", &LuaItemTemplate::GetClass },
@@ -1106,7 +1106,7 @@ ALERegister<ItemTemplate> ItemTemplateMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Aura> AuraMethods[] =
+YLARegister<Aura> AuraMethods[] =
 {
     // Getters
     { "GetCaster", &LuaAura::GetCaster },
@@ -1129,7 +1129,7 @@ ALERegister<Aura> AuraMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Spell> SpellMethods[] =
+YLARegister<Spell> SpellMethods[] =
 {
     // Getters
     { "GetCaster", &LuaSpell::GetCaster },
@@ -1155,7 +1155,7 @@ ALERegister<Spell> SpellMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Quest> QuestMethods[] =
+YLARegister<Quest> QuestMethods[] =
 {
     // Getters
     { "GetId", &LuaQuest::GetId },
@@ -1176,7 +1176,7 @@ ALERegister<Quest> QuestMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Group> GroupMethods[] =
+YLARegister<Group> GroupMethods[] =
 {
     // Getters
     { "GetMembers", &LuaGroup::GetMembers, METHOD_REG_WORLD },
@@ -1225,7 +1225,7 @@ ALERegister<Group> GroupMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Guild> GuildMethods[] =
+YLARegister<Guild> GuildMethods[] =
 {
     // Getters
     { "GetMembers", &LuaGuild::GetMembers, METHOD_REG_WORLD },
@@ -1262,7 +1262,7 @@ ALERegister<Guild> GuildMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Vehicle> VehicleMethods[] =
+YLARegister<Vehicle> VehicleMethods[] =
 {
     // Getters
     { "GetOwner", &LuaVehicle::GetOwner },
@@ -1279,7 +1279,7 @@ ALERegister<Vehicle> VehicleMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<ALEQuery> QueryMethods[] =
+YLARegister<ALEQuery> QueryMethods[] =
 {
     // Getters
     { "GetColumnCount", &LuaQuery::GetColumnCount },
@@ -1305,7 +1305,7 @@ ALERegister<ALEQuery> QueryMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<WorldPacket> PacketMethods[] =
+YLARegister<WorldPacket> PacketMethods[] =
 {
     // Getters
     { "GetOpcode", &LuaPacket::GetOpcode },
@@ -1343,7 +1343,7 @@ ALERegister<WorldPacket> PacketMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Map> MapMethods[] =
+YLARegister<Map> MapMethods[] =
 {
     // Getters
     { "GetName", &LuaMap::GetName },
@@ -1378,7 +1378,7 @@ ALERegister<Map> MapMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Corpse> CorpseMethods[] =
+YLARegister<Corpse> CorpseMethods[] =
 {
     // Getters
     { "GetOwnerGUID", &LuaCorpse::GetOwnerGUID },
@@ -1392,12 +1392,12 @@ ALERegister<Corpse> CorpseMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<AuctionHouseEntry> AuctionMethods[] =
+YLARegister<AuctionHouseEntry> AuctionMethods[] =
 {
     { NULL, NULL }
 };
 
-ALERegister<BattleGround> BattleGroundMethods[] =
+YLARegister<BattleGround> BattleGroundMethods[] =
 {
     // Getters
     { "GetName", &LuaBattleGround::GetName },
@@ -1421,7 +1421,7 @@ ALERegister<BattleGround> BattleGroundMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<ChatHandler> ChatHandlerMethods[] =
+YLARegister<ChatHandler> ChatHandlerMethods[] =
 {
     { "SendSysMessage", &LuaChatHandler::SendSysMessage },
     { "IsConsole", &LuaChatHandler::IsConsole },
@@ -1441,7 +1441,7 @@ ALERegister<ChatHandler> ChatHandlerMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<AchievementEntry> AchievementMethods[] =
+YLARegister<AchievementEntry> AchievementMethods[] =
 {
     { "GetId", &LuaAchievement::GetId },
     { "GetName", &LuaAchievement::GetName },
@@ -1449,7 +1449,7 @@ ALERegister<AchievementEntry> AchievementMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Roll> RollMethods[] =
+YLARegister<Roll> RollMethods[] =
 {
     { "GetItemGUID", &LuaRoll::GetItemGUID },
     { "GetItemId", &LuaRoll::GetItemId },
@@ -1468,7 +1468,7 @@ ALERegister<Roll> RollMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<GmTicket> TicketMethods[] =
+YLARegister<GmTicket> TicketMethods[] =
 {
     { "IsClosed", &LuaTicket::IsClosed },
     { "IsCompleted", &LuaTicket::IsCompleted },
@@ -1501,7 +1501,7 @@ ALERegister<GmTicket> TicketMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<SpellInfo> SpellInfoMethods[] =
+YLARegister<SpellInfo> SpellInfoMethods[] =
 {
     // Getters
     { "GetAttributes", &LuaSpellInfo::GetAttributes },
@@ -1572,7 +1572,7 @@ ALERegister<SpellInfo> SpellInfoMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<GemPropertiesEntry> GemPropertiesEntryMethods[] =
+YLARegister<GemPropertiesEntry> GemPropertiesEntryMethods[] =
 {
     // Getters
     { "GetId", &LuaGemPropertiesEntry::GetId },
@@ -1581,7 +1581,7 @@ ALERegister<GemPropertiesEntry> GemPropertiesEntryMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<SpellEntry> SpellEntryMethods[] =
+YLARegister<SpellEntry> SpellEntryMethods[] =
 {
     // Getters
     { "GetId", &LuaSpellEntry::GetId },
@@ -1741,7 +1741,7 @@ ALERegister<SpellEntry> SpellEntryMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Pet> PetMethods[] =
+YLARegister<Pet> PetMethods[] =
 {
     // Getters
     { "GetPetType", &LuaPet::GetPetType },
@@ -1800,7 +1800,7 @@ ALERegister<Pet> PetMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Loot> LootMethods[] =
+YLARegister<Loot> LootMethods[] =
 {
     // Get
     { "GetMoney", &LuaLoot::GetMoney },
@@ -1842,7 +1842,7 @@ ALERegister<Loot> LootMethods[] =
     { NULL, NULL }
 };
 
-ALERegister<Transport> TransportMethods[] =
+YLARegister<Transport> TransportMethods[] =
 {
     // Getters
     { "GetPassengers", &LuaTransport::GetPassengers },
@@ -1864,7 +1864,7 @@ template<> int YLATemplate<Vehicle>::CollectGarbage(lua_State* L)
     ASSERT(!manageMemory);
 
     // Get object pointer (and check type, no error)
-    ALEObject* obj = YLA::CHECKOBJ<ALEObject>(L, 1, false);
+    YLAObject* obj = YLA::CHECKOBJ<YLAObject>(L, 1, false);
     delete obj;
     return 0;
 }
@@ -1874,7 +1874,7 @@ template<> int YLATemplate<Group>::CollectGarbage(lua_State* L)
 {
     ASSERT(!manageMemory);
 
-    ALEObject* obj = YLA::CHECKOBJ<ALEObject>(L, 1, false);
+    YLAObject* obj = YLA::CHECKOBJ<YLAObject>(L, 1, false);
     delete obj;
     return 0;
 }
@@ -1883,7 +1883,7 @@ template<> int YLATemplate<Guild>::CollectGarbage(lua_State* L)
 {
     ASSERT(!manageMemory);
 
-    ALEObject* obj = YLA::CHECKOBJ<ALEObject>(L, 1, false);
+    YLAObject* obj = YLA::CHECKOBJ<YLAObject>(L, 1, false);
     delete obj;
     return 0;
 }
@@ -1937,7 +1937,7 @@ template<> int YLATemplate<long long>::ToString(lua_State* L)
 
 void RegisterFunctions(YLA* E)
 {
-    ALEGlobal::SetMethods(E, GlobalMethods);
+    YLAGlobal::SetMethods(E, GlobalMethods);
 
     YLATemplate<Object>::Register(E, "Object");
     YLATemplate<Object>::SetMethods(E, ObjectMethods);
