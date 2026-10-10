@@ -76,7 +76,7 @@ bool YLA::OnCommand(ChatHandler& handler, const char* text)
     {
         std::string reload = text;
         std::transform(reload.begin(), reload.end(), reload.begin(), ::tolower);
-        if (reload.find("reload ale") == 0)
+        if (reload.find("reload yla") == 0)
         {
             ReloadALE();
             return false;
