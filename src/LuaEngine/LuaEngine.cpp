@@ -407,6 +407,7 @@ MapEventBindings(NULL),
 InstanceEventBindings(NULL),
 TicketEventBindings(NULL),
 SpellEventBindings(NULL),
+AuraEventBindings(NULL),
 
 CreatureUniqueBindings(NULL)
 {
@@ -512,6 +513,7 @@ void YLA::CreateBindStores()
     MapEventBindings         = new BindingMap< EntryKey<Hooks::InstanceEvents> >(L);
     InstanceEventBindings    = new BindingMap< EntryKey<Hooks::InstanceEvents> >(L);
     SpellEventBindings       = new BindingMap< EntryKey<Hooks::SpellEvents> >(L);
+    AuraEventBindings        = new BindingMap< EntryKey<Hooks::AuraEvents> >(L);
 
     CreatureUniqueBindings   = new BindingMap< UniqueObjectKey<Hooks::CreatureEvents> >(L);
 }
@@ -537,6 +539,7 @@ void YLA::DestroyBindStores()
     delete MapEventBindings;
     delete InstanceEventBindings;
     delete SpellEventBindings;
+    delete AuraEventBindings;
 
     delete CreatureUniqueBindings;
 
@@ -559,6 +562,7 @@ void YLA::DestroyBindStores()
     MapEventBindings = NULL;
     InstanceEventBindings = NULL;
     SpellEventBindings = NULL;
+    AuraEventBindings = NULL;
 
     CreatureUniqueBindings = NULL;
 }
@@ -1752,6 +1756,23 @@ int YLA::Register(lua_State* L, uint8 regtype, uint32 entry, ObjectGuid guid, ui
                 auto key = EventKey<Hooks::AllCreatureEvents>((Hooks::AllCreatureEvents)event_id);
                 bindingID = AllCreatureEventBindings->Insert(key, functionRef, shots);
                 createCancelCallback(L, bindingID, AllCreatureEventBindings);
+                return 1; // Stack: callback
+            }
+            break;
+
+        case Hooks::REGTYPE_AURA:
+            if (event_id < Hooks::AURA_EVENT_COUNT)
+            {
+                if (!sSpellMgr->GetSpellInfo(entry))
+                {
+                    luaL_unref(L, LUA_REGISTRYINDEX, functionRef);
+                    luaL_error(L, "Couldn't find a spell with (ID: %d)!", entry);
+                    return 0; // Stack: (empty)
+                }
+
+                auto key = EntryKey<Hooks::AuraEvents>((Hooks::AuraEvents)event_id, entry);
+                bindingID = AuraEventBindings->Insert(key, functionRef, shots);
+                createCancelCallback(L, bindingID, AuraEventBindings);
                 return 1; // Stack: callback
             }
             break;

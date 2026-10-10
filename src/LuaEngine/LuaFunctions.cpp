@@ -71,6 +71,7 @@ ALEGlobalRegister GlobalMethods[] =
     { "RegisterInstanceEvent", &LuaGlobalFunctions::RegisterInstanceEvent },
     { "RegisterTicketEvent", &LuaGlobalFunctions::RegisterTicketEvent },
     { "RegisterSpellEvent", &LuaGlobalFunctions::RegisterSpellEvent },
+    { "RegisterAuraEvent", &LuaGlobalFunctions::RegisterAuraEvent },
     { "RegisterAllCreatureEvent", &LuaGlobalFunctions::RegisterAllCreatureEvent },
 
 
@@ -92,6 +93,7 @@ ALEGlobalRegister GlobalMethods[] =
     { "ClearInstanceEvents", &LuaGlobalFunctions::ClearInstanceEvents },
     { "ClearTicketEvents", &LuaGlobalFunctions::ClearTicketEvents },
     { "ClearSpellEvents", &LuaGlobalFunctions::ClearSpellEvents },
+    { "ClearAuraEvents", &LuaGlobalFunctions::ClearAuraEvents },
     { "ClearAllCreatureEvents", &LuaGlobalFunctions::ClearAllCreatureEvents },
 
     // Getters

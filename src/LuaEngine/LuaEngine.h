@@ -350,6 +350,7 @@ public:
     BindingMap< EntryKey<Hooks::InstanceEvents> >*      InstanceEventBindings;
     BindingMap< EventKey<Hooks::TicketEvents> >*        TicketEventBindings;
     BindingMap< EntryKey<Hooks::SpellEvents> >*         SpellEventBindings;
+    BindingMap< EntryKey<Hooks::AuraEvents> >*          AuraEventBindings;
 
     BindingMap< UniqueObjectKey<Hooks::CreatureEvents> >*  CreatureUniqueBindings;
 
@@ -684,8 +685,8 @@ public:
     void OnSpellPrepare(Unit* caster, Spell* spell, SpellInfo const* spellInfo);
     void OnSpellCast(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bool skipCheck);
     void OnSpellCastCancel(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bool bySelf);
-    void OnSpellAuraApply(Unit* unit, Aura* aura);
-    void OnSpellAuraRemove(Unit* unit, Aura* aura, uint8 mode);
+    void OnAuraEventApply(Unit* unit, Aura* aura);
+    void OnAuraEventRemove(Unit* unit, Aura* aura, uint8 mode);
 
     /* AllCreature */
     void OnAllCreatureAddToWorld(Creature* creature);

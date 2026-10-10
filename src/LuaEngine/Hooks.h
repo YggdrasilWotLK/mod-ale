@@ -89,7 +89,15 @@ namespace Hooks
         REGTYPE_TICKET,
         REGTYPE_SPELL,
         REGTYPE_ALL_CREATURE,
+        REGTYPE_AURA,
         REGTYPE_COUNT
+    };
+
+    enum AuraEvents
+    {
+        AURA_EVENT_ON_APPLY                             = 1, // (event, unit, aura) - entry is the aura spell ID
+        AURA_EVENT_ON_REMOVE                            = 2, // (event, unit, aura, mode) - entry is the aura spell ID
+        AURA_EVENT_COUNT
     };
 
     enum PacketEvents
@@ -394,8 +402,6 @@ namespace Hooks
         SPELL_EVENT_ON_PREPARE                          = 1, // (event, caster, spell)
         SPELL_EVENT_ON_CAST                             = 2, // (event, caster, spell, skipCheck)
         SPELL_EVENT_ON_CAST_CANCEL                      = 3, // (event, caster, spell, bySelf)
-        SPELL_EVENT_ON_AURA_APPLY                       = 4, // (event, unit, aura) - entry is the aura spell ID
-        SPELL_EVENT_ON_AURA_REMOVE                      = 5, // (event, unit, aura, mode) - entry is the aura spell ID
         SPELL_EVENT_COUNT
     };
 

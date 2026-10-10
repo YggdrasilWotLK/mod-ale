@@ -1308,8 +1308,6 @@ namespace LuaGlobalFunctions
      * @values [1, SPELL_EVENT_ON_PREPARE, "MAP", <event: number, caster: WorldObject, spell: Spell>, ""]
      * @values [2, SPELL_EVENT_ON_CAST, "MAP", <event: number, caster: WorldObject, spell: Spell, skipCheck: boolean>, ""]
      * @values [3, SPELL_EVENT_ON_CAST_CANCEL, "MAP", <event: number, caster: WorldObject, spell: Spell, bySelf: boolean>, ""]
-     * @values [4, SPELL_EVENT_ON_AURA_APPLY, "MAP", <event: number, unit: WorldObject, aura: Aura>, "Fires for the aura spell ID given as entry"]
-     * @values [5, SPELL_EVENT_ON_AURA_REMOVE, "MAP", <event: number, unit: WorldObject, aura: Aura, mode: number>, "Fires for the aura spell ID given as entry. Mode: 0 none, 1 default, 2 cancel, 3 enemy spell (dispel), 4 expire, 5 death"]
      *
      * @param uint32 entry : [Spell] entry Id
      * @param uint32 event : event ID, refer to table above
@@ -1319,6 +1317,30 @@ namespace LuaGlobalFunctions
     int RegisterSpellEvent(lua_State* L)
     {
         return RegisterEntryHelper(L, Hooks::REGTYPE_SPELL);
+    }
+
+    /**
+     * Registers an aura event handler for a specific aura spell ID.
+     *
+     * Unlike spell cast events, aura events fire whenever the aura is
+     * applied or removed, regardless of what caused it (cast, proc,
+     * trigger, script).
+     *
+     * @table
+     * @columns [ID, Event, State, Parameters, Comment]
+     * @values [1, AURA_EVENT_ON_APPLY, "MAP", <event: number, unit: WorldObject, aura: Aura>, "Fires on fresh application, refresh and login re-apply"]
+     * @values [2, AURA_EVENT_ON_REMOVE, "MAP", <event: number, unit: WorldObject, aura: Aura, mode: number>, "Mode: 0 none, 1 default, 2 cancel, 3 enemy spell (dispel), 4 expire, 5 death"]
+     *
+     * @param uint32 entry : aura [Spell] entry Id
+     * @param uint32 event : event ID, refer to table above
+     * @param function function : function to register
+     * @param uint32 shots = 0 : the number of times the function will be called, 0 means "always call this function"
+     *
+     * @return function cancel : a function that cancels the binding when called
+     */
+    int RegisterAuraEvent(lua_State* L)
+    {
+        return RegisterEntryHelper(L, Hooks::REGTYPE_AURA);
     }
 
     /**
@@ -3367,6 +3389,40 @@ namespace LuaGlobalFunctions
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
             YLA::GetALE(L)->SpellEventBindings->Clear(Key((Hooks::SpellEvents)event_type, entry));
+        }
+        return 0;
+    }
+
+    /**
+     * Unbinds event handlers for either all aura events of one aura, or one type of aura event.
+     *
+     * If `event_type` is `nil`, all the aura's event handlers are cleared.
+     *
+     * Otherwise, only event handlers for `event_type` are cleared.
+     *
+     *
+     * @proto (entry)
+     * @proto (entry, event_type)
+     * @param uint32 entry : the ID of an aura [Spell]
+     * @param uint32 event_type : the event whose handlers will be cleared, see [Global:RegisterAuraEvent]
+     */
+    int ClearAuraEvents(lua_State* L)
+    {
+        typedef EntryKey<Hooks::AuraEvents> Key;
+
+        if (lua_isnoneornil(L, 2))
+        {
+            uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
+
+            YLA* E = YLA::GetALE(L);
+            for (uint32 i = 1; i < Hooks::AURA_EVENT_COUNT; ++i)
+                E->AuraEventBindings->Clear(Key((Hooks::AuraEvents)i, entry));
+        }
+        else
+        {
+            uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
+            uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
+            YLA::GetALE(L)->AuraEventBindings->Clear(Key((Hooks::AuraEvents)event_type, entry));
         }
         return 0;
     }
