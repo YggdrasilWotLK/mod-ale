@@ -1302,14 +1302,14 @@ public:
             E->OnPlayerAuraApply(unit->ToPlayer(), aura);
         if (unit->IsCreature())
             E->OnCreatureAuraApply(unit->ToCreature(), aura);
-        E->OnSpellAuraApply(unit, aura);
+        E->OnAuraEventApply(unit, aura);
     }
 
     void OnAuraRemove(Unit* unit, AuraApplication* aurApp, AuraRemoveMode mode) override
     {
         if (!unit || !aurApp || !aurApp->GetBase()) return;
         auto E = YLA::GetMapStateOrGlobal(unit->GetMapId(), unit->GetInstanceId());
-        E->OnSpellAuraRemove(unit, aurApp->GetBase(), static_cast<uint8>(mode));
+        E->OnAuraEventRemove(unit, aurApp->GetBase(), static_cast<uint8>(mode));
     }
 
     void OnHeal(Unit* healer, Unit* receiver, uint32& gain) override
