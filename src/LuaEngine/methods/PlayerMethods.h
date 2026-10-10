@@ -3652,7 +3652,8 @@ namespace LuaPlayer
         }
 
         // True = teleported or queued for OnWorldUpdate.
-        YLA::Push(L, YlaDefer::Teleport(player, mapId, x, y, z, o));
+        YLA* callingE = YLA::GetYLA(L);
+        YLA::Push(L, YlaDefer::Teleport(player, mapId, x, y, z, o, callingE->GetStateMapId(), callingE->GetStateInstanceId()));
         return 1;
     }
 
@@ -4575,7 +4576,9 @@ namespace LuaPlayer
 
         // Same rule as Teleport above: same-map inline, cross-map deferred
         // to OnWorldUpdate so the old-map unlink never runs mid-iteration.
-        YlaDefer::Teleport(player, game_tele->mapId, game_tele->position_x, game_tele->position_y, game_tele->position_z, game_tele->orientation);
+        YLA* callingE = YLA::GetYLA(L);
+        YlaDefer::Teleport(player, game_tele->mapId, game_tele->position_x, game_tele->position_y, game_tele->position_z, game_tele->orientation,
+            callingE->GetStateMapId(), callingE->GetStateInstanceId());
         return 0;
     }
 

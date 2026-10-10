@@ -53,7 +53,7 @@ void HttpManager::PushRequest(HttpWorkItem* item)
     {
         std::unique_lock<std::mutex> lock(condVarMutex);
         std::lock_guard<std::mutex> qlock(queueMutex);
-        workQueue.push(item);
+        EnqueueRequest(item);
         condVar.notify_one();
     }
 }
@@ -97,6 +97,58 @@ void HttpManager::ClearQueues()
         }
         responseQueue.pop();
     }
+
+    // Same no-unref rationale as the queues above: on the reload path
+    // lua_close reclaims the whole registry right after.
+    while (!overflowRequests.empty())
+    {
+        delete overflowRequests.front();
+        overflowRequests.pop_front();
+    }
+    while (!overflowResponses.empty())
+    {
+        delete overflowResponses.front();
+        overflowResponses.pop_front();
+    }
+}
+
+void HttpManager::RefillQueues()
+{
+    while (!overflowRequests.empty() && workQueue.try_push(overflowRequests.front()))
+        overflowRequests.pop_front();
+    while (!overflowResponses.empty() && responseQueue.try_push(overflowResponses.front()))
+        overflowResponses.pop_front();
+}
+
+void HttpManager::EnqueueRequest(HttpWorkItem* item)
+{
+    if (workQueue.try_push(item))
+        return;
+    if (overflowRequests.size() >= MaxOverflow)
+    {
+        YLA_LOG_ERROR("[YLA]: HTTP request overflow full, dropping oldest (funcRef leak until reload).");
+        delete overflowRequests.front();
+        overflowRequests.pop_front();
+    }
+    overflowRequests.push_back(item);
+}
+
+void HttpManager::EnqueueResponse(HttpResponse* res)
+{
+    if (responseQueue.try_push(res))
+        return;
+    if (overflowResponses.size() >= MaxOverflow)
+    {
+        YLA_LOG_ERROR("[YLA]: HTTP response overflow full, dropping oldest (funcRef leak until reload).");
+        delete overflowResponses.front();
+        overflowResponses.pop_front();
+    }
+    overflowResponses.push_back(res);
+}
+
+void HttpManager::FailRequest(HttpWorkItem* req)
+{
+    EnqueueResponse(new HttpResponse(req->funcRef, req->owner, req->gen, 0, "", httplib::Headers()));
 }
 
 void HttpManager::StopHttpWorker()
@@ -121,7 +173,7 @@ void HttpManager::HttpWorkerThread()
             std::unique_lock<std::mutex> lock(condVarMutex);
             condVar.wait(lock, [&] {
                 std::lock_guard<std::mutex> qlock(queueMutex);
-                return workQueue.front() != nullptr || cancelationToken.load();
+                return workQueue.front() != nullptr || !overflowRequests.empty() || cancelationToken.load();
             });
         }
 
@@ -133,6 +185,7 @@ void HttpManager::HttpWorkerThread()
         HttpWorkItem* req = nullptr;
         {
             std::lock_guard<std::mutex> qlock(queueMutex);
+            RefillQueues();
             if (!workQueue.front())
                 continue;
             req = *workQueue.front();
@@ -150,6 +203,10 @@ void HttpManager::HttpWorkerThread()
 
             if (!ParseUrl(req->url, host, path)) {
                 YLA_LOG_ERROR("[YLA]: Could not parse URL {}", req->url);
+                {
+                    std::lock_guard<std::mutex> qlock(queueMutex);
+                    FailRequest(req);
+                }
                 delete req;
                 continue;
             }
@@ -164,6 +221,10 @@ void HttpManager::HttpWorkerThread()
             if (err != httplib::Error::Success)
             {
                 YLA_LOG_ERROR("[YLA]: HTTP request error: {}", httplib::to_string(err));
+                {
+                    std::lock_guard<std::mutex> qlock(queueMutex);
+                    FailRequest(req);
+                }
                 delete req;
                 continue;
             }
@@ -177,6 +238,10 @@ void HttpManager::HttpWorkerThread()
                 if (!ParseUrl(location, host, path))
                 {
                     YLA_LOG_ERROR("[YLA]: Could not parse URL after redirect: {}", location);
+                    {
+                        std::lock_guard<std::mutex> qlock(queueMutex);
+                        FailRequest(req);
+                    }
                     delete req;
                     continue;
                 }
@@ -189,12 +254,17 @@ void HttpManager::HttpWorkerThread()
 
             {
                 std::lock_guard<std::mutex> qlock(queueMutex);
-                responseQueue.push(new HttpResponse(req->funcRef, req->owner, req->gen, res->status, res->body, res->headers));
+                EnqueueResponse(new HttpResponse(req->funcRef, req->owner, req->gen, res->status, res->body, res->headers));
             }
         }
         catch (const std::exception& ex)
         {
             YLA_LOG_ERROR("[YLA]: HTTP request error: {}", ex.what());
+            if (req)
+            {
+                std::lock_guard<std::mutex> qlock(queueMutex);
+                FailRequest(req);
+            }
         }
 
         delete req;
@@ -267,6 +337,7 @@ void HttpManager::HandleHttpResponses(YLA* owner, bool isGlobal)
         HttpResponse* res = nullptr;
         {
             std::lock_guard<std::mutex> qlock(queueMutex);
+            RefillQueues();
             if (responseQueue.empty())
                 break;
             res = *responseQueue.front();
