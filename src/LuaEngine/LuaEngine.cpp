@@ -110,10 +110,13 @@ void YLA::Initialize()
 void YLA::Uninitialize()
 {
     LOCK_YLA;
-    ASSERT(IsInitialized());
+    if (!IsInitialized())
+        return;
 
     // Flip first: hooks re-check this under their locks, so none can
     // start on a state being torn down; in-flight Lua drains below.
+    // Note: destructors below must NOT assert IsInitialized() since
+    // the flag is already false during teardown.
     initialized = false;
 
     if (fileWatcher)
@@ -138,7 +141,8 @@ void YLA::Uninitialize()
         for (auto& state : states)
         {
             Guard stateGuard(state->GetStateLock());
-            state->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
+            if (state->eventMgr)
+                state->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
         }
         // Shared copies drop here: ~YLA runs CloseLua exactly once per
         // state. Stale timer/DB/HTTP refs resolve to null and skip.
@@ -146,10 +150,15 @@ void YLA::Uninitialize()
     }
 
     {
-        Guard galeGuard(GYLA->GetStateLock());
-        GYLA->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
+        if (GYLA)
+        {
+            Guard galeGuard(GYLA->GetStateLock());
+            if (GYLA->eventMgr)
+                GYLA->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
+        }
     }
-    GALE_HOLDER.reset();
+    if (GALE_HOLDER)
+        GALE_HOLDER.reset();
     GYLA = NULL;
 
     lua_scripts.clear();
@@ -423,8 +432,9 @@ CreatureUniqueBindings(NULL)
 
 YLA::~YLA()
 {
-    ASSERT(IsInitialized());
-
+    // No IsInitialized() assert here: Uninitialize() clears the flag
+    // before destroying states, so every destructor runs while the
+    // flag is false. CloseLua() is idempotent (nulls L).
     CloseLua();
 
     delete eventMgr;
