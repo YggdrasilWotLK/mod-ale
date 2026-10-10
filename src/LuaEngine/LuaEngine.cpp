@@ -295,14 +295,20 @@ void YLA::_ReloadALE()
     else
         ChatHandler(nullptr).SendGMText(SERVER_MSG_STRING, "Reloading YLA...");
 
-    sALE->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
     sALE->httpManager.DropPending();
-    sALE->CloseLua();
 
-    LoadScriptPaths();
+    {
+        // Hold GALE's state lock across close/open/run: map threads fire
+        // global-owned timers under this same lock.
+        Guard galeGuard(sALE->GetStateLock());
+        sALE->eventMgr->SetStates(LUAEVENT_STATE_ERASE);
+        sALE->CloseLua();
 
-    sALE->OpenLua();
-    sALE->RunScriptsLocked();
+        LoadScriptPaths();
+
+        sALE->OpenLua();
+        sALE->RunScriptsLocked();
+    }
 
     {
         std::shared_lock lock(g_states_mutex);
