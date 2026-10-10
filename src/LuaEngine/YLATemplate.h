@@ -28,25 +28,25 @@ enum MethodRegisterState
     METHOD_REG_ALL   = 2
 };
 
-struct ALEGlobalRegister
+struct YLAGlobalRegister
 {
     const char* name;
     int(*func)(lua_State*);
     MethodRegisterState regState;
 
-    ALEGlobalRegister(const char* name, int(*f)(lua_State*), MethodRegisterState state = METHOD_REG_ALL)
+    YLAGlobalRegister(const char* name, int(*f)(lua_State*), MethodRegisterState state = METHOD_REG_ALL)
         : name(name), func(f), regState(state) {}
 
-    ALEGlobalRegister(const char* name, MethodRegisterState state = METHOD_REG_ALL)
+    YLAGlobalRegister(const char* name, MethodRegisterState state = METHOD_REG_ALL)
         : name(name), func(nullptr), regState(state) {}
 };
 
-class ALEGlobal
+class YLAGlobal
 {
 public:
     static int thunk(lua_State* L)
     {
-        ALEGlobalRegister* l = static_cast<ALEGlobalRegister*>(lua_touserdata(L, lua_upvalueindex(1)));
+        YLAGlobalRegister* l = static_cast<YLAGlobalRegister*>(lua_touserdata(L, lua_upvalueindex(1)));
         int top = lua_gettop(L);
         int expected = l->func(L);
         int args = lua_gettop(L) - top;
@@ -65,7 +65,7 @@ public:
         return 0;
     }
 
-    static void SetMethods(YLA* E, ALEGlobalRegister* methodTable)
+    static void SetMethods(YLA* E, YLAGlobalRegister* methodTable)
     {
         ASSERT(E);
         ASSERT(methodTable);
@@ -101,14 +101,14 @@ public:
     }
 };
 
-class ALEObject
+class YLAObject
 {
 public:
     template<typename T>
-    ALEObject(T * obj, bool manageMemory, uint64 snapId);
-    ALEObject(Player* obj, bool manageMemory, uint64 snapId);
+    YLAObject(T * obj, bool manageMemory, uint64 snapId);
+    YLAObject(Player* obj, bool manageMemory, uint64 snapId);
 
-    ~ALEObject()
+    ~YLAObject()
     {
     }
 
@@ -116,7 +116,7 @@ public:
     void* GetObj() const { return object; }
     // Returns whether the object is valid or not for the given state
     // incarnation id. The snapshot is taken from the creating state, so
-    // every map state invalidates exactly its own userdata (never GALE's).
+    // every map state invalidates exactly its own userdata (never GYLA's).
     bool IsValid(uint64 currentId) const { return !callstackid || callstackid == currentId; }
     // Returns whether the object can be invalidated or not
     bool CanInvalidate() const { return _invalidate; }
@@ -164,16 +164,16 @@ private:
 };
 
 template<typename T>
-struct ALERegister
+struct YLARegister
 {
     const char* name;
     int(*mfunc)(lua_State*, T*);
     MethodRegisterState regState;
 
-    ALERegister(const char* name, int(*func)(lua_State*, T*), MethodRegisterState state = METHOD_REG_ALL)
+    YLARegister(const char* name, int(*func)(lua_State*, T*), MethodRegisterState state = METHOD_REG_ALL)
         : name(name), mfunc(func), regState(state) {}
 
-    ALERegister(const char* name, MethodRegisterState state = METHOD_REG_ALL)
+    YLARegister(const char* name, MethodRegisterState state = METHOD_REG_ALL)
         : name(name), mfunc(nullptr), regState(state) {}
 };
 
@@ -288,7 +288,7 @@ public:
     }
 
     template<typename C>
-    static void SetMethods(YLA* E, ALERegister<C>* methodTable)
+    static void SetMethods(YLA* E, YLARegister<C>* methodTable)
     {
         ASSERT(E);
         ASSERT(tname);
@@ -336,14 +336,14 @@ public:
         }
 
         // Create new userdata
-        ALEObject** ptrHold = static_cast<ALEObject**>(lua_newuserdata(L, sizeof(ALEObject*)));
+        YLAObject** ptrHold = static_cast<YLAObject**>(lua_newuserdata(L, sizeof(YLAObject*)));
         if (!ptrHold)
         {
             YLA_LOG_ERROR("{} could not create new userdata", tname);
             lua_pushnil(L);
             return 1;
         }
-        *ptrHold = new ALEObject(const_cast<T*>(obj), manageMemory, YLA::GetALE(L)->GetCallstackId());
+        *ptrHold = new YLAObject(const_cast<T*>(obj), manageMemory, YLA::GetYLA(L)->GetCallstackId());
 
         // Set metatable for it
         lua_pushstring(L, tname);
@@ -362,11 +362,11 @@ public:
     // Snapshot of the creating state's incarnation id. Stored per Push,
     // so validity is always judged against the state whose Lua owns this
     // userdata (multistate-safe, unlike a single global counter).
-    static uint64 YlaSnapId(lua_State* L) { return YLA::GetALE(L)->GetCallstackId(); }
+    static uint64 YlaSnapId(lua_State* L) { return YLA::GetYLA(L)->GetCallstackId(); }
 
     // GUID-checked at Push time; destroyed/relogged players are Lua errors.
     // Not-in-world players pass through (normal during login hooks).
-    static Player* YlaResolvePlayer(lua_State* L, int narg, ALEObject* ALEObj, Player* raw, bool error)
+    static Player* YlaResolvePlayer(lua_State* L, int narg, YLAObject* ALEObj, Player* raw, bool error)
     {
         auto fail = [&](const char* reason) -> Player*
         {
@@ -402,11 +402,11 @@ public:
     }
 
     template<typename U>
-    static U* YlaResolvePlayer(lua_State*, int, ALEObject*, U* raw, bool) { return raw; }
+    static U* YlaResolvePlayer(lua_State*, int, YLAObject*, U* raw, bool) { return raw; }
 
     static T* Check(lua_State* L, int narg, bool error = true)
     {
-        ALEObject* ALEObj = YLA::CHECKTYPE(L, narg, tname, error);
+        YLAObject* ALEObj = YLA::CHECKTYPE(L, narg, tname, error);
         if (!ALEObj)
             return NULL;
 
@@ -436,7 +436,7 @@ public:
 
     static int SetInvalidation(lua_State* L)
     {
-        ALEObject* ALEObj = YLA::CHECKOBJ<ALEObject>(L, 1);
+        YLAObject* ALEObj = YLA::CHECKOBJ<YLAObject>(L, 1);
         bool invalidate = YLA::CHECKVAL<bool>(L, 2);
 
         ALEObj->SetValidation(invalidate);
@@ -458,7 +458,7 @@ public:
         T* obj = YLA::CHECKOBJ<T>(L, 1); // get self
         if (!obj)
             return 0;
-        ALERegister<T>* l = static_cast<ALERegister<T>*>(lua_touserdata(L, lua_upvalueindex(1)));
+        YLARegister<T>* l = static_cast<YLARegister<T>*>(lua_touserdata(L, lua_upvalueindex(1)));
         int top = lua_gettop(L);
         int expected = l->mfunc(L, obj);
         int args = lua_gettop(L) - top;
@@ -477,7 +477,7 @@ public:
     static int CollectGarbage(lua_State* L)
     {
         // Get object pointer (and check type, no error)
-        ALEObject* obj = YLA::CHECKOBJ<ALEObject>(L, 1, false);
+        YLAObject* obj = YLA::CHECKOBJ<YLAObject>(L, 1, false);
         if (obj && manageMemory)
             delete static_cast<T*>(obj->GetObj());
         delete obj;
@@ -509,12 +509,12 @@ public:
 };
 
 template<typename T>
-ALEObject::ALEObject(T * obj, bool manageMemory, uint64 snapId) : callstackid(1), _invalidate(!manageMemory), object(obj), type_name(YLATemplate<T>::tname)
+YLAObject::YLAObject(T * obj, bool manageMemory, uint64 snapId) : callstackid(1), _invalidate(!manageMemory), object(obj), type_name(YLATemplate<T>::tname)
 {
     SetValid(true, snapId);
 }
 
-inline ALEObject::ALEObject(Player* obj, bool manageMemory, uint64 snapId) : callstackid(1), _invalidate(!manageMemory), object(obj), type_name(YLATemplate<Player>::tname), playerGuid(obj ? obj->GetGUID() : ObjectGuid::Empty)
+inline YLAObject::YLAObject(Player* obj, bool manageMemory, uint64 snapId) : callstackid(1), _invalidate(!manageMemory), object(obj), type_name(YLATemplate<Player>::tname), playerGuid(obj ? obj->GetGUID() : ObjectGuid::Empty)
 {
     SetValid(true, snapId);
 }

@@ -3722,7 +3722,7 @@ namespace LuaPlayer
             bool all = itemCount >= item->GetCount();
             player->DestroyItemCount(item, itemCount, true);
             if (all)
-                YLA::CHECKOBJ<ALEObject>(L, 2)->Invalidate();
+                YLA::CHECKOBJ<YLAObject>(L, 2)->Invalidate();
         }
         return 0;
     }

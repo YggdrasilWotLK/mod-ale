@@ -17,7 +17,7 @@
  *         return;
  *
  *     // Lock out any other threads.
- *     LOCK_ALE;
+ *     LOCK_YLA;
  *
  *     // Push extra arguments, if any.
  *     Push(a);
@@ -35,7 +35,7 @@
  *          return;
  *
  *     // Lock out any other threads.
- *     LOCK_ALE;
+ *     LOCK_YLA;
  *
  *     // Push extra arguments, if any.
  *     Push(a);

@@ -278,7 +278,7 @@ void HttpManager::HandleHttpResponses(YLA* owner, bool isGlobal)
             continue;
         }
 
-        LOCK_ALE;
+        LOCK_YLA;
         // The callback runs on the state that issued the request, under
         // global -> state order (this drain holds the same nesting).
         // Stale generations (reload recycled the registry while the

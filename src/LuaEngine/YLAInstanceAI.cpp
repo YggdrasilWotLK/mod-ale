@@ -9,7 +9,7 @@
 
 void YLAInstanceAI::Initialize()
 {
-    sALE->OnInitialize(this);
+    sYLA->OnInitialize(this);
 }
 
 void YLAInstanceAI::Load(const char* data)
@@ -42,7 +42,7 @@ void YLAInstanceAI::Load(const char* data)
             }
         }
     }
-    sALE->OnLoad(this);
+    sYLA->OnLoad(this);
 }
 
 const char* YLAInstanceAI::Save() const

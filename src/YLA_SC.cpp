@@ -321,22 +321,22 @@ public:
 
     void OnAuctionAdd(AuctionHouseObject* ah, AuctionEntry* entry) override
     {
-        gALE->OnAdd(ah, entry);
+        gYLA->OnAdd(ah, entry);
     }
 
     void OnAuctionRemove(AuctionHouseObject* ah, AuctionEntry* entry) override
     {
-        gALE->OnRemove(ah, entry);
+        gYLA->OnRemove(ah, entry);
     }
 
     void OnAuctionSuccessful(AuctionHouseObject* ah, AuctionEntry* entry) override
     {
-        gALE->OnSuccessful(ah, entry);
+        gYLA->OnSuccessful(ah, entry);
     }
 
     void OnAuctionExpire(AuctionHouseObject* ah, AuctionEntry* entry) override
     {
-        gALE->OnExpire(ah, entry);
+        gYLA->OnExpire(ah, entry);
     }
 };
 
@@ -380,7 +380,7 @@ public:
 
     bool OnTryExecuteCommand(ChatHandler& handler, std::string_view cmdStr) override
     {
-        if (!gALE->OnCommand(handler, std::string(cmdStr).c_str()))
+        if (!gYLA->OnCommand(handler, std::string(cmdStr).c_str()))
             return false;
         return true;
     }
@@ -393,7 +393,7 @@ public:
 
     void OnWeatherChange(Weather* weather, WeatherState state, float grade) override
     {
-        gALE->OnChange(weather, weather->GetZone(), state, grade);
+        gYLA->OnChange(weather, weather->GetZone(), state, grade);
     }
 
     bool CanAreaTrigger(Player* player, AreaTrigger const* trigger) override
@@ -414,12 +414,12 @@ public:
 
     void OnStart(uint16 eventID) override
     {
-        gALE->OnGameEventStart(eventID);
+        gYLA->OnGameEventStart(eventID);
     }
 
     void OnStop(uint16 eventID) override
     {
-        gALE->OnGameEventStop(eventID);
+        gYLA->OnGameEventStop(eventID);
     }
 };
 
@@ -437,32 +437,32 @@ public:
 
     void OnAddMember(Group* group, ObjectGuid guid) override
     {
-        gALE->OnAddMember(group, guid);
+        gYLA->OnAddMember(group, guid);
     }
 
     void OnInviteMember(Group* group, ObjectGuid guid) override
     {
-        gALE->OnInviteMember(group, guid);
+        gYLA->OnInviteMember(group, guid);
     }
 
     void OnRemoveMember(Group* group, ObjectGuid guid, RemoveMethod method, ObjectGuid /* kicker */, const char* /* reason */) override
     {
-        gALE->OnRemoveMember(group, guid, method);
+        gYLA->OnRemoveMember(group, guid, method);
     }
 
     void OnChangeLeader(Group* group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid) override
     {
-        gALE->OnChangeLeader(group, newLeaderGuid, oldLeaderGuid);
+        gYLA->OnChangeLeader(group, newLeaderGuid, oldLeaderGuid);
     }
 
     void OnDisband(Group* group) override
     {
-        gALE->OnDisband(group);
+        gYLA->OnDisband(group);
     }
 
     void OnCreate(Group* group, Player* leader) override
     {
-        gALE->OnCreate(group, leader->GetGUID(), group->GetGroupType());
+        gYLA->OnCreate(group, leader->GetGUID(), group->GetGroupType());
     }
 };
 
@@ -485,58 +485,58 @@ public:
 
     void OnAddMember(Guild* guild, Player* player, uint8& plRank) override
     {
-        gALE->OnAddMember(guild, player, plRank);
+        gYLA->OnAddMember(guild, player, plRank);
     }
 
     void OnRemoveMember(Guild* guild, Player* player, bool isDisbanding, bool /*isKicked*/) override
     {
-        gALE->OnRemoveMember(guild, player, isDisbanding);
+        gYLA->OnRemoveMember(guild, player, isDisbanding);
     }
 
     void OnMOTDChanged(Guild* guild, const std::string& newMotd) override
     {
-        gALE->OnMOTDChanged(guild, newMotd);
+        gYLA->OnMOTDChanged(guild, newMotd);
     }
 
     void OnInfoChanged(Guild* guild, const std::string& newInfo) override
     {
-        gALE->OnInfoChanged(guild, newInfo);
+        gYLA->OnInfoChanged(guild, newInfo);
     }
 
     void OnCreate(Guild* guild, Player* leader, const std::string& name) override
     {
-        gALE->OnCreate(guild, leader, name);
+        gYLA->OnCreate(guild, leader, name);
     }
 
     void OnDisband(Guild* guild) override
     {
-        gALE->OnDisband(guild);
+        gYLA->OnDisband(guild);
     }
 
     void OnMemberWitdrawMoney(Guild* guild, Player* player, uint32& amount, bool isRepair) override
     {
-        gALE->OnMemberWitdrawMoney(guild, player, amount, isRepair);
+        gYLA->OnMemberWitdrawMoney(guild, player, amount, isRepair);
     }
 
     void OnMemberDepositMoney(Guild* guild, Player* player, uint32& amount) override
     {
-        gALE->OnMemberDepositMoney(guild, player, amount);
+        gYLA->OnMemberDepositMoney(guild, player, amount);
     }
 
     void OnItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId,
         bool isDestBank, uint8 destContainer, uint8 destSlotId) override
     {
-        gALE->OnItemMove(guild, player, pItem, isSrcBank, srcContainer, srcSlotId, isDestBank, destContainer, destSlotId);
+        gYLA->OnItemMove(guild, player, pItem, isSrcBank, srcContainer, srcSlotId, isDestBank, destContainer, destSlotId);
     }
 
     void OnEvent(Guild* guild, uint8 eventType, ObjectGuid::LowType playerGuid1, ObjectGuid::LowType playerGuid2, uint8 newRank) override
     {
-        gALE->OnEvent(guild, eventType, playerGuid1, playerGuid2, newRank);
+        gYLA->OnEvent(guild, eventType, playerGuid1, playerGuid2, newRank);
     }
 
     void OnBankEvent(Guild* guild, uint8 eventType, uint8 tabId, ObjectGuid::LowType playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId) override
     {
-        gALE->OnBankEvent(guild, eventType, tabId, playerGuid, itemOrMoney, itemStackCount, destTabId);
+        gYLA->OnBankEvent(guild, eventType, tabId, playerGuid, itemOrMoney, itemStackCount, destTabId);
     }
 };
 
@@ -659,7 +659,7 @@ public:
     {
         if (type != CHAT_MSG_SAY && type != CHAT_MSG_YELL && type != CHAT_MSG_EMOTE)
             return true;
-        if (!gALE->OnChat(player, type, lang, msg))
+        if (!gYLA->OnChat(player, type, lang, msg))
             return false;
         return true;
     }
@@ -667,7 +667,7 @@ public:
     // WORLD
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg, Player* target) override
     {
-        if (!gALE->OnChat(player, type, lang, msg, target))
+        if (!gYLA->OnChat(player, type, lang, msg, target))
             return false;
         return true;
     }
@@ -675,7 +675,7 @@ public:
     // WORLD
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group) override
     {
-        if (!gALE->OnChat(player, type, lang, msg, group))
+        if (!gYLA->OnChat(player, type, lang, msg, group))
             return false;
         return true;
     }
@@ -683,7 +683,7 @@ public:
     // WORLD
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild) override
     {
-        if (!gALE->OnChat(player, type, lang, msg, guild))
+        if (!gYLA->OnChat(player, type, lang, msg, guild))
             return false;
         return true;
     }
@@ -691,7 +691,7 @@ public:
     // WORLD
     bool OnPlayerCanUseChat(Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel) override
     {
-        if (!gALE->OnChat(player, type, lang, msg, channel))
+        if (!gYLA->OnChat(player, type, lang, msg, channel))
             return false;
         return true;
     }
@@ -859,19 +859,19 @@ public:
     {
         if (player->YLAEvents)
             player->YLAEvents->CaptureGuid();
-        gALE->OnLogin(player);
+        gYLA->OnLogin(player);
     }
 
     // WORLD
     void OnPlayerLogout(Player* player) override
     {
-        gALE->OnLogout(player);
+        gYLA->OnLogout(player);
     }
 
     // WORLD
     void OnPlayerCreate(Player* player) override
     {
-        gALE->OnCreate(player);
+        gYLA->OnCreate(player);
     }
 
     // WORLD
@@ -883,7 +883,7 @@ public:
     // WORLD
     void OnPlayerDelete(ObjectGuid guid, uint32 /*accountId*/) override
     {
-        gALE->OnDelete(guid.GetCounter());
+        gYLA->OnDelete(guid.GetCounter());
     }
 
     // MAP
@@ -907,7 +907,7 @@ public:
     // WORLD
     void OnPlayerFirstLogin(Player* player) override
     {
-        gALE->OnFirstLogin(player);
+        gYLA->OnFirstLogin(player);
     }
 
     // MAP
@@ -1029,14 +1029,14 @@ public:
 
     bool CanPacketSend(WorldSession* session, WorldPacket& packet) override
     {
-        if (!gALE->OnPacketSend(session, packet))
+        if (!gYLA->OnPacketSend(session, packet))
             return false;
         return true;
     }
 
     bool CanPacketReceive(WorldSession* session, WorldPacket& packet) override
     {
-        if (!gALE->OnPacketReceive(session, packet))
+        if (!gYLA->OnPacketReceive(session, packet))
             return false;
         return true;
     }
@@ -1152,14 +1152,14 @@ public:
             {
                 if (auto state = YLA::GetMapState(map->GetId(), map->GetInstanceId()))
                     object->YLAEvents = new YLAEventProcessor(state->GetSelfRef(), state, object);
-                else if (YLA::GALE)
-                    object->YLAEvents = new YLAEventProcessor(YLA::GALE->GetSelfRef(), YLA::OwningRef(YLA::GALE), object);
+                else if (YLA::GYLA)
+                    object->YLAEvents = new YLAEventProcessor(YLA::GYLA->GetSelfRef(), YLA::OwningRef(YLA::GYLA), object);
                 else
                     object->YLAEvents = new YLAEventProcessor(YlaStateRef(), nullptr, object);
             }
-            else if (YLA::GALE)
+            else if (YLA::GYLA)
             {
-                object->YLAEvents = new YLAEventProcessor(YLA::GALE->GetSelfRef(), YLA::OwningRef(YLA::GALE), object);
+                object->YLAEvents = new YLAEventProcessor(YLA::GYLA->GetSelfRef(), YLA::OwningRef(YLA::GYLA), object);
             }
             else
             {
@@ -1197,7 +1197,7 @@ public:
 
     void OnOpenStateChange(bool open) override
     {
-        gALE->OnOpenStateChange(open);
+        gYLA->OnOpenStateChange(open);
     }
 
     void OnBeforeConfigLoad(bool reload) override
@@ -1210,37 +1210,37 @@ public:
             YLA::Initialize();
         }
 
-        gALE->OnConfigLoad(reload, true);
+        gYLA->OnConfigLoad(reload, true);
     }
 
     void OnAfterConfigLoad(bool reload) override
     {
-        gALE->OnConfigLoad(reload, false);
+        gYLA->OnConfigLoad(reload, false);
     }
 
     void OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask) override
     {
-        gALE->OnShutdownInitiate(code, mask);
+        gYLA->OnShutdownInitiate(code, mask);
     }
 
     void OnShutdownCancel() override
     {
-        gALE->OnShutdownCancel();
+        gYLA->OnShutdownCancel();
     }
 
     void OnUpdate(uint32 diff) override
     {
-        gALE->OnWorldUpdate(diff);
+        gYLA->OnWorldUpdate(diff);
     }
 
     void OnStartup() override
     {
-        gALE->OnStartup();
+        gYLA->OnStartup();
     }
 
     void OnShutdown() override
     {
-        gALE->OnShutdown();
+        gYLA->OnShutdown();
     }
 
     void OnAfterUnloadAllMaps() override
@@ -1252,9 +1252,9 @@ public:
     {
         ///- Run YLA scripts.
         // in multithread foreach: run scripts
-        gALE->RunScripts();
+        gYLA->RunScripts();
         YLA::RunScriptsOnAllMapStates();
-        gALE->OnConfigLoad(false, false); // Must be done after YLA is initialized and scripts have run.
+        gYLA->OnConfigLoad(false, false); // Must be done after YLA is initialized and scripts have run.
     }
 };
 
@@ -1270,22 +1270,22 @@ public:
 
     void OnTicketCreate(GmTicket* ticket) override
     {
-        gALE->OnTicketCreate(ticket);
+        gYLA->OnTicketCreate(ticket);
     }
 
     void OnTicketUpdateLastChange(GmTicket* ticket) override
     {
-        gALE->OnTicketUpdateLastChange(ticket);
+        gYLA->OnTicketUpdateLastChange(ticket);
     }
 
     void OnTicketClose(GmTicket* ticket) override
     {
-        gALE->OnTicketClose(ticket);
+        gYLA->OnTicketClose(ticket);
     }
 
     void OnTicketResolve(GmTicket* ticket) override
     {
-        gALE->OnTicketResolve(ticket);
+        gYLA->OnTicketResolve(ticket);
     }
 };
 

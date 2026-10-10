@@ -19,7 +19,7 @@ using namespace Hooks;
     auto key = EventKey<ServerEvents>(EVENT);\
     if (!ServerEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE;\
+    LOCK_YLA;\
     /* WORLD dispatch runs Lua on this state: hold its lock too
        (global -> state order). In multistate the global lock alone
        does not serialize against map threads on the same L. */\
@@ -31,7 +31,7 @@ using namespace Hooks;
     auto key = EntryKey<PacketEvents>(EVENT, OPCODE);\
     if (!PacketEventBindings->HasBindingsFor(key))\
         return;\
-    LOCK_ALE;\
+    LOCK_YLA;\
     /* WORLD dispatch runs Lua on this state: hold its lock too
        (global -> state order). In multistate the global lock alone
        does not serialize against map threads on the same L. */\
