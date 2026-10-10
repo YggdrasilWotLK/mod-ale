@@ -13,25 +13,29 @@
 
 using namespace Hooks;
 
-#define START_HOOK(EVENT, CREATURE) \
+#define START_HOOK(EVENT, CREATURE)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
+        return;\
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
         return;\
     auto entry_key = EntryKey<CreatureEvents>(EVENT, CREATURE->GetEntry());\
     auto unique_key = UniqueObjectKey<CreatureEvents>(EVENT, CREATURE->GET_GUID(), CREATURE->GetInstanceId());\
-    if (!CreatureEventBindings->HasBindingsFor(entry_key))\
-        if (!CreatureUniqueBindings->HasBindingsFor(unique_key))\
-            return;\
-    LOCK_YLA_STATE
+    if ((!CreatureEventBindings || !CreatureEventBindings->HasBindingsFor(entry_key)))\
+        if ((!CreatureUniqueBindings || !CreatureUniqueBindings->HasBindingsFor(unique_key)))\
+            return;
 
-#define START_HOOK_WITH_RETVAL(EVENT, CREATURE, RETVAL) \
+#define START_HOOK_WITH_RETVAL(EVENT, CREATURE, RETVAL)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
+        return RETVAL;\
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
         return RETVAL;\
     auto entry_key = EntryKey<CreatureEvents>(EVENT, CREATURE->GetEntry());\
     auto unique_key = UniqueObjectKey<CreatureEvents>(EVENT, CREATURE->GET_GUID(), CREATURE->GetInstanceId());\
-    if (!CreatureEventBindings->HasBindingsFor(entry_key))\
-        if (!CreatureUniqueBindings->HasBindingsFor(unique_key))\
-            return RETVAL;\
-    LOCK_YLA_STATE
+    if ((!CreatureEventBindings || !CreatureEventBindings->HasBindingsFor(entry_key)))\
+        if ((!CreatureUniqueBindings || !CreatureUniqueBindings->HasBindingsFor(unique_key)))\
+            return RETVAL;
 
 void YLA::OnDummyEffect(WorldObject* pCaster, uint32 spellId, SpellEffIndex effIndex, Creature* pTarget)
 {

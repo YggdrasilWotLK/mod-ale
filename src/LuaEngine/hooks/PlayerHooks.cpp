@@ -13,45 +13,49 @@
 
 using namespace Hooks;
 
-#define START_HOOK_WORLD(EVENT) \
+#define START_HOOK_WORLD(EVENT)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
-        return;\
-    auto key = EventKey<PlayerEvents>(EVENT);\
-    if (!PlayerEventBindings->HasBindingsFor(key))\
         return;\
     LOCK_YLA;\
-    /* WORLD dispatch runs Lua on this state: hold its lock too
-       (global -> state order). In multistate the global lock alone
-       does not serialize against map threads on the same L. */\
-    YLA::Guard __yla_world_state_guard(this->GetStateLock());
-
-#define START_HOOK_WORLD_WITH_RETVAL(EVENT, RETVAL) \
-    if (!YLAConfig::GetInstance().IsALEEnabled())\
-        return RETVAL;\
+    /* WORLD dispatch runs Lua on this state: hold its lock too. */\
+    YLA::Guard __yla_world_state_guard(this->GetStateLock());\
+    if (!YLA::IsInitialized())\
+        return;\
     auto key = EventKey<PlayerEvents>(EVENT);\
-    if (!PlayerEventBindings->HasBindingsFor(key))\
+    if ((!PlayerEventBindings || !PlayerEventBindings->HasBindingsFor(key)))\
+        return;
+
+#define START_HOOK_WORLD_WITH_RETVAL(EVENT, RETVAL)\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return RETVAL;\
     LOCK_YLA;\
-    /* WORLD dispatch runs Lua on this state: hold its lock too
-       (global -> state order). In multistate the global lock alone
-       does not serialize against map threads on the same L. */\
-    YLA::Guard __yla_world_state_guard(this->GetStateLock());
-
-#define START_HOOK_MAP(EVENT) \
-    if (!YLAConfig::GetInstance().IsALEEnabled())\
-        return;\
-    auto key = EventKey<PlayerEvents>(EVENT);\
-    if (!PlayerEventBindings->HasBindingsFor(key))\
-        return;\
-    LOCK_YLA_STATE
-
-#define START_HOOK_MAP_WITH_RETVAL(EVENT, RETVAL) \
-    if (!YLAConfig::GetInstance().IsALEEnabled())\
+    /* WORLD dispatch runs Lua on this state: hold its lock too. */\
+    YLA::Guard __yla_world_state_guard(this->GetStateLock());\
+    if (!YLA::IsInitialized())\
         return RETVAL;\
     auto key = EventKey<PlayerEvents>(EVENT);\
-    if (!PlayerEventBindings->HasBindingsFor(key))\
+    if ((!PlayerEventBindings || !PlayerEventBindings->HasBindingsFor(key)))\
+        return RETVAL;
+
+#define START_HOOK_MAP(EVENT)\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
+        return;\
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
+        return;\
+    auto key = EventKey<PlayerEvents>(EVENT);\
+    if ((!PlayerEventBindings || !PlayerEventBindings->HasBindingsFor(key)))\
+        return;
+
+#define START_HOOK_MAP_WITH_RETVAL(EVENT, RETVAL)\
+    if (!YLAConfig::GetInstance().IsALEEnabled())\
         return RETVAL;\
-    LOCK_YLA_STATE
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
+        return RETVAL;\
+    auto key = EventKey<PlayerEvents>(EVENT);\
+    if ((!PlayerEventBindings || !PlayerEventBindings->HasBindingsFor(key)))\
+        return RETVAL;
 
 // MAP
 void YLA::OnLearnTalents(Player* pPlayer, uint32 talentId, uint32 talentRank, uint32 spellid)

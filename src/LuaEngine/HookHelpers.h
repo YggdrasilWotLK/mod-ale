@@ -29,7 +29,12 @@ int YLA::SetupStack(BindingMap<K1>* bindings1, BindingMap<K2>* bindings2, const 
 
     int arguments_top = lua_gettop(L);
     int first_argument_index = arguments_top - number_of_arguments + 1;
-    ASSERT(arguments_top >= number_of_arguments);
+    if (arguments_top < number_of_arguments)
+    {
+        YLA_LOG_ERROR("[YLA]: SetupStack underflow: need {} have {}. Skipping event.", number_of_arguments, arguments_top);
+        CleanUpStack(0);
+        return 0;
+    }
 
     lua_insert(L, first_argument_index);
     // Stack: event_id, [arguments]

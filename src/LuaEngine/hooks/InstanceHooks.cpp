@@ -14,25 +14,29 @@
 
 using namespace Hooks;
 
-#define START_HOOK(EVENT, AI) \
+#define START_HOOK(EVENT, AI)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
+        return;\
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
         return;\
     auto mapKey = EntryKey<InstanceEvents>(EVENT, AI->instance->GetId());\
     auto instanceKey = EntryKey<InstanceEvents>(EVENT, AI->instance->GetInstanceId());\
-    if (!MapEventBindings->HasBindingsFor(mapKey) && !InstanceEventBindings->HasBindingsFor(instanceKey))\
+    if ((!MapEventBindings || !MapEventBindings->HasBindingsFor(mapKey)) && (!InstanceEventBindings || !InstanceEventBindings->HasBindingsFor(instanceKey)))\
         return;\
-    LOCK_YLA_STATE;\
     PushInstanceData(L, AI);\
     Push(AI->instance)
 
-#define START_HOOK_WITH_RETVAL(EVENT, AI, RETVAL) \
+#define START_HOOK_WITH_RETVAL(EVENT, AI, RETVAL)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
+        return RETVAL;\
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
         return RETVAL;\
     auto mapKey = EntryKey<InstanceEvents>(EVENT, AI->instance->GetId());\
     auto instanceKey = EntryKey<InstanceEvents>(EVENT, AI->instance->GetInstanceId());\
-    if (!MapEventBindings->HasBindingsFor(mapKey) && !InstanceEventBindings->HasBindingsFor(instanceKey))\
+    if ((!MapEventBindings || !MapEventBindings->HasBindingsFor(mapKey)) && (!InstanceEventBindings || !InstanceEventBindings->HasBindingsFor(instanceKey)))\
         return RETVAL;\
-    LOCK_YLA_STATE;\
     PushInstanceData(L, AI);\
     Push(AI->instance)
 

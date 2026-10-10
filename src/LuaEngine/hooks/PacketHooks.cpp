@@ -13,29 +13,29 @@
 
 using namespace Hooks;
 
-#define START_HOOK_SERVER(EVENT) \
+#define START_HOOK_SERVER(EVENT)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
+        return;\
+    LOCK_YLA;\
+    /* WORLD dispatch runs Lua on this state: hold its lock too. */\
+    YLA::Guard __yla_world_state_guard(this->GetStateLock());\
+    if (!YLA::IsInitialized())\
         return;\
     auto key = EventKey<ServerEvents>(EVENT);\
-    if (!ServerEventBindings->HasBindingsFor(key))\
-        return;\
-    LOCK_YLA;\
-    /* WORLD dispatch runs Lua on this state: hold its lock too
-       (global -> state order). In multistate the global lock alone
-       does not serialize against map threads on the same L. */\
-    YLA::Guard __yla_world_state_guard(this->GetStateLock());
+    if ((!ServerEventBindings || !ServerEventBindings->HasBindingsFor(key)))\
+        return;
 
-#define START_HOOK_PACKET(EVENT, OPCODE) \
+#define START_HOOK_PACKET(EVENT, OPCODE)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
-    auto key = EntryKey<PacketEvents>(EVENT, OPCODE);\
-    if (!PacketEventBindings->HasBindingsFor(key))\
-        return;\
     LOCK_YLA;\
-    /* WORLD dispatch runs Lua on this state: hold its lock too
-       (global -> state order). In multistate the global lock alone
-       does not serialize against map threads on the same L. */\
-    YLA::Guard __yla_world_state_guard(this->GetStateLock());
+    /* WORLD dispatch runs Lua on this state: hold its lock too. */\
+    YLA::Guard __yla_world_state_guard(this->GetStateLock());\
+    if (!YLA::IsInitialized())\
+        return;\
+    auto key = EntryKey<PacketEvents>(EVENT, OPCODE);\
+    if ((!PacketEventBindings || !PacketEventBindings->HasBindingsFor(key)))\
+        return;
 
 bool YLA::OnPacketSend(WorldSession* session, const WorldPacket& packet)
 {

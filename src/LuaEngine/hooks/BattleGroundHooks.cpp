@@ -12,13 +12,15 @@
 
 using namespace Hooks;
 
-#define START_HOOK(EVENT) \
+#define START_HOOK(EVENT)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
-    auto key = EventKey<BGEvents>(EVENT);\
-    if (!BGEventBindings->HasBindingsFor(key))\
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
         return;\
-    LOCK_YLA_STATE
+    auto key = EventKey<BGEvents>(EVENT);\
+    if ((!BGEventBindings || !BGEventBindings->HasBindingsFor(key)))\
+        return;
 
 void YLA::OnBGStart(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId)
 {

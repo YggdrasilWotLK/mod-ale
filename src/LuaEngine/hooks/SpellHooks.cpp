@@ -13,21 +13,25 @@
 
 using namespace Hooks;
 
-#define START_HOOK(EVENT, ENTRY) \
+#define START_HOOK(EVENT, ENTRY)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
-    auto key = EntryKey<SpellEvents>(EVENT, ENTRY);\
-    if (!SpellEventBindings->HasBindingsFor(key))\
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
         return;\
-    LOCK_YLA_STATE
+    auto key = EntryKey<SpellEvents>(EVENT, ENTRY);\
+    if ((!SpellEventBindings || !SpellEventBindings->HasBindingsFor(key)))\
+        return;
 
-#define START_HOOK_WITH_RETVAL(EVENT, ENTRY, RETVAL) \
+#define START_HOOK_WITH_RETVAL(EVENT, ENTRY, RETVAL)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
         return RETVAL;\
-    auto key = EntryKey<SpellEvents>(EVENT, ENTRY);\
-    if (!SpellEventBindings->HasBindingsFor(key))\
+    LOCK_YLA_STATE;\
+    if (!YLA::IsInitialized())\
         return RETVAL;\
-    LOCK_YLA_STATE
+    auto key = EntryKey<SpellEvents>(EVENT, ENTRY);\
+    if ((!SpellEventBindings || !SpellEventBindings->HasBindingsFor(key)))\
+        return RETVAL;
 
 void YLA::OnSpellCastCancel(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bool bySelf)
 {

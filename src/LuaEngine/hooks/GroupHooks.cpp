@@ -12,17 +12,17 @@
 
 using namespace Hooks;
 
-#define START_HOOK(EVENT) \
+#define START_HOOK(EVENT)\
     if (!YLAConfig::GetInstance().IsALEEnabled())\
         return;\
-    auto key = EventKey<GroupEvents>(EVENT);\
-    if (!GroupEventBindings->HasBindingsFor(key))\
-        return;\
     LOCK_YLA;\
-    /* WORLD dispatch runs Lua on this state: hold its lock too
-       (global -> state order). In multistate the global lock alone
-       does not serialize against map threads on the same L. */\
-    YLA::Guard __yla_world_state_guard(this->GetStateLock());
+    /* WORLD dispatch runs Lua on this state: hold its lock too. */\
+    YLA::Guard __yla_world_state_guard(this->GetStateLock());\
+    if (!YLA::IsInitialized())\
+        return;\
+    auto key = EventKey<GroupEvents>(EVENT);\
+    if ((!GroupEventBindings || !GroupEventBindings->HasBindingsFor(key)))\
+        return;
 
 void YLA::OnAddMember(Group* group, ObjectGuid guid)
 {
