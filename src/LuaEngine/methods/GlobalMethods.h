@@ -1433,7 +1433,9 @@ namespace LuaGlobalFunctions
         uint64 gen = E->luaGen.load(std::memory_order_acquire);
         {
             std::lock_guard<std::recursive_mutex> qguard(E->queryMutex);
-            E->queryProcessor.AddCallback(db.AsyncQuery(query).WithCallback([funcRef, owner, gen](QueryResult result)
+            try
+            {
+                E->queryProcessor.AddCallback(db.AsyncQuery(query).WithCallback([funcRef, owner, gen](QueryResult result)
             {
                 ALEQuery* eq = result ? new ALEQuery(result) : nullptr;
 
@@ -1456,8 +1458,10 @@ namespace LuaGlobalFunctions
                 // Global -> state order (LOCK_YLA held, state taken here);
                 // the world drain holds the same nesting, never the reverse.
                 YLA::Guard stateGuard(state->GetStateLock());
-                if (!state->HasLuaState())
+                if (state->luaGen.load(std::memory_order_acquire) != gen || !state->HasLuaState())
                 {
+                    // Recycled after the pre-lock check: same balance, then drop.
+                    state->DecrementCallbacks();
                     delete eq;
                     return;
                 }
@@ -1477,6 +1481,16 @@ namespace LuaGlobalFunctions
                 // Decrement pending callbacks counter
                 state->DecrementCallbacks();
             }));
+            }
+            catch (...)
+            {
+                // Publish failed after the increment: balance it so a throw
+                // between IncrementCallbacks and AddCallback cannot wedge
+                // reloads, then report through Lua.
+                E->DecrementCallbacks();
+                luaL_error(L, "failed to schedule async query");
+                return 0;
+            }
         }
 
         return 0;

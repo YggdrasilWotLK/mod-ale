@@ -542,6 +542,7 @@ void YLA::DestroyBindStores()
     delete InstanceEventBindings;
     delete SpellEventBindings;
     delete AuraEventBindings;
+    delete TicketEventBindings;
 
     delete CreatureUniqueBindings;
 
@@ -565,6 +566,7 @@ void YLA::DestroyBindStores()
     InstanceEventBindings = NULL;
     SpellEventBindings = NULL;
     AuraEventBindings = NULL;
+    TicketEventBindings = NULL;
 
     CreatureUniqueBindings = NULL;
 }
