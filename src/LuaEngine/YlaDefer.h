@@ -21,11 +21,19 @@ class YlaDefer
 {
 public:
     // False = bad destination. Same-map runs inline, cross-map is queued.
-    static bool Teleport(Player* player, uint32 mapId, float x, float y, float z, float o)
+    // Inline only on the victim's exact map instance: same mapId on another
+    // instance is a different Map with its own worker thread. Callers pass
+    // their state's identity; unknown callers (global/world scripts) keep
+    // the legacy mapId comparison.
+    static bool Teleport(Player* player, uint32 mapId, float x, float y, float z, float o,
+        uint32 callerMapId = (uint32)-1, uint32 callerInstanceId = 0)
     {
         if (!player)
             return false;
-        if (player->GetMapId() == mapId && !player->IsBeingTeleportedFar())
+        bool sameInstance = (callerMapId != (uint32)-1)
+            ? (callerMapId == player->GetMapId() && callerInstanceId == player->GetInstanceId())
+            : true;
+        if (sameInstance && player->GetMapId() == mapId && !player->IsBeingTeleportedFar())
             return player->TeleportTo(mapId, x, y, z, o);
         if (!MapMgr::IsValidMapCoord(mapId, x, y, z, o))
             return false;

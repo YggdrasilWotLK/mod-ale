@@ -395,8 +395,15 @@ public:
                 return fail("pointer to stale (relogged) object");
             return live;
         }
-        YlaAlive::Guard guard{ YlaAlive::Mutex() };
-        if (!YlaAlive::MatchesLocked(guid, static_cast<WorldObject*>(raw)))
+        // Snapshot under the lock, validate outside it: fail() longjmps
+        // past C++ dtors, which would otherwise leave the mutex locked
+        // forever for every other thread.
+        bool alive;
+        {
+            YlaAlive::Guard guard{ YlaAlive::Mutex() };
+            alive = YlaAlive::MatchesLocked(guid, static_cast<WorldObject*>(raw));
+        }
+        if (!alive)
             return fail("pointer to destroyed (logged out) object");
         return raw;
     }

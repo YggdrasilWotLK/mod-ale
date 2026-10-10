@@ -1,6 +1,7 @@
 #ifndef YLA_HTTP_MANAGER_H
 #define YLA_HTTP_MANAGER_H
 
+#include <deque>
 #include <regex>
 
 #include "YLAEventMgr.h"
@@ -56,12 +57,28 @@ public:
 
 private:
     void ClearQueues();
+    // Caller must hold queueMutex. Moves overflow back while it fits.
+    void RefillQueues();
+    // Caller must hold queueMutex. Enqueues, overflowing on full.
+    void EnqueueRequest(HttpWorkItem* item);
+    void EnqueueResponse(HttpResponse* res);
+    // Caller must hold queueMutex. Delivers transport-level failures to
+    // Lua (status 0) so the funcRef is unref'd by the normal drain
+    // instead of leaking per failed request.
+    void FailRequest(HttpWorkItem* req);
     void HttpWorkerThread();
     bool ParseUrl(const std::string& url, std::string& host, std::string& path);
     httplib::Result DoRequest(httplib::Client& client, HttpWorkItem* req, const std::string& path);
 
     rigtorp::SPSCQueue<HttpWorkItem*> workQueue;
     rigtorp::SPSCQueue<HttpResponse*> responseQueue;
+    // Overflow when the fixed queues are full. Pushes must never block
+    // while holding queueMutex (the drainer needs it to free slots), so
+    // excess waits here and is moved back in RefillQueues. Capped; beyond
+    // the cap the oldest entry is dropped with an error log.
+    std::deque<HttpWorkItem*> overflowRequests;
+    std::deque<HttpResponse*> overflowResponses;
+    static constexpr size_t MaxOverflow = 1024;
     std::thread workerThread;
     bool startedWorkerThread;
     std::atomic_bool cancelationToken;

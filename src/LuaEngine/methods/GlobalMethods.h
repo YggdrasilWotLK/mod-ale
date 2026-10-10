@@ -1433,7 +1433,9 @@ namespace LuaGlobalFunctions
         uint64 gen = E->luaGen.load(std::memory_order_acquire);
         {
             std::lock_guard<std::recursive_mutex> qguard(E->queryMutex);
-            E->queryProcessor.AddCallback(db.AsyncQuery(query).WithCallback([funcRef, owner, gen](QueryResult result)
+            try
+            {
+                E->queryProcessor.AddCallback(db.AsyncQuery(query).WithCallback([funcRef, owner, gen](QueryResult result)
             {
                 ALEQuery* eq = result ? new ALEQuery(result) : nullptr;
 
@@ -1456,8 +1458,10 @@ namespace LuaGlobalFunctions
                 // Global -> state order (LOCK_YLA held, state taken here);
                 // the world drain holds the same nesting, never the reverse.
                 YLA::Guard stateGuard(state->GetStateLock());
-                if (!state->HasLuaState())
+                if (state->luaGen.load(std::memory_order_acquire) != gen || !state->HasLuaState())
                 {
+                    // Recycled after the pre-lock check: same balance, then drop.
+                    state->DecrementCallbacks();
                     delete eq;
                     return;
                 }
@@ -1477,6 +1481,16 @@ namespace LuaGlobalFunctions
                 // Decrement pending callbacks counter
                 state->DecrementCallbacks();
             }));
+            }
+            catch (...)
+            {
+                // Publish failed after the increment: balance it so a throw
+                // between IncrementCallbacks and AddCallback cannot wedge
+                // reloads, then report through Lua.
+                E->DecrementCallbacks();
+                luaL_error(L, "failed to schedule async query");
+                return 0;
+            }
         }
 
         return 0;
@@ -3414,7 +3428,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
 
-            YLA* E = YLA::GetALE(L);
+            YLA* E = YLA::GetYLA(L);
             for (uint32 i = 1; i < Hooks::AURA_EVENT_COUNT; ++i)
                 E->AuraEventBindings->Clear(Key((Hooks::AuraEvents)i, entry));
         }
@@ -3422,7 +3436,7 @@ namespace LuaGlobalFunctions
         {
             uint32 entry = YLA::CHECKVAL<uint32>(L, 1);
             uint32 event_type = YLA::CHECKVAL<uint32>(L, 2);
-            YLA::GetALE(L)->AuraEventBindings->Clear(Key((Hooks::AuraEvents)event_type, entry));
+            YLA::GetYLA(L)->AuraEventBindings->Clear(Key((Hooks::AuraEvents)event_type, entry));
         }
         return 0;
     }
